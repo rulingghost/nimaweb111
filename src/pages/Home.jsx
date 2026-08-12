@@ -8,7 +8,6 @@ import {
 import Hero from '../components/Hero';
 import SectorExplorer from '../components/SectorExplorer';
 import AnimatedCounter from '../components/AnimatedCounter';
-import RoiCalculator from '../components/RoiCalculator';
 import GlobalOfficesMap from '../components/GlobalOfficesMap';
 import { sectors, companyInfo, mainHeroImg, projectAnalyticsImg } from '../data/sectors';
 import './Home.css';
@@ -200,9 +199,6 @@ export default function Home({ onOpenProposal }) {
       <SectorExplorer 
         onOpenProposal={onOpenProposal} 
       />
-
-      {/* Interactive Project ROI Estimator Calculator */}
-      <RoiCalculator onOpenProposal={onOpenProposal} />
 
       {/* Visual Project Highlights Showcase with Search & Filter */}
       <section className="section bg-secondary">

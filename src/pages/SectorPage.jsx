@@ -229,9 +229,6 @@ export default function SectorPage({ onOpenProposal }) {
         </div>
       </section>
 
-      {/* Render Partners */}
-      <PartnerList partners={sector.partners} color={sector.color} />
-
       {/* Bottom CTA Card */}
       <section className="section bg-main">
         <div className="container" style={{ textAlign: 'center', maxWidth: '800px' }}>

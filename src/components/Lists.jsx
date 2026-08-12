@@ -1,25 +1,7 @@
 import './Lists.css';
 
 export function PartnerList({ partners, color }) {
-  if (!partners || partners.length === 0) return null;
-
-  return (
-    <section className="section bg-subtle" id="is-ortaklari">
-      <div className="container">
-        <h2 className="section-title" style={{ color }}>İş Ortakları</h2>
-        <p className="section-subtitle">Gücümüzü paylaştığımız değerli iş ortaklarımız.</p>
-        
-        <div className="partner-grid">
-          {partners.map(partner => (
-            <div key={partner.id} className="partner-card glass-panel">
-              <img src={partner.logo} alt={partner.name} className="partner-logo" />
-              <p className="partner-name">{partner.name}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+  return null;
 }
 
 export function ReferenceList({ references, color }) {
