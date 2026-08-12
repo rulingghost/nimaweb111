@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, CheckCircle2, Sparkles, ExternalLink, Eye } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Sparkles } from 'lucide-react';
 import { sectors } from '../data/sectors';
 import './SectorExplorer.css';
 
-export default function SectorExplorer({ onOpenProposal, onPreviewImage }) {
+export default function SectorExplorer({ onOpenProposal }) {
   const [activeId, setActiveId] = useState(sectors[0].id);
 
   const activeSector = sectors.find(s => s.id === activeId) || sectors[0];
@@ -104,16 +104,8 @@ export default function SectorExplorer({ onOpenProposal, onPreviewImage }) {
 
               {/* Right Column - Visual Card Showcase */}
               <div className="explorer-visual">
-                <div 
-                  className="visual-image-wrapper"
-                  onClick={() => onPreviewImage(activeSector.heroImage, activeSector.name, activeSector.description)}
-                >
+                <div className="visual-image-wrapper">
                   <img src={activeSector.heroImage} alt={activeSector.name} />
-                  <div className="visual-overlay">
-                    <div className="preview-btn">
-                      <Eye size={20} /> Görseli Büyüt
-                    </div>
-                  </div>
                 </div>
 
                 {/* Featured Reference Preview */}

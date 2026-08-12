@@ -8,18 +8,10 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import ScrollProgress from './components/ScrollProgress';
 import InteractiveInquiryModal from './components/InteractiveInquiryModal';
-import ImageLightbox from './components/ImageLightbox';
 
 function App() {
   const [isProposalOpen, setIsProposalOpen] = useState(false);
   const [proposalSectorId, setProposalSectorId] = useState('');
-  
-  const [lightboxData, setLightboxData] = useState({
-    isOpen: false,
-    image: '',
-    title: '',
-    description: ''
-  });
 
   const handleOpenProposal = (sectorId = '') => {
     setProposalSectorId(sectorId);
@@ -28,19 +20,6 @@ function App() {
 
   const handleCloseProposal = () => {
     setIsProposalOpen(false);
-  };
-
-  const handlePreviewImage = (image, title, description) => {
-    setLightboxData({
-      isOpen: true,
-      image,
-      title,
-      description
-    });
-  };
-
-  const handleCloseLightbox = () => {
-    setLightboxData(prev => ({ ...prev, isOpen: false }));
   };
 
   return (
@@ -60,7 +39,6 @@ function App() {
               element={
                 <Home 
                   onOpenProposal={handleOpenProposal} 
-                  onPreviewImage={handlePreviewImage} 
                 />
               } 
             />
@@ -81,7 +59,6 @@ function App() {
               element={
                 <SectorPage 
                   onOpenProposal={handleOpenProposal} 
-                  onPreviewImage={handlePreviewImage} 
                 />
               } 
             />
@@ -97,16 +74,6 @@ function App() {
           onClose={handleCloseProposal}
           defaultSectorId={proposalSectorId}
         />
-
-        {/* Fullscreen Image Lightbox Modal */}
-        {lightboxData.isOpen && (
-          <ImageLightbox 
-            image={lightboxData.image}
-            title={lightboxData.title}
-            description={lightboxData.description}
-            onClose={handleCloseLightbox}
-          />
-        )}
       </div>
     </Router>
   );

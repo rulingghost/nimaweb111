@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   ArrowUpRight, TrendingUp, Users, Award, ShieldCheck, 
-  ChevronDown, CheckCircle2, Star, Eye, Sparkles, MessageSquarePlus, Search 
+  ChevronDown, CheckCircle2, Star, Sparkles, MessageSquarePlus, Search 
 } from 'lucide-react';
 import Hero from '../components/Hero';
 import SectorExplorer from '../components/SectorExplorer';
@@ -13,7 +13,7 @@ import GlobalOfficesMap from '../components/GlobalOfficesMap';
 import { sectors, companyInfo, mainHeroImg, projectAnalyticsImg } from '../data/sectors';
 import './Home.css';
 
-export default function Home({ onOpenProposal, onPreviewImage }) {
+export default function Home({ onOpenProposal }) {
   const [openFaq, setOpenFaq] = useState(0);
   const [projectSearch, setProjectSearch] = useState('');
   const [selectedFilterSector, setSelectedFilterSector] = useState('all');
@@ -64,7 +64,6 @@ export default function Home({ onOpenProposal, onPreviewImage }) {
     }
   ];
 
-  // Filter projects by search and sector
   const filteredSectors = sectors.filter(s => {
     const matchesSector = selectedFilterSector === 'all' || s.id === selectedFilterSector;
     const matchesQuery = !projectSearch.trim() || 
@@ -200,7 +199,6 @@ export default function Home({ onOpenProposal, onPreviewImage }) {
       {/* Interactive Sector Explorer Tab Component */}
       <SectorExplorer 
         onOpenProposal={onOpenProposal} 
-        onPreviewImage={onPreviewImage} 
       />
 
       {/* Interactive Project ROI Estimator Calculator */}
@@ -211,7 +209,7 @@ export default function Home({ onOpenProposal, onPreviewImage }) {
         <div className="container">
           <div className="section-header center">
             <div className="badge-pill">
-              <Eye size={14} /> Başarı Hikayeleri & Portföy
+              <Sparkles size={14} /> Başarı Hikayeleri & Portföy
             </div>
             <h2 className="display-title">Öne Çıkan Projelerimiz</h2>
             <p className="display-subtitle">
@@ -258,14 +256,8 @@ export default function Home({ onOpenProposal, onPreviewImage }) {
                 whileHover={{ y: -8 }}
                 transition={{ duration: 0.3 }}
               >
-                <div 
-                  className="project-img-box"
-                  onClick={() => onPreviewImage(s.heroImage, s.references[0]?.name || s.name, s.references[0]?.description || s.description)}
-                >
+                <div className="project-img-box">
                   <img src={s.heroImage} alt={s.name} />
-                  <div className="project-img-overlay">
-                    <span className="zoom-chip"><Eye size={16} /> İncele</span>
-                  </div>
                   <span className="project-sector-tag" style={{ background: s.color }}>
                     {s.shortName}
                   </span>

@@ -2,14 +2,14 @@ import { useState } from 'react';
 import { useParams, Navigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
-  CheckCircle2, ArrowRight, Eye, Sparkles, MessageSquarePlus, 
+  CheckCircle2, ArrowRight, Sparkles, MessageSquarePlus, 
   ChevronDown, Award, TrendingUp, Layers, HelpCircle 
 } from 'lucide-react';
 import Hero from '../components/Hero';
 import { PartnerList, ReferenceList } from '../components/Lists';
 import { sectors } from '../data/sectors';
 
-export default function SectorPage({ onOpenProposal, onPreviewImage }) {
+export default function SectorPage({ onOpenProposal }) {
   const { sectorId } = useParams();
   const [activeTab, setActiveTab] = useState('overview');
   const [openFaq, setOpenFaq] = useState(0);
@@ -152,7 +152,7 @@ export default function SectorPage({ onOpenProposal, onPreviewImage }) {
             </motion.div>
           )}
 
-          {/* Tab 3: References & Visual Lightbox */}
+          {/* Tab 3: References */}
           {activeTab === 'references' && (
             <motion.div 
               initial={{ opacity: 0, y: 15 }}
@@ -167,14 +167,8 @@ export default function SectorPage({ onOpenProposal, onPreviewImage }) {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
                 {sector.references.map((ref) => (
                   <div key={ref.id} style={{ background: '#ffffff', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border-light)', overflow: 'hidden', boxShadow: 'var(--shadow-bento)' }}>
-                    <div 
-                      style={{ position: 'relative', height: '220px', cursor: 'pointer', overflow: 'hidden' }}
-                      onClick={() => onPreviewImage(sector.heroImage, ref.name, ref.description)}
-                    >
+                    <div style={{ position: 'relative', height: '220px', overflow: 'hidden' }}>
                       <img src={sector.heroImage} alt={ref.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      <div className="visual-overlay">
-                        <span className="preview-btn"><Eye size={18} /> Görseli Büyüt</span>
-                      </div>
                       {ref.metric && (
                         <span style={{ position: 'absolute', top: '1rem', right: '1rem', background: sector.color, color: '#ffffff', padding: '0.25rem 0.75rem', borderRadius: '100px', fontSize: '0.75rem', fontWeight: '700' }}>
                           {ref.metric}
