@@ -1,69 +1,232 @@
 .hero {
-  padding: 12rem 0 6rem;
-  background-color: var(--bg-main);
+  position: relative;
+  min-height: 88vh;
+  display: flex;
+  align-items: center;
+  padding: 8rem 0 5rem;
   overflow: hidden;
+  background-color: var(--bg-main);
+}
+
+.hero-bg-blobs {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.12;
+  animation: floatBlob 12s infinite alternate ease-in-out;
+}
+
+.blob-1 {
+  width: 500px;
+  height: 500px;
+  top: -100px;
+  right: -100px;
+}
+
+.blob-2 {
+  width: 400px;
+  height: 400px;
+  bottom: -100px;
+  left: -100px;
+  background: #F6C310;
+}
+
+@keyframes floatBlob {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(40px, 40px) scale(1.1); }
 }
 
 .hero-container {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1.1fr 0.9fr;
   gap: 4rem;
   align-items: center;
+  position: relative;
+  z-index: 2;
 }
 
-@media (min-width: 1024px) {
+@media (max-width: 992px) {
   .hero-container {
-    grid-template-columns: 1.2fr 0.8fr;
+    grid-template-columns: 1fr;
+    gap: 3rem;
   }
 }
 
-.hero-title {
-  font-size: clamp(3.5rem, 8vw, 7rem);
-  font-weight: 700;
-  line-height: 1.05;
-  letter-spacing: -0.04em;
-  margin-bottom: 2rem;
-  color: var(--text-main);
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1.1rem;
+  border-radius: 100px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
 }
 
-/* Allow partial coloring via span in dangerouslySetInnerHTML */
+.hero-title {
+  font-size: clamp(3rem, 6.5vw, 5.2rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  margin-bottom: 1.5rem;
+}
+
 .hero-title span {
-  color: var(--brand-primary);
+  background: linear-gradient(135deg, #D12F0E, #E97B1A, #F6C310);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .hero-subtitle {
-  font-size: clamp(1.125rem, 2vw, 1.5rem);
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
   color: var(--text-muted);
   line-height: 1.6;
-  max-width: 600px;
+  max-width: 620px;
+  margin-bottom: 2.5rem;
+}
+
+.hero-cta-group {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+}
+
+.hero-trust-bar {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-light);
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+}
+
+.trust-divider {
+  width: 1px;
+  height: 16px;
+  background: var(--border-light);
 }
 
 .hero-visual {
   position: relative;
-  width: 100%;
 }
 
 .hero-image-wrapper {
   position: relative;
   border-radius: var(--radius-xl);
   overflow: hidden;
-  aspect-ratio: 4/5;
-  box-shadow: var(--shadow-bento);
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-light);
 }
 
 .hero-image {
   width: 100%;
-  height: 100%;
+  height: 520px;
   object-fit: cover;
+  display: block;
+  transition: transform 0.7s ease;
 }
 
-/* Subtle brand color mix-blend overlay for premium feel */
+.hero-image-wrapper:hover .hero-image {
+  transform: scale(1.03);
+}
+
 .hero-image-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  mix-blend-mode: color;
-  opacity: 0.2;
+  inset: 0;
+  pointer-events: none;
+}
+
+.floating-glass-card {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  z-index: 10;
+}
+
+.card-1 {
+  top: 2rem;
+  left: -1.5rem;
+}
+
+.card-2 {
+  bottom: 2.5rem;
+  right: -1.5rem;
+}
+
+@media (max-width: 580px) {
+  .floating-glass-card {
+    display: none;
+  }
+}
+
+.glass-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #09090b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.glass-number {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #09090b;
+}
+
+.glass-text {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.hero-scroll-indicator {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translate(-50%, 0); }
+  40% { transform: translate(-50%, -10px); }
+  60% { transform: translate(-50%, -5px); }
 }

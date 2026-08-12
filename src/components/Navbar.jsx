@@ -1,16 +1,16 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ChevronDown } from 'lucide-react';
+import { Menu, X, ChevronDown, Sparkles, MessageSquarePlus } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { sectors } from '../data/sectors';
 import './Navbar.css';
 
-export default function Navbar() {
+export default function Navbar({ onOpenProposal }) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
+    const handleScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -22,6 +22,7 @@ export default function Navbar() {
       <header className={`navbar-wrapper ${scrolled ? 'scrolled' : ''}`}>
         <div className="navbar-inner">
           <Link to="/" className="navbar-brand">
+            <span className="brand-logo-mark">N</span>
             <span className="brand-text">NIMA GRUP.</span>
           </Link>
 
@@ -33,12 +34,21 @@ export default function Navbar() {
                 Sektörler <ChevronDown size={14} />
               </button>
               <div className="dropdown-menu">
-                {sectors.map((sector) => (
-                  <Link key={sector.id} to={sector.path} className="dropdown-item">
-                    <sector.icon size={16} style={{ color: sector.color }} />
-                    {sector.shortName}
-                  </Link>
-                ))}
+                <div className="dropdown-header">FAALİYET ALANLARIMIZ</div>
+                {sectors.map((sector) => {
+                  const SIcon = sector.icon;
+                  return (
+                    <Link key={sector.id} to={sector.path} className="dropdown-item">
+                      <div className="drop-icon" style={{ background: sector.lightColor, color: sector.color }}>
+                        <SIcon size={16} />
+                      </div>
+                      <div className="drop-info">
+                        <span className="drop-title">{sector.shortName}</span>
+                        <span className="drop-badge">{sector.badge}</span>
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
             
@@ -46,27 +56,48 @@ export default function Navbar() {
             <Link to="/iletisim" className={`nav-link ${location.pathname === '/iletisim' ? 'active' : ''}`}>İletişim</Link>
           </div>
 
-          <button className="mobile-toggle" onClick={() => setIsOpen(!isOpen)}>
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          <div className="nav-actions">
+            <button 
+              className="btn-modern btn-dark nav-proposal-btn"
+              onClick={() => onOpenProposal()}
+            >
+              <MessageSquarePlus size={16} />
+              <span>Teklif Al</span>
+            </button>
+
+            <button className="mobile-toggle" onClick={() => setIsOpen(!isOpen)} aria-label="Menü">
+              {isOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* Mobile Menu */}
+      {/* Mobile Drawer */}
       <div className={`mobile-menu ${isOpen ? 'open' : ''}`}>
         <div className="mobile-menu-inner">
           <Link to="/" className="mobile-nav-link">Ana Sayfa</Link>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <span className="mobile-nav-title">Sektörler</span>
-            {sectors.map((sector) => (
-              <Link key={sector.id} to={sector.path} className="mobile-nav-sublink">
-                <sector.icon size={18} style={{ color: sector.color }} />
-                {sector.name}
-              </Link>
-            ))}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <span className="mobile-nav-title">FAALİYET ALANLARI</span>
+            {sectors.map((sector) => {
+              const SIcon = sector.icon;
+              return (
+                <Link key={sector.id} to={sector.path} className="mobile-nav-sublink">
+                  <SIcon size={18} style={{ color: sector.color }} />
+                  <span>{sector.name}</span>
+                </Link>
+              );
+            })}
           </div>
           <Link to="/hakkimizda" className="mobile-nav-link">Şirket</Link>
           <Link to="/iletisim" className="mobile-nav-link">İletişim</Link>
+
+          <button 
+            className="btn-modern btn-dark" 
+            style={{ width: '100%', marginTop: '1rem' }}
+            onClick={() => { setIsOpen(false); onOpenProposal(); }}
+          >
+            Hızlı Proje Teklifi Al
+          </button>
         </div>
       </div>
     </>
