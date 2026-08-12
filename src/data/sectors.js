@@ -8,8 +8,19 @@ import consultingImg from '../assets/consulting_sector.png';
 import advertisingImg from '../assets/advertising_sector.png';
 import mainHeroImg from '../assets/nima_main_hero.png';
 import aboutHeroImg from '../assets/about_hero.png';
+import teamLeadershipImg from '../assets/team_leadership.png';
+import techLabImg from '../assets/tech_lab.png';
+import globalOfficesImg from '../assets/global_offices.png';
+import projectAnalyticsImg from '../assets/project_analytics.png';
 
-export { mainHeroImg, aboutHeroImg };
+export { 
+  mainHeroImg, 
+  aboutHeroImg, 
+  teamLeadershipImg, 
+  techLabImg, 
+  globalOfficesImg, 
+  projectAnalyticsImg 
+};
 
 export const sectors = [
   {
@@ -22,7 +33,7 @@ export const sectors = [
     description: 'Güvenilir ve ileri teknoloji telekomünikasyon altyapı tespit ve projelendirme hizmetleri. Fiber optik, 5G ve baz istasyonu alanlarında uçtan uca çözümler sunuyoruz.',
     heroImage: telecomImg,
     color: '#D12F0E',
-    lightColor: 'rgba(209, 47, 14, 0.1)',
+    lightColor: 'rgba(209, 47, 14, 0.12)',
     stats: [
       { label: 'Fiber Optik Hat', value: '12,500+ km' },
       { label: 'Tespit Edilen Saha', value: '4,200+' },
@@ -49,17 +60,14 @@ export const sectors = [
       { id: 3, name: 'Nokia', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Nokia_wordmark.svg/200px-Nokia_wordmark.svg.png' }
     ],
     references: [
-      { id: 1, name: 'Kuzey Marmara Fiber Ağı', description: 'Otoyol güzergahı boyunca 400km kesintisiz yüksek hızlı fiber optik hattının tespiti ve 3D projelendirilmesi.', metric: '400 km Hat' },
-      { id: 2, name: 'Akıllı Şehir Genişbant Projesi', description: 'Büyükşehir belediyesi bünyesinde 1500+ sensör noktası için kablosuz ve kablolu altyapı kurulumu.', metric: '1500+ Nokta' },
-      { id: 3, name: 'Ulusal 5G Baz İstasyonu Entegrasyonu', description: 'Türkiye genelinde 250+ kule noktasında sinyal ölçümü ve altyapı güçlendirme projesi.', metric: '250+ Kule' }
+      { id: 1, name: 'Kuzey Marmara Fiber Ağı', description: 'Otoyol güzergahı boyunca 400km kesintisiz yüksek hızlı fiber optik hattının tespiti ve 3D projelendirilmesi.', metric: '400 km Hat', status: 'Tamamlandı' },
+      { id: 2, name: 'Akıllı Şehir Genişbant Projesi', description: 'Büyükşehir belediyesi bünyesinde 1500+ sensör noktası için kablosuz ve kablolu altyapı kurulumu.', metric: '1500+ Nokta', status: 'Devam Ediyor' },
+      { id: 3, name: 'Ulusal 5G Baz İstasyonu Entegrasyonu', description: 'Türkiye genelinde 250+ kule noktasında sinyal ölçümü ve altyapı güçlendirme projesi.', metric: '250+ Kule', status: 'Tamamlandı' }
     ],
     faqs: [
       { q: 'Altyapı tespitinde hangi teknolojileri kullanıyorsunuz?', a: 'Yer altı radarları (GPR), yüksek çözünürlüklü lazer tarayıcılar (LiDAR) ve GIS tabanlı dijital haritalama sistemleri kullanıyoruz.' },
       { q: 'Projelerin teslim süresi ortalama ne kadardır?', a: 'Proje ölçeğine bağlı olarak küçük ve orta ölçekli saha tespitleri 1-3 hafta, büyükşehir altyapı projeleri 1-3 ay sürmektedir.' },
       { q: 'Çevre ve iş güvenliği sertifikalarınız var mı?', a: 'Evet, ISO 9001, ISO 45001 ve ISO 27001 sertifikalarına tam uyumlu çalışmaktayız.' }
-    ],
-    testimonials: [
-      { quote: 'NIMA Grup telekom ekibi, fiber projemizi öngörülen süreden 2 hafta önce ve hatasız tamamladı.', author: 'Mehmet Yılmaz', title: 'Altyapı Direktörü, Global Telecom' }
     ]
   },
   {
@@ -72,7 +80,7 @@ export const sectors = [
     description: 'Kurumsal iş süreçlerinizi dijitalleştiren, yenilikçi, yapay zeka destekli, son derece güvenli ve ölçeklenebilir özel yazılım sistemleri geliştiriyoruz.',
     heroImage: softwareImg,
     color: '#F6C310',
-    lightColor: 'rgba(246, 195, 16, 0.1)',
+    lightColor: 'rgba(246, 195, 16, 0.15)',
     stats: [
       { label: 'Aktif Kullanıcı', value: '1.2M+' },
       { label: 'Yazılım Projesi', value: '180+' },
@@ -95,19 +103,16 @@ export const sectors = [
     ],
     partners: [
       { id: 3, name: 'Microsoft', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Microsoft_logo_%282012%29.svg/200px-Microsoft_logo_%282012%29.svg.png' },
-      { id: 4, name: 'AWS', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Amazon_Web_Services_Logo.svg/200px-Amazon_Web_Services_Logo.svg.png' },
+      { id: 4, name: 'AWS', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Amazon_Web_Services_Logo.svg/200px-Amazon_Web_Services_Logo.svg.png' }
     ],
     references: [
-      { id: 3, name: 'Global Lojistik ERP Platformu', description: 'Uluslararası taşımacılık yapan firma için tüm operasyonları, filo takibini ve gümrüklemeyi yöneten bulut platform.', metric: '%40 Verimlilik' },
-      { id: 4, name: 'Fintech Mobil Cüzdan & Ödeme', description: '200.000+ aktif kullanıcısı olan, BDDK standartlarına tam uyumlu yüksek güvenlikli ödeme sistemi.', metric: '200K+ Kullanıcı' },
-      { id: 5, name: 'AI Destekli Satış Tahminleme', description: 'Perakende devi için anlık stok ve talep tahminlemesi yapan yapay zeka algoritması.', metric: '%95 Doğruluk' }
+      { id: 3, name: 'Global Lojistik ERP Platformu', description: 'Uluslararası taşımacılık yapan firma için tüm operasyonları, filo takibini ve gümrüklemeyi yöneten bulut platform.', metric: '%40 Verimlilik', status: 'Tamamlandı' },
+      { id: 4, name: 'Fintech Mobil Cüzdan & Ödeme', description: '200.000+ aktif kullanıcısı olan, BDDK standartlarına tam uyumlu yüksek güvenlikli ödeme sistemi.', metric: '200K+ Kullanıcı', status: 'Devam Ediyor' },
+      { id: 5, name: 'AI Destekli Satış Tahminleme', description: 'Perakende devi için anlık stok ve talep tahminlemesi yapan yapay zeka algoritması.', metric: '%95 Doğruluk', status: 'Tamamlandı' }
     ],
     faqs: [
       { q: 'Hangi yazılım dilleri ve teknolojileri tercih ediyorsunuz?', a: 'React, Node.js, Python, Go, Java, Flutter ve bulut teknolojilerinde (AWS/GCP/Azure) uzmanız.' },
       { q: 'Var olan eski sistemlerimizle entegrasyon sağlayabilir misiniz?', a: 'Evet, Legacy sistemlerinize özel REST/SOAP API adaptörleri yazarak veri kaybı olmadan dönüşüm sağlıyoruz.' }
-    ],
-    testimonials: [
-      { quote: 'NIMA Yazılım sayesinde şirket içi süreçlerimiz %40 hızlandı ve operasyon maliyetlerimiz düştü.', author: 'Caner Aksoy', title: 'CTO, Global Logistics' }
     ]
   },
   {
@@ -120,7 +125,7 @@ export const sectors = [
     description: 'Markanızı müşterilerinizin zihninde kalıcı kılacak, yüksek prestijli, özgün ve çevre dostu kurumsal hediye çözümleri tasarlıyoruz.',
     heroImage: promotionImg,
     color: '#E97B1A',
-    lightColor: 'rgba(233, 123, 26, 0.1)',
+    lightColor: 'rgba(233, 123, 26, 0.12)',
     stats: [
       { label: 'Üretilen Ürün', value: '2.5M+' },
       { label: 'Kurumsal Müşteri', value: '350+' },
@@ -130,7 +135,7 @@ export const sectors = [
     features: [
       'VIP Kurumsal Özel Tasarım Setler',
       'Teknolojik & Akıllı Promosyon Ürünleri',
-      'Çevre Dostu & Sürdürülebilir (Geri Dönüştürülmüş) Ürünler',
+      'Çevre Dostu & Sürdürülebilir Ürünler',
       'Özel Ambalaj ve Lazer/Baskı Kişiselleştirmesi',
       'Toplu Dağıtım ve Dünya Geneli Lojistik',
       'Fuar ve Lansman Özel Konsept Üretimi'
@@ -142,18 +147,15 @@ export const sectors = [
       { title: 'Özel Paketleme ve Dağıtım', desc: 'Kişiselleştirilmiş kutularda adreslerinize güvenle teslim ediyoruz.' }
     ],
     partners: [
-      { id: 4, name: 'Montblanc', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Montblanc_Logo.svg/200px-Montblanc_Logo.svg.png' },
+      { id: 4, name: 'Montblanc', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Montblanc_Logo.svg/200px-Montblanc_Logo.svg.png' }
     ],
     references: [
-      { id: 5, name: 'Uluslararası Banka Yılbaşı VIP Seti', description: '50.000 çalışan ve prestijli müşteri için özel tasarlanmış ahşap ve bambu konsept hediyeler.', metric: '50.000 Kutulama' },
-      { id: 6, name: 'Teknoloji Zirvesi Katılımcı Kitleri', description: '10.000 katılımcı için özel logolu powerbank, kablosuz kulaklık ve deri ajanda seti.', metric: '10.000 Set' }
+      { id: 5, name: 'Uluslararası Banka Yılbaşı VIP Seti', description: '50.000 çalışan ve prestijli müşteri için özel tasarlanmış ahşap ve bambu konsept hediyeler.', metric: '50.000 Kutulama', status: 'Tamamlandı' },
+      { id: 6, name: 'Teknoloji Zirvesi Katılımcı Kitleri', description: '10.000 katılımcı için özel logolu powerbank, kablosuz kulaklık ve deri ajanda seti.', metric: '10.000 Set', status: 'Tamamlandı' }
     ],
     faqs: [
       { q: 'Minimum sipariş adediniz (MOQ) ne kadardır?', a: 'Ürün tipine bağlı olarak standart ürünlerde 50 adet, tamamen özel üretimlerde 100 adetten başlamaktadır.' },
       { q: 'Çevre dostu sertifikalı ürünleriniz var mı?', a: 'Evet, FSC sertifikalı kağıt, bambu, dönüştürülmüş plastik ve organik pamuk ürün portföyümüz mevcuttur.' }
-    ],
-    testimonials: [
-      { quote: 'Kurumsal hediyelerimizde NIMA imzası müşterilerimizden olağanüstü geri dönüşler almamızı sağladı.', author: 'Zeynep Kaya', title: 'Pazarlama Direktörü, Finansbank' }
     ]
   },
   {
@@ -166,7 +168,7 @@ export const sectors = [
     description: 'Ekiplerinizin yetkinliklerini en üst seviyeye çıkaran, interaktif ve modern öğrenme metotlarıyla tasarlanmış profesyonel gelişim programları.',
     heroImage: educationImg,
     color: '#B7442E',
-    lightColor: 'rgba(183, 68, 46, 0.1)',
+    lightColor: 'rgba(183, 68, 46, 0.12)',
     stats: [
       { label: 'Eğitilen Çalışan', value: '45,000+' },
       { label: 'Eğitim Programı', value: '120+' },
@@ -188,17 +190,14 @@ export const sectors = [
       { title: 'Gelişim Takibi & Raporlama', desc: 'Eğitim sonrasında katılımcı gelişimini 3 ve 6 aylık periyotlarda ölçüyoruz.' }
     ],
     partners: [
-      { id: 5, name: 'Udemy Business', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Udemy_logo.svg/200px-Udemy_logo.svg.png' },
+      { id: 5, name: 'Udemy Business', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Udemy_logo.svg/200px-Udemy_logo.svg.png' }
     ],
     references: [
-      { id: 6, name: 'Yönetici Liderlik Akademi Serüveni', description: 'Perakende zincirinin 500 mağaza yöneticisine özel tasarlanan 6 aylık modüler liderlik okulu.', metric: '500 Lider' },
-      { id: 7, name: 'Agile Kurumsal Dönüşüm Programı', description: 'Telekom firmasının 1200 mühendisine çevik metodoloji ve proje yönetimi sertifikasyonu.', metric: '1200 Mühendis' }
+      { id: 6, name: 'Yönetici Liderlik Akademi Serüveni', description: 'Perakende zincirinin 500 mağaza yöneticisine özel tasarlanan 6 aylık modüler liderlik okulu.', metric: '500 Lider', status: 'Tamamlandı' },
+      { id: 7, name: 'Agile Kurumsal Dönüşüm Programı', description: 'Telekom firmasının 1200 mühendisine çevik metodoloji ve proje yönetimi sertifikasyonu.', metric: '1200 Mühendis', status: 'Tamamlandı' }
     ],
     faqs: [
       { q: 'Eğitimler yüz yüze mi yoksa online mı gerçekleşiyor?', a: 'İsteğe bağlı olarak yüz yüze hibrit sınıf ortamında veya etkileşimli dijital platformumuz üzerinden sunulmaktadır.' }
-    ],
-    testimonials: [
-      { quote: 'Liderlik programından sonra yöneticilerimizin bağlılığı ve performans metrikleri %35 arttı.', author: 'Ahmet Demir', title: 'CHRO, Retail Corp' }
     ]
   },
   {
@@ -211,11 +210,11 @@ export const sectors = [
     description: 'İşletmenizi küresel pazar dinamiklerine hazırlayan, operasyonel verimliliği artıran ve sürdürülebilir kârlılığı hedefleyen danışmanlık hizmetleri.',
     heroImage: consultingImg,
     color: '#F1D55A',
-    lightColor: 'rgba(241, 213, 90, 0.1)',
+    lightColor: 'rgba(241, 213, 90, 0.15)',
     stats: [
       { label: 'Yönetilen Bütçe', value: '$500M+' },
       { label: 'Dönüşüm Projesi', value: '95+' },
-      { label: 'Ortalama Maliyet Tasarrufu', value: '%28' },
+      { label: 'Ortalama Tasarruf', value: '%28' },
       { label: 'Sektörel Uzmanlık', value: '12 Sektör' }
     ],
     features: [
@@ -233,17 +232,14 @@ export const sectors = [
       { title: 'Sürekli Performans Denetimi', desc: 'Elde edilen kazanımların kalıcı olması için dönemsel denetimler yapıyoruz.' }
     ],
     partners: [
-      { id: 6, name: 'McKinsey', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/McKinsey_%26_Company_Logo.svg/200px-McKinsey_%26_Company_Logo.svg.png' },
+      { id: 6, name: 'McKinsey', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/McKinsey_%26_Company_Logo.svg/200px-McKinsey_%26_Company_Logo.svg.png' }
     ],
     references: [
-      { id: 8, name: 'KOBİ Sanayi Dönüşüm Projesi', description: 'Üretim sektöründeki köklü firmanın yalın üretim prensipleriyle operasyonel kapasitesinin %40 artırılması.', metric: '%40 Kapasite' },
-      { id: 9, name: 'Yurtdışı Pazara Açılım Stratejisi', description: 'Gıda markasının Avrupa ve Orta Doğu pazarında 14 ülkeye ihracat ağının kurulması.', metric: '14 Ülke' }
+      { id: 8, name: 'KOBİ Sanayi Dönüşüm Projesi', description: 'Üretim sektöründeki köklü firmanın yalın üretim prensipleriyle operasyonel kapasitesinin %40 artırılması.', metric: '%40 Kapasite', status: 'Tamamlandı' },
+      { id: 9, name: 'Yurtdışı Pazara Açılım Stratejisi', description: 'Gıda markasının Avrupa ve Orta Doğu pazarında 14 ülkeye ihracat ağının kurulması.', metric: '14 Ülke', status: 'Tamamlandı' }
     ],
     faqs: [
       { q: 'Danışmanlık sürecinde ne kadar süre şirkette bulunuyorsunuz?', a: 'Projelerin ihtiyacına göre tam zamanlı yerinde refakat veya haftalık stratejik koordinasyon toplantıları düzenliyoruz.' }
-    ],
-    testimonials: [
-      { quote: 'NIMA Danışmanlık ile 1 yıl içinde operasyonel israflarımızı engelledik ve kârlılığımızı ikiye katladık.', author: 'Emre Şahin', title: 'CEO, Sanayi A.Ş.' }
     ]
   },
   {
@@ -256,7 +252,7 @@ export const sectors = [
     description: 'Markanızı rakiplerinizden ayıran, hedef kitlenizle duygusal ve güçlü bağlar kuran, yüksek dönüşüm odaklı yaratıcı reklam kampanyaları.',
     heroImage: advertisingImg,
     color: '#D12F0E',
-    lightColor: 'rgba(209, 47, 14, 0.1)',
+    lightColor: 'rgba(209, 47, 14, 0.12)',
     stats: [
       { label: 'Erişilen Kitle', value: '50M+' },
       { label: 'Ödüllü Kampanya', value: '32' },
@@ -279,19 +275,24 @@ export const sectors = [
     ],
     partners: [
       { id: 7, name: 'Google Partner', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/200px-Google_2015_logo.svg.png' },
-      { id: 8, name: 'Meta', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Meta_Platforms_Inc._logo.svg/200px-Meta_Platforms_Inc._logo.svg.png' },
+      { id: 8, name: 'Meta', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Meta_Platforms_Inc._logo.svg/200px-Meta_Platforms_Inc._logo.svg.png' }
     ],
     references: [
-      { id: 10, name: 'Elektrikli Araç Lansman Kampanyası', description: 'Yeni nesil EV markasının Türkiye pazarına girişindeki tüm 360 derece iletişim ve dijital lansman faaliyetleri.', metric: '15M+ İzlenme' },
-      { id: 11, name: 'E-Ticaret Dönüşüm ve SEO Hamlesi', description: 'Moda markasının dijital reklam ROI oranını 2.1x seviyesinden 5.8x seviyesine çıkaran performans kampanyası.', metric: '5.8x ROAS' }
+      { id: 10, name: 'Elektrikli Araç Lansman Kampanyası', description: 'Yeni nesil EV markasının Türkiye pazarına girişindeki tüm 360 derece iletişim ve dijital lansman faaliyetleri.', metric: '15M+ İzlenme', status: 'Tamamlandı' },
+      { id: 11, name: 'E-Ticaret Dönüşüm ve SEO Hamlesi', description: 'Moda markasının dijital reklam ROI oranını 2.1x seviyesinden 5.8x seviyesine çıkaran performans kampanyası.', metric: '5.8x ROAS', status: 'Tamamlandı' }
     ],
     faqs: [
       { q: 'Performans pazarlamasında bütçe yönetimi nasıl yapılıyor?', a: 'Harcadığınız her 1 TL’nin dönüşüm oranını anlık dashboardlar üzerinden şeffaf şekilde raporluyoruz.' }
-    ],
-    testimonials: [
-      { quote: 'Reklam kampanyamızın getirdiği müşteri trafiği beklentimizin 3 katına ulaştı. Harika bir kreatif ekip!', author: 'Selin Doğan', title: 'Pazarlama Müdürü, E-Mobility' }
     ]
   }
+];
+
+export const globalOffices = [
+  { city: 'İstanbul', name: 'Nima Plaza HQ', address: 'Levent Mah. Büyükdere Cad. No:142 Beşiktaş', role: 'Genel Merkez & Ar-Ge Center', phone: '+90 212 555 0000', badge: 'Ana Merkez' },
+  { city: 'Ankara', name: 'Nima Teknokent', address: 'ODTÜ Teknokent İnovasyon Binası No:8 Çankaya', role: 'Telekom & Savunma Ar-Ge', phone: '+90 312 444 0000', badge: 'Ar-Ge Üssü' },
+  { city: 'İzmir', name: 'Nima Ege Office', address: 'Mistral Kule Kat:18 Bayraklı', role: 'Lojistik & Yazılım Operasyon', phone: '+90 232 333 0000', badge: 'Bölge Ofisi' },
+  { city: 'Frankfurt', name: 'Nima Europe GmbH', address: 'Mainzer Landstraße 180, 60327 Frankfurt am Main', role: 'Avrupa Operasyonları & M&A', phone: '+49 69 1234 5678', badge: 'Global Hub' },
+  { city: 'Dubai', name: 'Nima MEA Tower', address: 'DIFC Gate Precinct Building 4, Dubai UAE', role: 'Orta Doğu & Körfez Pazarı', phone: '+971 4 987 6543', badge: 'Global Hub' }
 ];
 
 export const companyMilestones = [

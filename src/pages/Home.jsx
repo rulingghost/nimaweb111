@@ -3,16 +3,20 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   ArrowUpRight, TrendingUp, Users, Award, ShieldCheck, 
-  ChevronDown, CheckCircle2, Star, Eye, Sparkles, MessageSquarePlus 
+  ChevronDown, CheckCircle2, Star, Eye, Sparkles, MessageSquarePlus, Search 
 } from 'lucide-react';
 import Hero from '../components/Hero';
 import SectorExplorer from '../components/SectorExplorer';
 import AnimatedCounter from '../components/AnimatedCounter';
-import { sectors, companyInfo, mainHeroImg } from '../data/sectors';
+import RoiCalculator from '../components/RoiCalculator';
+import GlobalOfficesMap from '../components/GlobalOfficesMap';
+import { sectors, companyInfo, mainHeroImg, projectAnalyticsImg } from '../data/sectors';
 import './Home.css';
 
 export default function Home({ onOpenProposal, onPreviewImage }) {
   const [openFaq, setOpenFaq] = useState(0);
+  const [projectSearch, setProjectSearch] = useState('');
+  const [selectedFilterSector, setSelectedFilterSector] = useState('all');
 
   const testimonials = [
     {
@@ -59,6 +63,16 @@ export default function Home({ onOpenProposal, onPreviewImage }) {
       a: "Kesinlikle! Grup şirketlerimizin entegre yapısı sayesinde örneğin hem yazılım ERP kurulumu hem kurumsal eğitim hem de lansman reklam kampanyası paket olarak sunulabilmektedir."
     }
   ];
+
+  // Filter projects by search and sector
+  const filteredSectors = sectors.filter(s => {
+    const matchesSector = selectedFilterSector === 'all' || s.id === selectedFilterSector;
+    const matchesQuery = !projectSearch.trim() || 
+      s.name.toLowerCase().includes(projectSearch.toLowerCase()) || 
+      s.description.toLowerCase().includes(projectSearch.toLowerCase()) ||
+      (s.references && s.references.some(r => r.name.toLowerCase().includes(projectSearch.toLowerCase())));
+    return matchesSector && matchesQuery;
+  });
 
   return (
     <main>
@@ -167,7 +181,6 @@ export default function Home({ onOpenProposal, onPreviewImage }) {
                       <h3 className="bento-title">{sector.name}</h3>
                       <p className="bento-desc">{sector.description}</p>
                       
-                      {/* Metric highlights */}
                       <div className="bento-metrics">
                         {sector.stats.slice(0, 2).map((st, i) => (
                           <span key={i} className="bento-metric-chip">
@@ -190,21 +203,55 @@ export default function Home({ onOpenProposal, onPreviewImage }) {
         onPreviewImage={onPreviewImage} 
       />
 
-      {/* Visual Project Highlights Showcase */}
-      <section className="section">
+      {/* Interactive Project ROI Estimator Calculator */}
+      <RoiCalculator onOpenProposal={onOpenProposal} />
+
+      {/* Visual Project Highlights Showcase with Search & Filter */}
+      <section className="section bg-secondary">
         <div className="container">
-          <div className="section-header">
+          <div className="section-header center">
             <div className="badge-pill">
-              <Eye size={14} /> Başarı Hikayeleri
+              <Eye size={14} /> Başarı Hikayeleri & Portföy
             </div>
             <h2 className="display-title">Öne Çıkan Projelerimiz</h2>
             <p className="display-subtitle">
-              Sektör liderleri için hayata geçirdiğimiz yüksek etkili projelerden bazı örnekler.
+              Sektör liderleri için hayata geçirdiğimiz yüksek etkili projelerde arama ve filtreleme yapın.
             </p>
           </div>
 
+          {/* Search & Filter Control Bar */}
+          <div className="portfolio-filter-bar">
+            <div className="portfolio-search-box">
+              <Search size={18} />
+              <input 
+                type="text" 
+                placeholder="Proje veya hizmet adı ile arayın..."
+                value={projectSearch}
+                onChange={(e) => setProjectSearch(e.target.value)}
+              />
+            </div>
+
+            <div className="portfolio-chips">
+              <button 
+                className={`filter-chip ${selectedFilterSector === 'all' ? 'active' : ''}`}
+                onClick={() => setSelectedFilterSector('all')}
+              >
+                Tüm Sektörler
+              </button>
+              {sectors.map(s => (
+                <button
+                  key={s.id}
+                  className={`filter-chip ${selectedFilterSector === s.id ? 'active' : ''}`}
+                  onClick={() => setSelectedFilterSector(s.id)}
+                >
+                  {s.shortName}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="projects-showcase-grid">
-            {sectors.map((s) => (
+            {filteredSectors.map((s) => (
               <motion.div 
                 key={s.id} 
                 className="project-showcase-card"
@@ -243,8 +290,11 @@ export default function Home({ onOpenProposal, onPreviewImage }) {
         </div>
       </section>
 
+      {/* Global Offices Section */}
+      <GlobalOfficesMap />
+
       {/* Modern Corporate About Preview */}
-      <section className="section bg-secondary">
+      <section className="section">
         <div className="container">
           <div className="split-layout align-center">
             <div className="split-text">
@@ -288,7 +338,7 @@ export default function Home({ onOpenProposal, onPreviewImage }) {
 
             <div className="split-visual-card">
               <div className="visual-card-inner">
-                <img src={mainHeroImg} alt="Nima Grup Vizyon" />
+                <img src={projectAnalyticsImg} alt="Nima Grup Analiz" />
                 <div className="visual-card-glass">
                   <h3>"Geleceğe Güvenle Şekil Veriyoruz"</h3>
                   <p>1200+ Çalışan • 81 İl • 6 Sektör</p>
@@ -300,7 +350,7 @@ export default function Home({ onOpenProposal, onPreviewImage }) {
       </section>
 
       {/* Client Testimonials Carousel */}
-      <section className="section">
+      <section className="section bg-secondary">
         <div className="container">
           <div className="section-header center">
             <div className="badge-pill">
@@ -340,7 +390,7 @@ export default function Home({ onOpenProposal, onPreviewImage }) {
       </section>
 
       {/* Interactive FAQs Section */}
-      <section className="section bg-secondary">
+      <section className="section">
         <div className="container" style={{ maxWidth: '900px' }}>
           <div className="section-header center">
             <h2 className="display-title">Sıkça Sorulan Sorular</h2>

@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ChevronDown, Sparkles, MessageSquarePlus } from 'lucide-react';
+import { Menu, X, ChevronDown, Sparkles, MessageSquarePlus, Sun, Moon } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { sectors } from '../data/sectors';
 import './Navbar.css';
@@ -7,7 +7,17 @@ import './Navbar.css';
 export default function Navbar({ onOpenProposal }) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
   const location = useLocation();
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40);
@@ -57,6 +67,15 @@ export default function Navbar({ onOpenProposal }) {
           </div>
 
           <div className="nav-actions">
+            {/* Theme Toggle Switch */}
+            <button 
+              className="theme-toggle-btn"
+              onClick={toggleTheme}
+              title={theme === 'light' ? 'Koyu Temaya Geç' : 'Açık Temaya Geç'}
+            >
+              {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+            </button>
+
             <button 
               className="btn-modern btn-dark nav-proposal-btn"
               onClick={() => onOpenProposal()}
@@ -75,7 +94,13 @@ export default function Navbar({ onOpenProposal }) {
       {/* Mobile Drawer */}
       <div className={`mobile-menu ${isOpen ? 'open' : ''}`}>
         <div className="mobile-menu-inner">
-          <Link to="/" className="mobile-nav-link">Ana Sayfa</Link>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Link to="/" className="mobile-nav-link">Ana Sayfa</Link>
+            <button className="theme-toggle-btn" onClick={toggleTheme}>
+              {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+            </button>
+          </div>
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <span className="mobile-nav-title">FAALİYET ALANLARI</span>
             {sectors.map((sector) => {

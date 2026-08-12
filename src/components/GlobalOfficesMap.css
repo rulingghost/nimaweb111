@@ -1,0 +1,96 @@
+.offices-section {
+  padding: 6rem 0;
+  background: var(--bg-secondary);
+}
+
+.offices-header.center {
+  text-align: center;
+  margin-bottom: 3.5rem;
+}
+
+.offices-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+@media (max-width: 992px) {
+  .offices-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .offices-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.office-card {
+  background: var(--bg-main);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-light);
+  padding: 2.25rem;
+  box-shadow: var(--shadow-bento);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.office-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-bento-hover);
+  border-color: #09090b;
+}
+
+.office-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.office-city {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.office-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 100px;
+  background: rgba(209, 47, 14, 0.1);
+  color: #D12F0E;
+}
+
+.office-name {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.office-role {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+  flex-grow: 1;
+}
+
+.office-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-light);
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.detail-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}

@@ -9,6 +9,7 @@ import Contact from './pages/Contact';
 import ScrollProgress from './components/ScrollProgress';
 import InteractiveInquiryModal from './components/InteractiveInquiryModal';
 import ImageLightbox from './components/ImageLightbox';
+import NimaAiAssistant from './components/NimaAiAssistant';
 
 function App() {
   const [isProposalOpen, setIsProposalOpen] = useState(false);
@@ -87,6 +88,9 @@ function App() {
             />
           </Routes>
         </div>
+
+        {/* Floating Intelligent AI Chat Assistant Widget */}
+        <NimaAiAssistant onOpenProposal={() => handleOpenProposal()} />
 
         {/* Global Footer */}
         <Footer />
