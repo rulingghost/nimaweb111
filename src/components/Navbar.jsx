@@ -42,6 +42,7 @@ export default function Navbar({ onOpenProposal }) {
 
           <div className="desktop-menu">
             <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>{t('nav_home')}</Link>
+            <Link to="/hakkimizda" className={`nav-link ${location.pathname === '/hakkimizda' ? 'active' : ''}`}>{t('nav_about')}</Link>
             
             <div className="dropdown">
               <button className="dropdown-toggle">
@@ -66,7 +67,6 @@ export default function Navbar({ onOpenProposal }) {
               </div>
             </div>
             
-            <Link to="/hakkimizda" className={`nav-link ${location.pathname === '/hakkimizda' ? 'active' : ''}`}>{t('nav_about')}</Link>
             <Link to="/iletisim" className={`nav-link ${location.pathname === '/iletisim' ? 'active' : ''}`}>{t('nav_contact')}</Link>
           </div>
 
@@ -121,6 +121,8 @@ export default function Navbar({ onOpenProposal }) {
             </div>
           </div>
 
+          <Link to="/hakkimizda" className="mobile-nav-link">{t('nav_about')}</Link>
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <span className="mobile-nav-title">{t('nav_sectors_header')}</span>
             {localizedSectors.map((sector) => {
@@ -133,7 +135,6 @@ export default function Navbar({ onOpenProposal }) {
               );
             })}
           </div>
-          <Link to="/hakkimizda" className="mobile-nav-link">{t('nav_about')}</Link>
           <Link to="/iletisim" className="mobile-nav-link">{t('nav_contact')}</Link>
 
           <button 

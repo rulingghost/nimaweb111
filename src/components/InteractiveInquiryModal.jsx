@@ -117,22 +117,6 @@ export default function InteractiveInquiryModal({ isOpen, onClose, defaultSector
                 <h3>{t('modal_step2_title')}</h3>
                 
                 <div className="input-group">
-                  <label>{t('modal_budget_label')}</label>
-                  <div className="budget-options">
-                    {['$1,000 - $5,000', '$5,000 - $15,000', '$15,000 - $50,000', '$50,000+ / Enterprise'].map((b) => (
-                      <button
-                        key={b}
-                        type="button"
-                        className={`budget-chip ${budget === b ? 'active' : ''}`}
-                        onClick={() => setBudget(b)}
-                      >
-                        {b}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="input-group">
                   <label>{t('modal_details_label')}</label>
                   <textarea
                     rows={3}
@@ -205,7 +189,6 @@ export default function InteractiveInquiryModal({ isOpen, onClose, defaultSector
 
                 <div className="modal-summary-box">
                   <span><strong>{language === 'en' ? 'Selected Sector:' : 'Seçilen Sektör:'}</strong> {currentSectorObj.name}</span>
-                  <span><strong>{language === 'en' ? 'Budget:' : 'Bütçe:'}</strong> {budget}</span>
                 </div>
 
                 <div className="modal-footer-nav">
