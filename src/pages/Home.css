@@ -666,14 +666,17 @@
   flex-wrap: wrap;
 }
 
+.cta-banner-card .btn-outline,
 .cta-btn-white {
-  color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
 }
 
+.cta-banner-card .btn-outline:hover,
 .cta-btn-white:hover {
-  background: #ffffff;
-  color: #09090b;
+  background: #ffffff !important;
+  color: #09090b !important;
+  border-color: #ffffff !important;
 }
 
 /* Portfolio Filter Control Bar */

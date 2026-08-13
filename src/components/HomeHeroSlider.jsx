@@ -7,21 +7,13 @@ import {
 import { useLanguage } from '../context/LanguageContext';
 import './Hero.css';
 
-export default function Hero({ 
-  title, 
-  subtitle, 
-  badgeText, 
-  color = '#D12F0E', 
-  image, 
-  showButton = true, 
-  onOpenProposal 
-}) {
+export default function HomeHeroSlider({ onOpenProposal }) {
   const { t } = useLanguage();
   const [current, setCurrent] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
-  // Default Multi-Slide Sector Carousel
-  const defaultSlides = [
+  // All 7 Strategic Holding & Sector Slides for Home Page
+  const slides = [
     {
       id: 1,
       badge: t('hero_slide1_badge'),
@@ -94,27 +86,11 @@ export default function Hero({
     }
   ];
 
-  // If custom title is passed (Contact, About, SectorPage), use single custom slide mode
-  const slides = title ? [
-    {
-      id: 'custom',
-      badge: badgeText || t('hero_slide1_badge'),
-      title: title,
-      subtitle: subtitle,
-      image: image || mainHeroImg,
-      color: color,
-      statNum: '',
-      statTxt: ''
-    }
-  ] : defaultSlides;
-
-  const isCarousel = slides.length > 1;
-
   const nextSlide = () => setCurrent((prev) => (prev + 1) % slides.length);
   const prevSlide = () => setCurrent((prev) => (prev - 1 + slides.length) % slides.length);
 
   useEffect(() => {
-    if (slides.length <= 1 || isPaused) return;
+    if (isPaused) return;
     const timer = setInterval(() => {
       setCurrent((prev) => (prev + 1) % slides.length);
     }, 5000);
@@ -127,7 +103,7 @@ export default function Hero({
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      {/* Slider Main Viewport */}
+      {/* Slider Viewport */}
       <div className="hero-track-container">
         <div 
           className="hero-track"
@@ -136,52 +112,44 @@ export default function Hero({
           {slides.map((slide) => (
             <div key={slide.id} className="hero-slide">
               <div className="container hero-inner">
-                {/* Left Text Content */}
+                {/* Left Content */}
                 <div className="hero-text-box">
-                  {slide.badge && (
-                    <div className="hero-badge">
-                      <Sparkles size={14} style={{ color: slide.color }} />
-                      <span>{slide.badge}</span>
-                    </div>
-                  )}
+                  <div className="hero-badge">
+                    <Sparkles size={14} style={{ color: slide.color }} />
+                    <span>{slide.badge}</span>
+                  </div>
 
                   <h1 
                     className="hero-title"
                     dangerouslySetInnerHTML={{ __html: slide.title }}
                   />
 
-                  {slide.subtitle && (
-                    <p className="hero-subtitle">{slide.subtitle}</p>
-                  )}
+                  <p className="hero-subtitle">{slide.subtitle}</p>
 
-                  {showButton && !title && (
-                    <div className="hero-actions">
-                      <a href="#sectors" className="btn-modern btn-dark">
-                        {t('hero_cta_explore')}
-                        <ArrowRight size={18} />
-                      </a>
-                      {onOpenProposal && (
-                        <button 
-                          className="btn-modern btn-outline"
-                          onClick={onOpenProposal}
-                        >
-                          {t('hero_cta_proposal')}
-                        </button>
-                      )}
-                    </div>
-                  )}
+                  <div className="hero-actions">
+                    <a href="#sectors" className="btn-modern btn-dark">
+                      {t('hero_cta_explore')}
+                      <ArrowRight size={18} />
+                    </a>
+                    {onOpenProposal && (
+                      <button 
+                        className="btn-modern btn-outline"
+                        onClick={onOpenProposal}
+                      >
+                        {t('hero_cta_proposal')}
+                      </button>
+                    )}
+                  </div>
                 </div>
 
-                {/* Right Visual Image */}
+                {/* Right Image */}
                 <div className="hero-image-box">
                   <div className="hero-card">
-                    <img src={slide.image} alt={slide.badge || 'Hero Image'} />
-                    {slide.statNum && (
-                      <div className="hero-float-card">
-                        <span className="float-num">{slide.statNum}</span>
-                        <span className="float-txt">{slide.statTxt}</span>
-                      </div>
-                    )}
+                    <img src={slide.image} alt={slide.badge} />
+                    <div className="hero-float-card">
+                      <span className="float-num">{slide.statNum}</span>
+                      <span className="float-txt">{slide.statTxt}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -190,29 +158,27 @@ export default function Hero({
         </div>
       </div>
 
-      {/* Navigation Bar for Multi-Slide Carousel */}
-      {isCarousel && (
-        <div className="hero-nav-bar">
-          <button className="nav-arrow-btn" onClick={prevSlide} aria-label="Önceki">
-            <ChevronLeft size={24} />
-          </button>
+      {/* Navigation Controls: Left Arrow + Dots + Right Arrow */}
+      <div className="hero-nav-bar">
+        <button className="nav-arrow-btn" onClick={prevSlide} aria-label="Önceki">
+          <ChevronLeft size={24} />
+        </button>
 
-          <div className="nav-dots">
-            {slides.map((_, idx) => (
-              <button
-                key={idx}
-                className={`nav-dot ${idx === current ? 'active' : ''}`}
-                onClick={() => setCurrent(idx)}
-                aria-label={`Slayt ${idx + 1}`}
-              />
-            ))}
-          </div>
-
-          <button className="nav-arrow-btn" onClick={nextSlide} aria-label="Sonraki">
-            <ChevronRight size={24} />
-          </button>
+        <div className="nav-dots">
+          {slides.map((_, idx) => (
+            <button
+              key={idx}
+              className={`nav-dot ${idx === current ? 'active' : ''}`}
+              onClick={() => setCurrent(idx)}
+              aria-label={`Slayt ${idx + 1}`}
+            />
+          ))}
         </div>
-      )}
+
+        <button className="nav-arrow-btn" onClick={nextSlide} aria-label="Sonraki">
+          <ChevronRight size={24} />
+        </button>
+      </div>
     </section>
   );
 }

@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { 
   MapPin, Phone, Mail, ExternalLink, Clock, Send, Check, Sparkles 
 } from 'lucide-react';
-import Hero from '../components/Hero';
+import PageHero from '../components/PageHero';
 import { getCompanyInfo, getSectors, aboutHeroImg } from '../data/sectors';
 import { useLanguage } from '../context/LanguageContext';
 import './Contact.css';
@@ -39,12 +39,11 @@ export default function Contact() {
 
   return (
     <main>
-      <Hero 
+      <PageHero 
         title={language === 'en' ? "Get in <span>Touch</span> with Us." : "Bizimle<br/><span>İletişime</span> Geçin."}
         subtitle={language === 'en' ? "We are ready to connect 24/7 for your questions, partnership offers, or projects." : "Sorularınız, iş ortaklığı teklifleriniz veya projeleriniz için uzman ekibimizle 7/24 görüşmeye hazırız."}
         image={aboutHeroImg}
         badgeText={t('nav_contact')}
-        showButton={false}
       />
 
       <section className="contact-page-dark">

@@ -5,7 +5,7 @@ import {
   ArrowUpRight, ShieldCheck, 
   ChevronDown, CheckCircle2, Sparkles, MessageSquarePlus, Search, Cpu, Globe, ArrowRight
 } from 'lucide-react';
-import Hero from '../components/Hero';
+import HomeHeroSlider from '../components/HomeHeroSlider';
 import SectorExplorer from '../components/SectorExplorer';
 import { getSectors, getCompanyInfo, mainHeroImg, projectAnalyticsImg } from '../data/sectors';
 import { useLanguage } from '../context/LanguageContext';
@@ -30,14 +30,8 @@ export default function Home({ onOpenProposal }) {
 
   return (
     <main>
-      {/* Animated Hero Section */}
-      <Hero 
-        title={t('hero_slide1_title')}
-        subtitle={t('hero_slide1_subtitle')}
-        image={mainHeroImg}
-        showButton={true}
-        onOpenProposal={onOpenProposal}
-      />
+      {/* Animated Multi-Slide Hero Section for Home Page */}
+      <HomeHeroSlider onOpenProposal={onOpenProposal} />
 
       {/* Kısaca Biz (Briefly About Us) Section */}
       <section className="section kisaca-biz-section">

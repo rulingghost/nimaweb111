@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Target, Compass, Sparkles, CheckCircle2 } from 'lucide-react';
-import Hero from '../components/Hero';
+import PageHero from '../components/PageHero';
 import { getCompanyInfo, getCompanyMilestones, getCompanyValues, aboutHeroImg } from '../data/sectors';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -15,12 +15,11 @@ export default function About({ onOpenProposal }) {
 
   return (
     <main>
-      <Hero 
+      <PageHero 
         title={t('about_hero_title')}
         subtitle={`${localizedCompany.name}, ${t('about_hero_sub')}`}
         image={aboutHeroImg}
         badgeText={t('about_badge')}
-        showButton={false}
       />
       
       {/* Vision & Mission */}

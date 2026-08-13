@@ -5,7 +5,7 @@ import {
   CheckCircle2, ArrowRight, Sparkles, MessageSquarePlus, 
   ChevronDown, Award, TrendingUp, Layers, HelpCircle, Handshake, Briefcase
 } from 'lucide-react';
-import Hero from '../components/Hero';
+import PageHero from '../components/PageHero';
 import DirectContactChannels from '../components/DirectContactChannels';
 import { getSectors, getCompanyInfo } from '../data/sectors';
 import { useLanguage } from '../context/LanguageContext';
@@ -33,13 +33,12 @@ export default function SectorPage({ onOpenProposal }) {
   return (
     <main>
       {/* Sector Hero */}
-      <Hero 
+      <PageHero 
         title={sector.name}
         subtitle={sector.description}
         image={sector.heroImage}
         badgeText={sector.badge}
         color={sector.color}
-        showButton={false}
       />
       
       {/* Sector Quick Stats Bar */}
