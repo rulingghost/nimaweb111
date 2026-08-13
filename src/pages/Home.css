@@ -5,7 +5,7 @@
 }
 
 .kisaca-biz-wrapper {
-  background: #ffffff;
+  background: var(--bg-card);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-xl);
   padding: 3.5rem 3rem;
@@ -46,9 +46,9 @@
 }
 
 .biz-card:hover {
-  border-color: #09090b;
+  border-color: var(--border-strong);
   box-shadow: var(--shadow-bento-hover);
-  background: #ffffff;
+  background: var(--bg-main);
 }
 
 .biz-icon-box {
@@ -104,7 +104,7 @@
 }
 
 .stat-card {
-  background: #ffffff;
+  background: var(--bg-card);
   padding: 2rem;
   border-radius: var(--radius-xl);
   border: 1px solid var(--border-light);
@@ -117,7 +117,7 @@
 
 .stat-card:hover {
   box-shadow: var(--shadow-bento-hover);
-  border-color: #09090b;
+  border-color: var(--border-strong);
 }
 
 .stat-icon-wrap {
@@ -183,7 +183,7 @@
   overflow: hidden;
   min-height: 320px;
   border: 1px solid var(--border-light);
-  background: #ffffff;
+  background: var(--bg-card);
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: var(--shadow-bento);
 }
@@ -306,7 +306,7 @@
 }
 
 .project-showcase-card {
-  background: #ffffff;
+  background: var(--bg-card);
   border-radius: var(--radius-xl);
   border: 1px solid var(--border-light);
   overflow: hidden;
@@ -525,7 +525,7 @@
 }
 
 .testimonial-card {
-  background: #ffffff;
+  background: var(--bg-card);
   padding: 2.25rem;
   border-radius: var(--radius-xl);
   border: 1px solid var(--border-light);
@@ -559,8 +559,8 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: #09090b;
-  color: #ffffff;
+  background: var(--text-main);
+  color: var(--bg-main);
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -586,7 +586,7 @@
 }
 
 .faq-item {
-  background: #ffffff;
+  background: var(--bg-card);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-light);
   padding: 1.5rem;
@@ -595,7 +595,7 @@
 }
 
 .faq-item:hover {
-  border-color: #09090b;
+  border-color: var(--border-strong);
 }
 
 .faq-question {
@@ -732,9 +732,9 @@
 }
 
 .filter-chip.active {
-  background: #09090b;
-  color: #ffffff;
-  border-color: #09090b;
+  background: var(--text-main);
+  color: var(--bg-main);
+  border-color: var(--text-main);
 }
 
 /* Background dark mode overlay adjustments */
@@ -747,10 +747,11 @@
   color: #ffffff;
 }
 
+[data-theme="dark"] .kisaca-biz-wrapper,
 [data-theme="dark"] .bento-card,
 [data-theme="dark"] .stat-card,
 [data-theme="dark"] .project-showcase-card,
 [data-theme="dark"] .testimonial-card,
 [data-theme="dark"] .faq-item {
-  background: #18181b;
+  background: var(--bg-card);
 }

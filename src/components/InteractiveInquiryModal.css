@@ -1,8 +1,8 @@
 .inquiry-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(9, 9, 11, 0.75);
-  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(12px);
   z-index: 99999;
   display: flex;
   align-items: center;
@@ -12,11 +12,12 @@
 }
 
 .inquiry-modal-card {
-  background: #ffffff;
+  background: var(--bg-card);
+  color: var(--text-main);
   width: 100%;
   max-width: 680px;
   border-radius: var(--radius-xl);
-  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.6);
   padding: 2.5rem;
   position: relative;
   border: 1px solid var(--border-light);
@@ -33,16 +34,19 @@
   height: 40px;
   border-radius: 50%;
   background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-muted);
+  color: var(--text-main);
   transition: all 0.2s ease;
 }
 
 .modal-close-btn:hover {
-  background: #09090b;
-  color: #ffffff;
+  background: var(--text-main);
+  color: var(--bg-main);
+  border-color: var(--text-main);
+  transform: scale(1.05);
 }
 
 .modal-header {
@@ -56,7 +60,7 @@
   gap: 0.5rem;
   padding: 0.35rem 1rem;
   border-radius: 100px;
-  background: rgba(209, 47, 14, 0.1);
+  background: rgba(209, 47, 14, 0.15);
   color: #D12F0E;
   font-size: 0.85rem;
   font-weight: 600;
@@ -66,6 +70,7 @@
 .modal-header h2 {
   font-size: 1.75rem;
   font-weight: 700;
+  color: var(--text-main);
 }
 
 .modal-steps-indicator {
@@ -77,14 +82,14 @@
 }
 
 .step-dot {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: var(--bg-secondary);
   border: 1px solid var(--border-light);
   color: var(--text-muted);
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -92,9 +97,10 @@
 }
 
 .step-dot.active {
-  background: #09090b;
-  color: #ffffff;
-  border-color: #09090b;
+  background: var(--text-main);
+  color: var(--bg-main);
+  border-color: var(--text-main);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .step-line {
@@ -105,7 +111,7 @@
 }
 
 .step-line.active {
-  background: #09090b;
+  background: var(--text-main);
 }
 
 .modal-step-content {
@@ -116,7 +122,8 @@
 
 .modal-step-content h3 {
   font-size: 1.25rem;
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--text-main);
 }
 
 .sector-picker-grid {
@@ -139,37 +146,39 @@
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-light);
   background: var(--bg-secondary);
+  color: var(--text-main);
   cursor: pointer;
   transition: all 0.25s ease;
   position: relative;
 }
 
 .sector-pick-item:hover {
-  border-color: var(--accent, #09090b);
-  background: #ffffff;
+  border-color: var(--accent, #D12F0E);
+  background: var(--bg-main);
   transform: translateY(-2px);
 }
 
 .sector-pick-item.selected {
-  border-color: var(--accent, #09090b);
-  background: #ffffff;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  border-color: var(--accent, #D12F0E);
+  background: var(--bg-main);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
 }
 
 .pick-icon {
   width: 42px;
   height: 42px;
   border-radius: var(--radius-md);
-  background: rgba(0,0,0,0.04);
+  background: rgba(125, 125, 125, 0.12);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--accent, #09090b);
+  color: var(--accent, #D12F0E);
 }
 
 .pick-text h4 {
   font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--text-main);
 }
 
 .pick-text p {
@@ -179,7 +188,7 @@
 
 .pick-check {
   margin-left: auto;
-  color: var(--accent, #09090b);
+  color: var(--accent, #D12F0E);
 }
 
 .budget-options {
@@ -190,20 +199,28 @@
 }
 
 .budget-chip {
-  padding: 0.85rem;
+  padding: 0.9rem;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-light);
   background: var(--bg-secondary);
-  font-size: 0.85rem;
-  font-weight: 500;
+  color: var(--text-main);
+  font-size: 0.88rem;
+  font-weight: 600;
   text-align: center;
+  cursor: pointer;
   transition: all 0.2s ease;
 }
 
+.budget-chip:hover {
+  border-color: var(--text-main);
+  background: var(--bg-main);
+}
+
 .budget-chip.active {
-  background: #09090b;
-  color: #ffffff;
-  border-color: #09090b;
+  background: var(--text-main);
+  color: var(--bg-main);
+  border-color: var(--text-main);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .input-group {
@@ -225,16 +242,23 @@
   border-radius: var(--radius-md);
   border: 1px solid var(--border-light);
   background: var(--bg-secondary);
+  color: var(--text-main);
   font-family: var(--font-sans);
   font-size: 0.95rem;
   outline: none;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.input-group input::placeholder,
+.input-group textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 0.85;
 }
 
 .input-group input:focus,
 .input-group textarea:focus {
-  border-color: #09090b;
-  background: #ffffff;
+  border-color: var(--brand-primary);
+  background: var(--bg-main);
 }
 
 .form-grid-2 {
@@ -249,15 +273,26 @@
   }
 }
 
+.step-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
 .modal-summary-box {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  padding: 1rem;
+  padding: 1rem 1.25rem;
   border-radius: var(--radius-md);
-  background: rgba(0, 0, 0, 0.03);
-  font-size: 0.85rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  font-size: 0.88rem;
   color: var(--text-muted);
+}
+
+.modal-summary-box strong {
+  color: var(--text-main);
 }
 
 .modal-footer-nav {
@@ -276,6 +311,14 @@
   flex-direction: column;
   align-items: center;
   gap: 1rem;
+}
+
+.modal-success-state h2 {
+  color: var(--text-main);
+}
+
+.modal-success-state p {
+  color: var(--text-muted);
 }
 
 .success-icon-wrapper {

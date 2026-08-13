@@ -24,7 +24,7 @@
   padding: 0.85rem 1.5rem;
   border-radius: 100px;
   border: 1px solid var(--border-light);
-  background: #ffffff;
+  background: var(--bg-card);
   font-size: 0.95rem;
   font-weight: 500;
   color: var(--text-main);
@@ -33,23 +33,23 @@
 }
 
 .explorer-tab-btn:hover {
-  border-color: var(--active-color, #09090b);
+  border-color: var(--active-color, var(--text-main));
   transform: translateY(-2px);
 }
 
 .explorer-tab-btn.active {
-  background: #09090b;
-  color: #ffffff;
-  border-color: #09090b;
+  background: var(--text-main);
+  color: var(--bg-main);
+  border-color: var(--text-main);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
 .explorer-tab-btn.active svg {
-  color: var(--active-color, #ffffff);
+  color: var(--active-color, var(--bg-main));
 }
 
 .explorer-content-card {
-  background: #ffffff;
+  background: var(--bg-card);
   border-radius: var(--radius-xl);
   border: 1px solid var(--border-light);
   box-shadow: var(--shadow-bento-hover);
@@ -224,8 +224,8 @@
   display: inline-block;
   padding: 0.25rem 0.75rem;
   border-radius: 100px;
-  background: #09090b;
-  color: #ffffff;
+  background: var(--text-main);
+  color: var(--bg-main);
   font-size: 0.75rem;
   font-weight: 600;
 }

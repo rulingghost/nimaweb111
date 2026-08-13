@@ -7,6 +7,7 @@ import SectorPage from './pages/SectorPage';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import ScrollProgress from './components/ScrollProgress';
+import ScrollToTop from './components/ScrollToTop';
 import InteractiveInquiryModal from './components/InteractiveInquiryModal';
 import { LanguageProvider } from './context/LanguageContext';
 
@@ -26,6 +27,7 @@ function App() {
   return (
     <LanguageProvider>
       <Router>
+        <ScrollToTop />
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', position: 'relative' }}>
           {/* Top Reading Progress & Floating Buttons */}
           <ScrollProgress onOpenProposal={() => handleOpenProposal()} />

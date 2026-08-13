@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Navigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
@@ -13,8 +13,12 @@ import { useLanguage } from '../context/LanguageContext';
 export default function SectorPage({ onOpenProposal }) {
   const { sectorId } = useParams();
   const [activeTab, setActiveTab] = useState('overview');
-  const [openFaq, setOpenFaq] = useState(0);
   const { language, t } = useLanguage();
+
+  useEffect(() => {
+    setActiveTab('overview');
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [sectorId]);
   
   const localizedSectors = getSectors(language);
   const localizedCompany = getCompanyInfo(language);
@@ -61,8 +65,7 @@ export default function SectorPage({ onOpenProposal }) {
               { id: 'process', label: t('sector_tab_process') },
               { id: 'partners', label: t('sector_tab_partners') },
               { id: 'references', label: t('sector_tab_references') },
-              { id: 'contact', label: t('sector_tab_contact') },
-              { id: 'faqs', label: t('sector_tab_faqs') }
+              { id: 'contact', label: t('sector_tab_contact') }
             ].map(tab => (
               <button
                 key={tab.id}
@@ -103,7 +106,7 @@ export default function SectorPage({ onOpenProposal }) {
                 </button>
               </div>
 
-              <div style={{ background: '#ffffff', padding: '2.5rem', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-bento)' }}>
+              <div style={{ background: 'var(--bg-card)', padding: '2.5rem', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-bento)' }}>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '1.5rem' }}>{t('sector_features_heading')}</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {sector.features.map((feature, index) => (
@@ -133,7 +136,7 @@ export default function SectorPage({ onOpenProposal }) {
                 {sector.process.map((step, index) => (
                   <div key={index} style={{ 
                     padding: '2.5rem 2rem', 
-                    background: '#ffffff', 
+                    background: 'var(--bg-card)', 
                     border: '1px solid var(--border-light)', 
                     borderRadius: 'var(--radius-xl)',
                     boxShadow: 'var(--shadow-bento)',
@@ -179,7 +182,7 @@ export default function SectorPage({ onOpenProposal }) {
                     <div 
                       key={partner.id} 
                       style={{ 
-                        background: '#ffffff', 
+                        background: 'var(--bg-card)', 
                         borderRadius: 'var(--radius-xl)', 
                         border: '1px solid var(--border-light)', 
                         padding: '2.5rem 2rem',
@@ -244,7 +247,7 @@ export default function SectorPage({ onOpenProposal }) {
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
                 {sector.references.map((ref) => (
-                  <div key={ref.id} style={{ background: '#ffffff', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border-light)', overflow: 'hidden', boxShadow: 'var(--shadow-bento)' }}>
+                  <div key={ref.id} style={{ background: 'var(--bg-card)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border-light)', overflow: 'hidden', boxShadow: 'var(--shadow-bento)' }}>
                     <div style={{ position: 'relative', height: '220px', overflow: 'hidden' }}>
                       <img src={sector.heroImage} alt={ref.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       {ref.metric && (
@@ -282,48 +285,6 @@ export default function SectorPage({ onOpenProposal }) {
                 email={localizedCompany.email}
                 address={localizedCompany.address}
               />
-            </motion.div>
-          )}
-
-          {/* Tab 6: FAQs */}
-          {activeTab === 'faqs' && (
-            <motion.div 
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              style={{ maxWidth: '850px', margin: '0 auto' }}
-            >
-              <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-                <h2 className="display-title" style={{ fontSize: '2.5rem' }}>{sector.shortName} FAQ</h2>
-                <p className="display-subtitle" style={{ margin: '0 auto' }}>{t('faqs_subtitle')}</p>
-              </div>
-
-              {sector.faqs ? (
-                <div className="faqs-accordion">
-                  {sector.faqs.map((faq, index) => {
-                    const isOpen = openFaq === index;
-                    return (
-                      <div 
-                        key={index}
-                        className={`faq-item ${isOpen ? 'open' : ''}`}
-                        onClick={() => setOpenFaq(isOpen ? -1 : index)}
-                      >
-                        <div className="faq-question">
-                          <h4>{faq.q}</h4>
-                          <ChevronDown size={20} className="faq-icon" />
-                        </div>
-                        {isOpen && (
-                          <div className="faq-answer">
-                            <p>{faq.a}</p>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p style={{ textAlign: 'center', color: 'var(--text-muted)' }}>No additional FAQs for this sector.</p>
-              )}
             </motion.div>
           )}
         </div>
@@ -404,7 +365,7 @@ export default function SectorPage({ onOpenProposal }) {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
               {sector.references.map((ref) => (
-                <div key={ref.id} style={{ background: '#ffffff', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border-light)', overflow: 'hidden', boxShadow: 'var(--shadow-bento)' }}>
+                <div key={ref.id} style={{ background: 'var(--bg-card)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border-light)', overflow: 'hidden', boxShadow: 'var(--shadow-bento)' }}>
                   <div style={{ position: 'relative', height: '200px', overflow: 'hidden' }}>
                     <img src={sector.heroImage} alt={ref.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     {ref.metric && (

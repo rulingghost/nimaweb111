@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { ArrowRight, Sparkles, ShieldCheck, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  mainHeroImg, telecomImg, softwareImg, promotionImg, advertisingImg 
+  mainHeroImg, telecomImg, softwareImg, promotionImg, 
+  advertisingImg, educationImg, consultingImg 
 } from '../data/sectors';
 import { useLanguage } from '../context/LanguageContext';
 import './Hero.css';
@@ -18,7 +19,7 @@ export default function Hero({
   isMultiSlide = true
 }) {
   const { t } = useLanguage();
-  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [[slideIndex, direction], setSlide] = useState([0, 0]);
   const [isPaused, setIsPaused] = useState(false);
 
   const defaultSlides = [
@@ -71,10 +72,30 @@ export default function Hero({
       image: advertisingImg,
       stat1: { number: t('hero_slide5_stat1_num'), text: t('hero_slide5_stat1_txt') },
       stat2: { number: t('hero_slide5_stat2_num'), text: t('hero_slide5_stat2_txt') }
+    },
+    {
+      id: 'slide-6',
+      badge: t('hero_slide6_badge'),
+      title: t('hero_slide6_title'),
+      subtitle: t('hero_slide6_subtitle'),
+      color: '#2563EB',
+      image: educationImg,
+      stat1: { number: t('hero_slide6_stat1_num'), text: t('hero_slide6_stat1_txt') },
+      stat2: { number: t('hero_slide6_stat2_num'), text: t('hero_slide6_stat2_txt') }
+    },
+    {
+      id: 'slide-7',
+      badge: t('hero_slide7_badge'),
+      title: t('hero_slide7_title'),
+      subtitle: t('hero_slide7_subtitle'),
+      color: '#059669',
+      image: consultingImg,
+      stat1: { number: t('hero_slide7_stat1_num'), text: t('hero_slide7_stat1_txt') },
+      stat2: { number: t('hero_slide7_stat2_num'), text: t('hero_slide7_stat2_txt') }
     }
   ];
 
-  // If custom single page props are passed, use them as single slide mode
+  // If custom single page props are passed, use single slide mode
   const slides = isMultiSlide && !title ? defaultSlides : [
     {
       id: 'custom-slide',
@@ -90,25 +111,53 @@ export default function Hero({
 
   const hasMultipleSlides = slides.length > 1;
 
+  const paginate = (newDirection) => {
+    if (!hasMultipleSlides) return;
+    setSlide(([prevIndex]) => [
+      (prevIndex + newDirection + slides.length) % slides.length,
+      newDirection
+    ]);
+  };
+
+  const goToSlide = (index) => {
+    if (!hasMultipleSlides) return;
+    const newDir = index > slideIndex ? 1 : -1;
+    setSlide([index, newDir]);
+  };
+
   useEffect(() => {
     if (!hasMultipleSlides || isPaused) return;
 
     const interval = setInterval(() => {
-      setCurrentSlideIndex((prev) => (prev + 1) % slides.length);
+      paginate(1);
     }, 5500);
 
     return () => clearInterval(interval);
-  }, [hasMultipleSlides, isPaused, slides.length]);
+  }, [hasMultipleSlides, isPaused, slides.length, slideIndex]);
 
-  const handleNext = () => {
-    setCurrentSlideIndex((prev) => (prev + 1) % slides.length);
-  };
-
-  const handlePrev = () => {
-    setCurrentSlideIndex((prev) => (prev - 1 + slides.length) % slides.length);
-  };
-
+  const currentSlideIndex = ((slideIndex % slides.length) + slides.length) % slides.length;
   const currentSlide = slides[currentSlideIndex];
+
+  // Framer Motion Sliding Variants
+  const slideVariants = {
+    enter: (direction) => ({
+      x: direction > 0 ? 300 : -300,
+      opacity: 0,
+      scale: 0.98
+    }),
+    center: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1,
+      scale: 1
+    },
+    exit: (direction) => ({
+      zIndex: 0,
+      x: direction < 0 ? 300 : -300,
+      opacity: 0,
+      scale: 0.98
+    })
+  };
 
   return (
     <section 
@@ -124,14 +173,31 @@ export default function Hero({
 
       <div className="container hero-container">
         {/* Animated Slide Content */}
-        <AnimatePresence mode="wait">
+        <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div 
             key={currentSlide.id}
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{
+              x: { type: "spring", stiffness: 300, damping: 30 },
+              opacity: { duration: 0.35 },
+              scale: { duration: 0.35 }
+            }}
+            drag={hasMultipleSlides ? "x" : false}
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.2}
+            onDragEnd={(e, { offset, velocity }) => {
+              const swipe = Math.abs(offset.x) * velocity.x;
+              if (swipe < -100) {
+                paginate(1);
+              } else if (swipe > 100) {
+                paginate(-1);
+              }
+            }}
             className="hero-slide-grid"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.45, ease: 'easeOut' }}
           >
             {/* Hero Left Content */}
             <div className="hero-content">
@@ -233,7 +299,7 @@ export default function Hero({
         <div className="hero-slider-controls">
           <button 
             className="slider-arrow-btn prev-btn" 
-            onClick={handlePrev}
+            onClick={() => paginate(-1)}
             aria-label="Previous Slide"
           >
             <ChevronLeft size={20} />
@@ -244,7 +310,7 @@ export default function Hero({
               <button
                 key={s.id}
                 className={`slider-dot ${index === currentSlideIndex ? 'active' : ''}`}
-                onClick={() => setCurrentSlideIndex(index)}
+                onClick={() => goToSlide(index)}
                 aria-label={`Slide ${index + 1}`}
                 style={{ '--active-color': s.color }}
               >
@@ -256,11 +322,15 @@ export default function Hero({
 
           <button 
             className="slider-arrow-btn next-btn" 
-            onClick={handleNext}
+            onClick={() => paginate(1)}
             aria-label="Next Slide"
           >
             <ChevronRight size={20} />
           </button>
+
+          <span className="slider-counter">
+            0{currentSlideIndex + 1} / 0{slides.length}
+          </span>
         </div>
       )}
 
@@ -270,3 +340,4 @@ export default function Hero({
     </section>
   );
 }
+

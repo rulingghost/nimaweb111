@@ -74,8 +74,8 @@
 .brand-logo-mark {
   width: 36px;
   height: 36px;
-  background: #09090b;
-  color: #ffffff;
+  background: var(--text-main);
+  color: var(--bg-main);
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
@@ -154,10 +154,10 @@
   top: 100%;
   left: -1rem;
   width: 320px;
-  background: #ffffff;
+  background: var(--bg-card);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-lg);
-  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-bento-hover);
   padding: 0.75rem;
   opacity: 0;
   visibility: hidden;
@@ -245,7 +245,8 @@
   position: fixed;
   inset: 0;
   top: 70px;
-  background: #ffffff;
+  background: var(--bg-main);
+  border-bottom: 1px solid var(--border-light);
   z-index: 8999;
   padding: 2rem;
   overflow-y: auto;

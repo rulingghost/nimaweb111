@@ -43,19 +43,21 @@
 }
 
 .proposal-trigger-btn {
-  background: #09090b;
-  color: #ffffff;
+  background: var(--text-main);
+  color: var(--bg-main);
+  border: 1px solid var(--border-light);
 }
 
 .proposal-trigger-btn:hover {
   background: #D12F0E;
+  color: #ffffff;
   transform: scale(1.05);
   box-shadow: 0 15px 35px rgba(209, 47, 14, 0.3);
 }
 
 .back-to-top-btn {
-  background: rgba(255, 255, 255, 0.9);
-  color: #09090b;
+  background: var(--bg-card);
+  color: var(--text-main);
   width: 46px;
   height: 46px;
   padding: 0;
@@ -65,7 +67,7 @@
 }
 
 .back-to-top-btn:hover {
-  background: #09090b;
-  color: #ffffff;
+  background: var(--text-main);
+  color: var(--bg-main);
   transform: translateY(-3px);
 }

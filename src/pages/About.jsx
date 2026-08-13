@@ -30,7 +30,7 @@ export default function About({ onOpenProposal }) {
             <motion.div 
               style={{ 
                 display: 'flex', flexDirection: 'column', gap: '1.5rem', 
-                padding: '3rem', background: '#ffffff', borderRadius: 'var(--radius-xl)', 
+                padding: '3rem', background: 'var(--bg-card)', borderRadius: 'var(--radius-xl)', 
                 border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-bento)' 
               }}
               whileHover={{ y: -6 }}
@@ -48,7 +48,7 @@ export default function About({ onOpenProposal }) {
             <motion.div 
               style={{ 
                 display: 'flex', flexDirection: 'column', gap: '1.5rem', 
-                padding: '3rem', background: '#ffffff', borderRadius: 'var(--radius-xl)', 
+                padding: '3rem', background: 'var(--bg-card)', borderRadius: 'var(--radius-xl)', 
                 border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-bento)' 
               }}
               whileHover={{ y: -6 }}
@@ -86,8 +86,8 @@ export default function About({ onOpenProposal }) {
                   padding: '1.25rem 1rem',
                   borderRadius: 'var(--radius-lg)',
                   border: '1px solid var(--border-light)',
-                  background: activeYear === m.year ? '#09090b' : '#ffffff',
-                  color: activeYear === m.year ? '#ffffff' : '#09090b',
+                  background: activeYear === m.year ? 'var(--text-main)' : 'var(--bg-card)',
+                  color: activeYear === m.year ? 'var(--bg-main)' : 'var(--text-main)',
                   fontWeight: '700',
                   fontSize: '1.2rem',
                   cursor: 'pointer',
@@ -144,7 +144,7 @@ export default function About({ onOpenProposal }) {
                   key={idx} 
                   style={{ 
                     padding: '2.5rem', 
-                    background: '#ffffff', 
+                    background: 'var(--bg-card)', 
                     border: '1px solid var(--border-light)', 
                     borderRadius: 'var(--radius-xl)',
                     boxShadow: 'var(--shadow-bento)'

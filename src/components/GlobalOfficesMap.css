@@ -40,7 +40,7 @@
 .office-card:hover {
   transform: translateY(-6px);
   box-shadow: var(--shadow-bento-hover);
-  border-color: #09090b;
+  border-color: var(--border-strong);
 }
 
 .office-top {

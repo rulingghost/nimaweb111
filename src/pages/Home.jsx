@@ -13,48 +13,11 @@ import './Home.css';
 
 export default function Home({ onOpenProposal }) {
   const { language, t } = useLanguage();
-  const [openFaq, setOpenFaq] = useState(0);
   const [projectSearch, setProjectSearch] = useState('');
   const [selectedFilterSector, setSelectedFilterSector] = useState('all');
 
   const localizedSectors = getSectors(language);
   const localizedCompany = getCompanyInfo(language);
-
-  const homeFaqs = language === 'en' ? [
-    {
-      q: "Which core sectors does NIMA Group operate in?",
-      a: "NIMA Group operates across 6 primary sectors: Telecommunications Infrastructure Detection, Software & Technology Solutions, Corporate Promotional Products, Corporate Training Services, Strategic Management Consulting, and Full-Service Advertising Agency."
-    },
-    {
-      q: "How does your project proposal process work?",
-      a: "Once you submit your request via our quote button or contact form, our expert team in the relevant sector gets back to you within 24 hours with a detailed needs analysis and budget planning."
-    },
-    {
-      q: "Do you hold international standards and certifications?",
-      a: "Yes, all our business processes are fully certified under ISO 9001 Quality Management, ISO 27001 Information Security, and ISO 45001 Occupational Health and Safety standards."
-    },
-    {
-      q: "Can we bundle services across multiple sectors into a single package?",
-      a: "Absolutely! Thanks to the integrated holding structure of our group companies, we can package together, for instance, ERP software installation, corporate training, and launch advertising campaigns into a single unified agreement."
-    }
-  ] : [
-    {
-      q: "NIMA Grup hangi ana sektörlerde faaliyet göstermektedir?",
-      a: "NIMA Grup; Telekomünikasyon Altyapı Tespit, Yazılım & Teknoloji Çözümleri, Kurumsal Promosyon Ürünleri, Kurumsal Eğitim Hizmetleri, Stratejik Yönetim Danışmanlığı ve Tam Hizmet Reklam Ajansı olmak üzere 6 temel sektörde faaliyet yürütmektedir."
-    },
-    {
-      q: "Proje teklif süreciniz nasıl işliyor?",
-      a: "Teklif butonumuz veya iletişim formumuz üzerinden talebinizi ilettiğinizde, ilgili sektördeki uzman ekibimiz 24 saat içinde detaylı bir ihtiyaç analizi ve bütçe planlaması ile dönüş yapmaktadır."
-    },
-    {
-      q: "Uluslararası standartlar ve sertifikasyonlarınız mevcut mu?",
-      a: "Evet, tüm süreçlerimiz ISO 9001 Kalite Yönetimi, ISO 27001 Bilgi Güvenliği ve ISO 45001 İş Sağlığı ve Güvenliği standartlarına tam uyumlu olarak sertifikalandırılmıştır."
-    },
-    {
-      q: "Farklı sektörlerdeki hizmetleri tek bir paket altında alabilir miyiz?",
-      a: "Kesinlikle! Grup şirketlerimizin entegre yapısı sayesinde örneğin hem yazılım ERP kurulumu hem kurumsal eğitim hem de lansman reklam kampanyası paket olarak sunulabilmektedir."
-    }
-  ];
 
   const filteredSectors = localizedSectors.filter(s => {
     const matchesSector = selectedFilterSector === 'all' || s.id === selectedFilterSector;
@@ -276,38 +239,7 @@ export default function Home({ onOpenProposal }) {
         </div>
       </section>
 
-      {/* Interactive FAQs Section */}
-      <section className="section">
-        <div className="container" style={{ maxWidth: '900px' }}>
-          <div className="section-header center">
-            <h2 className="display-title">{t('faqs_title')}</h2>
-            <p className="display-subtitle">{t('faqs_subtitle')}</p>
-          </div>
 
-          <div className="faqs-accordion">
-            {homeFaqs.map((faq, index) => {
-              const isOpen = openFaq === index;
-              return (
-                <div 
-                  key={index}
-                  className={`faq-item ${isOpen ? 'open' : ''}`}
-                  onClick={() => setOpenFaq(isOpen ? -1 : index)}
-                >
-                  <div className="faq-question">
-                    <h4>{faq.q}</h4>
-                    <ChevronDown size={20} className="faq-icon" />
-                  </div>
-                  {isOpen && (
-                    <div className="faq-answer">
-                      <p>{faq.a}</p>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
 
       {/* CTA Section */}
       <section className="section cta-banner-section">
