@@ -2,49 +2,42 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
-  ArrowUpRight, TrendingUp, Users, Award, ShieldCheck, 
-  ChevronDown, CheckCircle2, Star, Sparkles, MessageSquarePlus, Search 
+  ArrowUpRight, ShieldCheck, 
+  ChevronDown, CheckCircle2, Sparkles, MessageSquarePlus, Search, Cpu, Globe, ArrowRight
 } from 'lucide-react';
 import Hero from '../components/Hero';
 import SectorExplorer from '../components/SectorExplorer';
-import AnimatedCounter from '../components/AnimatedCounter';
-import GlobalOfficesMap from '../components/GlobalOfficesMap';
-import { sectors, companyInfo, mainHeroImg, projectAnalyticsImg } from '../data/sectors';
+import { getSectors, getCompanyInfo, mainHeroImg, projectAnalyticsImg } from '../data/sectors';
+import { useLanguage } from '../context/LanguageContext';
 import './Home.css';
 
 export default function Home({ onOpenProposal }) {
+  const { language, t } = useLanguage();
   const [openFaq, setOpenFaq] = useState(0);
   const [projectSearch, setProjectSearch] = useState('');
   const [selectedFilterSector, setSelectedFilterSector] = useState('all');
 
-  const testimonials = [
-    {
-      id: 1,
-      quote: "NIMA Grup ile 400km fiber optik hattı projemizde çalıştık. Saha tespiti ve 3D haritalama konusundaki hız ve hassasiyetleri benzersizdi.",
-      author: "Mehmet Yılmaz",
-      role: "Altyapı & Telekomünikasyon Direktörü",
-      company: "Global Net A.Ş.",
-      rating: 5
-    },
-    {
-      id: 2,
-      quote: "Kurumsal ERP dönüşümümüzü 6 ay gibi kısa bir sürede tamamladılar. Operasyonel verimliliğimiz %40 arttı.",
-      author: "Caner Aksoy",
-      role: "Teknoloji Başkanı (CTO)",
-      company: "Lojistik Şirketler Grubu",
-      rating: 5
-    },
-    {
-      id: 3,
-      quote: "50.000 adet VIP sürdürülebilir kurumsal hediyemizi eksiksiz ve büyüleyici bir sunumla zamanında teslim ettiler.",
-      author: "Zeynep Kaya",
-      role: "Pazarlama ve İletişim Müdürü",
-      company: "Uluslararası Bankacılık",
-      rating: 5
-    }
-  ];
+  const localizedSectors = getSectors(language);
+  const localizedCompany = getCompanyInfo(language);
 
-  const homeFaqs = [
+  const homeFaqs = language === 'en' ? [
+    {
+      q: "Which core sectors does NIMA Group operate in?",
+      a: "NIMA Group operates across 6 primary sectors: Telecommunications Infrastructure Detection, Software & Technology Solutions, Corporate Promotional Products, Corporate Training Services, Strategic Management Consulting, and Full-Service Advertising Agency."
+    },
+    {
+      q: "How does your project proposal process work?",
+      a: "Once you submit your request via our quote button or contact form, our expert team in the relevant sector gets back to you within 24 hours with a detailed needs analysis and budget planning."
+    },
+    {
+      q: "Do you hold international standards and certifications?",
+      a: "Yes, all our business processes are fully certified under ISO 9001 Quality Management, ISO 27001 Information Security, and ISO 45001 Occupational Health and Safety standards."
+    },
+    {
+      q: "Can we bundle services across multiple sectors into a single package?",
+      a: "Absolutely! Thanks to the integrated holding structure of our group companies, we can package together, for instance, ERP software installation, corporate training, and launch advertising campaigns into a single unified agreement."
+    }
+  ] : [
     {
       q: "NIMA Grup hangi ana sektörlerde faaliyet göstermektedir?",
       a: "NIMA Grup; Telekomünikasyon Altyapı Tespit, Yazılım & Teknoloji Çözümleri, Kurumsal Promosyon Ürünleri, Kurumsal Eğitim Hizmetleri, Stratejik Yönetim Danışmanlığı ve Tam Hizmet Reklam Ajansı olmak üzere 6 temel sektörde faaliyet yürütmektedir."
@@ -63,7 +56,7 @@ export default function Home({ onOpenProposal }) {
     }
   ];
 
-  const filteredSectors = sectors.filter(s => {
+  const filteredSectors = localizedSectors.filter(s => {
     const matchesSector = selectedFilterSector === 'all' || s.id === selectedFilterSector;
     const matchesQuery = !projectSearch.trim() || 
       s.name.toLowerCase().includes(projectSearch.toLowerCase()) || 
@@ -76,121 +69,70 @@ export default function Home({ onOpenProposal }) {
     <main>
       {/* Animated Hero Section */}
       <Hero 
-        title="Geleceğin Teknolojilerini<br/><span>Bugünden</span> İnşa Ediyoruz."
-        subtitle={`${companyInfo.name}, 6 farklı stratejik sektörde yenilikçi mühendislik, dijital dönüşüm ve kurumsal çözümleriyle sürdürülebilir değer üretir.`}
+        title={t('hero_slide1_title')}
+        subtitle={t('hero_slide1_subtitle')}
         image={mainHeroImg}
         showButton={true}
         onOpenProposal={onOpenProposal}
       />
 
-      {/* Stats Counter Section */}
-      <section className="section stats-section">
+      {/* Kısaca Biz (Briefly About Us) Section */}
+      <section className="section kisaca-biz-section">
         <div className="container">
-          <div className="stats-grid">
-            <motion.div 
-              className="stat-card"
-              whileHover={{ y: -6 }}
-              transition={{ duration: 0.2 }}
-            >
-              <div className="stat-icon-wrap"><TrendingUp size={26}/></div>
-              <h3 className="stat-number">
-                <AnimatedCounter value="25+" />
-              </h3>
-              <p className="stat-text">Yıllık Köklü Tecrübe</p>
-            </motion.div>
-
-            <motion.div 
-              className="stat-card"
-              whileHover={{ y: -6 }}
-              transition={{ duration: 0.2 }}
-            >
-              <div className="stat-icon-wrap"><ShieldCheck size={26}/></div>
-              <h3 className="stat-number">
-                <AnimatedCounter value="500+" />
-              </h3>
-              <p className="stat-text">Tamamlanan Proje</p>
-            </motion.div>
-
-            <motion.div 
-              className="stat-card"
-              whileHover={{ y: -6 }}
-              transition={{ duration: 0.2 }}
-            >
-              <div className="stat-icon-wrap"><Users size={26}/></div>
-              <h3 className="stat-number">
-                <AnimatedCounter value="1200+" />
-              </h3>
-              <p className="stat-text">Uzman Kadro</p>
-            </motion.div>
-
-            <motion.div 
-              className="stat-card"
-              whileHover={{ y: -6 }}
-              transition={{ duration: 0.2 }}
-            >
-              <div className="stat-icon-wrap"><Award size={26}/></div>
-              <h3 className="stat-number">
-                <AnimatedCounter value="15" />
-              </h3>
-              <p className="stat-text">Ulusal & Uluslararası Ödül</p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Bento Grid Sectors */}
-      <section className="section bg-secondary" id="sectors">
-        <div className="container">
-          <div className="section-header center">
-            <div className="badge-pill">
-              <Sparkles size={14} /> Güçlü Sektörel Yapı
+          <div className="kisaca-biz-wrapper">
+            <div className="kisaca-biz-header">
+              <div className="badge-pill">
+                <Sparkles size={14} /> {t('home_biz_badge')}
+              </div>
+              <h2 className="display-title" style={{ fontSize: 'clamp(2.25rem, 5vw, 3.5rem)' }} dangerouslySetInnerHTML={{ __html: t('home_biz_title') }} />
+              <p className="display-subtitle" style={{ margin: '0 auto' }}>
+                {t('home_biz_subtitle')}
+              </p>
             </div>
-            <h2 className="display-title">Faaliyet Alanlarımız</h2>
-            <p className="display-subtitle">
-              Sektör odaklı uzmanlık alanlarımız ile kurumunuz için ihtiyaca özel uçtan uca çözümler üretiyoruz.
-            </p>
-          </div>
-          
-          <div className="bento-grid">
-            {sectors.map((sector, index) => (
-              <motion.div
-                key={sector.id}
-                className={`bento-card item-${index}`}
-                style={{ '--brand': sector.color }}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+
+            <div className="kisaca-biz-grid">
+              <motion.div 
+                className="biz-card" 
+                whileHover={{ y: -6 }}
+                transition={{ duration: 0.2 }}
               >
-                <Link to={sector.path} className="bento-card-link">
-                  <div className="bento-bg" style={{ backgroundImage: `url(${sector.heroImage})` }} />
-                  <div className="bento-overlay" />
-                  
-                  <div className="bento-content">
-                    <div className="bento-top">
-                      <div className="bento-icon-wrapper" style={{ background: sector.lightColor, color: sector.color }}>
-                        <sector.icon size={26} strokeWidth={1.8} />
-                      </div>
-                      <span className="bento-badge-tag">{sector.badge}</span>
-                      <ArrowUpRight size={24} className="bento-arrow" />
-                    </div>
-                    
-                    <div className="bento-bottom">
-                      <h3 className="bento-title">{sector.name}</h3>
-                      <p className="bento-desc">{sector.description}</p>
-                      
-                      <div className="bento-metrics">
-                        {sector.stats.slice(0, 2).map((st, i) => (
-                          <span key={i} className="bento-metric-chip">
-                            <strong>{st.value}</strong> {st.label}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </Link>
+                <div className="biz-icon-box" style={{ background: 'rgba(209, 47, 14, 0.1)', color: '#D12F0E' }}>
+                  <Cpu size={28} />
+                </div>
+                <h3>{t('home_biz_card1_title')}</h3>
+                <p>{t('home_biz_card1_desc')}</p>
               </motion.div>
-            ))}
+
+              <motion.div 
+                className="biz-card" 
+                whileHover={{ y: -6 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="biz-icon-box" style={{ background: 'rgba(246, 195, 16, 0.15)', color: '#D12F0E' }}>
+                  <Globe size={28} />
+                </div>
+                <h3>{t('home_biz_card2_title')}</h3>
+                <p>{t('home_biz_card2_desc')}</p>
+              </motion.div>
+
+              <motion.div 
+                className="biz-card" 
+                whileHover={{ y: -6 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="biz-icon-box" style={{ background: 'rgba(233, 123, 26, 0.1)', color: '#E97B1A' }}>
+                  <ShieldCheck size={28} />
+                </div>
+                <h3>{t('home_biz_card3_title')}</h3>
+                <p>{t('home_biz_card3_desc')}</p>
+              </motion.div>
+            </div>
+
+            <div className="kisaca-biz-footer">
+              <Link to="/hakkimizda" className="btn-modern btn-dark">
+                {t('home_biz_btn')} <ArrowRight size={18} />
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -205,11 +147,11 @@ export default function Home({ onOpenProposal }) {
         <div className="container">
           <div className="section-header center">
             <div className="badge-pill">
-              <Sparkles size={14} /> Başarı Hikayeleri & Portföy
+              <Sparkles size={14} /> {t('portfolio_badge')}
             </div>
-            <h2 className="display-title">Öne Çıkan Projelerimiz</h2>
+            <h2 className="display-title">{t('portfolio_title')}</h2>
             <p className="display-subtitle">
-              Sektör liderleri için hayata geçirdiğimiz yüksek etkili projelerde arama ve filtreleme yapın.
+              {t('portfolio_subtitle')}
             </p>
           </div>
 
@@ -219,7 +161,7 @@ export default function Home({ onOpenProposal }) {
               <Search size={18} />
               <input 
                 type="text" 
-                placeholder="Proje veya hizmet adı ile arayın..."
+                placeholder={t('portfolio_search_placeholder')}
                 value={projectSearch}
                 onChange={(e) => setProjectSearch(e.target.value)}
               />
@@ -230,9 +172,9 @@ export default function Home({ onOpenProposal }) {
                 className={`filter-chip ${selectedFilterSector === 'all' ? 'active' : ''}`}
                 onClick={() => setSelectedFilterSector('all')}
               >
-                Tüm Sektörler
+                {t('portfolio_all')}
               </button>
-              {sectors.map(s => (
+              {localizedSectors.map(s => (
                 <button
                   key={s.id}
                   className={`filter-chip ${selectedFilterSector === s.id ? 'active' : ''}`}
@@ -268,7 +210,7 @@ export default function Home({ onOpenProposal }) {
                       <span className="project-metric">{s.references[0].metric}</span>
                     )}
                     <Link to={s.path} className="project-link-btn">
-                      Detaylar <ArrowUpRight size={16} />
+                      {t('portfolio_details')} <ArrowUpRight size={16} />
                     </Link>
                   </div>
                 </div>
@@ -278,48 +220,45 @@ export default function Home({ onOpenProposal }) {
         </div>
       </section>
 
-      {/* Global Offices Section */}
-      <GlobalOfficesMap />
-
       {/* Modern Corporate About Preview */}
       <section className="section">
         <div className="container">
           <div className="split-layout align-center">
             <div className="split-text">
               <div className="badge-pill">
-                <ShieldCheck size={14} /> Nima Farkı
+                <ShieldCheck size={14} /> {t('diff_badge')}
               </div>
-              <h2 className="display-title">Neden Nima Grup?</h2>
+              <h2 className="display-title">{t('diff_title')}</h2>
               <p className="large-text">
-                Köklü tecrübemiz, yenilikçi yaklaşımımız ve tavizsiz kalite ilkemizle şirketleri geleceğin dijital dünyasına taşıyoruz.
+                {t('diff_subtitle')}
               </p>
               
               <ul className="core-values-list">
                 <li>
                   <CheckCircle2 size={20} className="text-brand" />
                   <div>
-                    <strong>Sürdürülebilirlik & Çevre Odaklılık</strong>
-                    <p>Karbon ayak izini azaltan yeşil teknoloji ve geri dönüştürülebilir malzeme standartları.</p>
+                    <strong>{t('diff_item1_title')}</strong>
+                    <p>{t('diff_item1_desc')}</p>
                   </div>
                 </li>
                 <li>
                   <CheckCircle2 size={20} className="text-brand" />
                   <div>
-                    <strong>Uluslararası Sertifikalı Standartlar</strong>
-                    <p>ISO 9001, ISO 27001 ve ISO 45001 kalitesinde denetlenen iş süreçleri.</p>
+                    <strong>{t('diff_item2_title')}</strong>
+                    <p>{t('diff_item2_desc')}</p>
                   </div>
                 </li>
                 <li>
                   <CheckCircle2 size={20} className="text-brand" />
                   <div>
-                    <strong>%99.8 Müşteri Memnuniyeti</strong>
-                    <p>7/24 kesintisiz destek, şeffaf raporlama ve bütçe uyumluluğu garantisi.</p>
+                    <strong>{t('diff_item3_title')}</strong>
+                    <p>{t('diff_item3_desc')}</p>
                   </div>
                 </li>
               </ul>
 
               <Link to="/hakkimizda" className="btn-modern btn-dark" style={{ marginTop: '2rem' }}>
-                Kurumsal Profilimiz
+                {t('diff_btn')}
                 <ArrowUpRight size={18} />
               </Link>
             </div>
@@ -328,51 +267,11 @@ export default function Home({ onOpenProposal }) {
               <div className="visual-card-inner">
                 <img src={projectAnalyticsImg} alt="Nima Grup Analiz" />
                 <div className="visual-card-glass">
-                  <h3>"Geleceğe Güvenle Şekil Veriyoruz"</h3>
-                  <p>1200+ Çalışan • 81 İl • 6 Sektör</p>
+                  <h3>{t('diff_card_quote')}</h3>
+                  <p>{t('diff_card_sub')}</p>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Client Testimonials Carousel */}
-      <section className="section bg-secondary">
-        <div className="container">
-          <div className="section-header center">
-            <div className="badge-pill">
-              <Star size={14} /> Müşteri Yorumları
-            </div>
-            <h2 className="display-title">İş Ortaklarımız Ne Diyor?</h2>
-            <p className="display-subtitle">Birlikte başarıya ulaştığımız değerli yöneticilerin görüşleri.</p>
-          </div>
-
-          <div className="testimonials-grid">
-            {testimonials.map((t) => (
-              <motion.div 
-                key={t.id}
-                className="testimonial-card"
-                whileHover={{ y: -6 }}
-                transition={{ duration: 0.2 }}
-              >
-                <div className="stars-row">
-                  {[...Array(t.rating)].map((_, i) => (
-                    <Star key={i} size={16} fill="#F6C310" color="#F6C310" />
-                  ))}
-                </div>
-
-                <p className="testimonial-quote">"{t.quote}"</p>
-
-                <div className="testimonial-user">
-                  <div className="user-avatar">{t.author.charAt(0)}</div>
-                  <div>
-                    <h5 className="user-name">{t.author}</h5>
-                    <span className="user-role">{t.role} — <strong>{t.company}</strong></span>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
           </div>
         </div>
       </section>
@@ -381,8 +280,8 @@ export default function Home({ onOpenProposal }) {
       <section className="section">
         <div className="container" style={{ maxWidth: '900px' }}>
           <div className="section-header center">
-            <h2 className="display-title">Sıkça Sorulan Sorular</h2>
-            <p className="display-subtitle">NIMA Grup hakkında merak edilen tüm konular ve yanıtları.</p>
+            <h2 className="display-title">{t('faqs_title')}</h2>
+            <p className="display-subtitle">{t('faqs_subtitle')}</p>
           </div>
 
           <div className="faqs-accordion">
@@ -415,19 +314,19 @@ export default function Home({ onOpenProposal }) {
         <div className="container">
           <div className="cta-banner-card">
             <div className="cta-content">
-              <h2 className="cta-title">Projenizi Birlikte Hayata Geçirelim</h2>
+              <h2 className="cta-title">{t('cta_title')}</h2>
               <p className="cta-desc">
-                Sektörünüze özel yenilikçi çözümlerimizi konuşmak için hemen teklif alın veya uzman ekibimizle iletişime geçin.
+                {t('cta_subtitle')}
               </p>
               <div className="cta-actions">
                 <button 
                   className="btn-modern btn-dark cta-btn"
                   onClick={() => onOpenProposal()}
                 >
-                  <MessageSquarePlus size={18} /> Hızlı Teklif Al
+                  <MessageSquarePlus size={18} /> {t('cta_btn_proposal')}
                 </button>
                 <Link to="/iletisim" className="btn-modern btn-outline cta-btn-white">
-                  İletişime Geçin
+                  {t('cta_btn_contact')}
                 </Link>
               </div>
             </div>

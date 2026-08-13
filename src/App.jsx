@@ -8,6 +8,7 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import ScrollProgress from './components/ScrollProgress';
 import InteractiveInquiryModal from './components/InteractiveInquiryModal';
+import { LanguageProvider } from './context/LanguageContext';
 
 function App() {
   const [isProposalOpen, setIsProposalOpen] = useState(false);
@@ -23,59 +24,61 @@ function App() {
   };
 
   return (
-    <Router>
-      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', position: 'relative' }}>
-        {/* Top Reading Progress & Floating Buttons */}
-        <ScrollProgress onOpenProposal={() => handleOpenProposal()} />
+    <LanguageProvider>
+      <Router>
+        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', position: 'relative' }}>
+          {/* Top Reading Progress & Floating Buttons */}
+          <ScrollProgress onOpenProposal={() => handleOpenProposal()} />
 
-        {/* Global Navigation Header */}
-        <Navbar onOpenProposal={() => handleOpenProposal()} />
+          {/* Global Navigation Header */}
+          <Navbar onOpenProposal={() => handleOpenProposal()} />
 
-        {/* Main Content Pages */}
-        <div style={{ flexGrow: 1 }}>
-          <Routes>
-            <Route 
-              path="/" 
-              element={
-                <Home 
-                  onOpenProposal={handleOpenProposal} 
-                />
-              } 
-            />
-            <Route 
-              path="/hakkimizda" 
-              element={
-                <About 
-                  onOpenProposal={handleOpenProposal} 
-                />
-              } 
-            />
-            <Route 
-              path="/iletisim" 
-              element={<Contact />} 
-            />
-            <Route 
-              path="/:sectorId" 
-              element={
-                <SectorPage 
-                  onOpenProposal={handleOpenProposal} 
-                />
-              } 
-            />
-          </Routes>
+          {/* Main Content Pages */}
+          <div style={{ flexGrow: 1 }}>
+            <Routes>
+              <Route 
+                path="/" 
+                element={
+                  <Home 
+                    onOpenProposal={handleOpenProposal} 
+                  />
+                } 
+              />
+              <Route 
+                path="/hakkimizda" 
+                element={
+                  <About 
+                    onOpenProposal={handleOpenProposal} 
+                  />
+                } 
+              />
+              <Route 
+                path="/iletisim" 
+                element={<Contact />} 
+              />
+              <Route 
+                path="/:sectorId" 
+                element={
+                  <SectorPage 
+                    onOpenProposal={handleOpenProposal} 
+                  />
+                } 
+              />
+            </Routes>
+          </div>
+
+          {/* Global Footer */}
+          <Footer />
+
+          {/* Interactive Proposal Modal */}
+          <InteractiveInquiryModal 
+            isOpen={isProposalOpen} 
+            onClose={handleCloseProposal}
+            defaultSectorId={proposalSectorId}
+          />
         </div>
-
-        {/* Global Footer */}
-        <Footer />
-
-        {/* Interactive Proposal Modal */}
-        <InteractiveInquiryModal 
-          isOpen={isProposalOpen} 
-          onClose={handleCloseProposal}
-          defaultSectorId={proposalSectorId}
-        />
-      </div>
-    </Router>
+      </Router>
+    </LanguageProvider>
   );
 }
 

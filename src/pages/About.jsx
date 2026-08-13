@@ -1,20 +1,25 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Target, Compass, Users, Globe2, ShieldCheck, HeartHandshake, Award, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Target, Compass, Sparkles, CheckCircle2 } from 'lucide-react';
 import Hero from '../components/Hero';
-import AnimatedCounter from '../components/AnimatedCounter';
-import { companyInfo, companyMilestones, companyValues, aboutHeroImg } from '../data/sectors';
+import { getCompanyInfo, getCompanyMilestones, getCompanyValues, aboutHeroImg } from '../data/sectors';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function About({ onOpenProposal }) {
-  const [activeYear, setActiveYear] = useState(companyMilestones[companyMilestones.length - 1].year);
+  const { language, t } = useLanguage();
+  const localizedCompany = getCompanyInfo(language);
+  const localizedMilestones = getCompanyMilestones(language);
+  const localizedValues = getCompanyValues(language);
+
+  const [activeYear, setActiveYear] = useState(localizedMilestones[localizedMilestones.length - 1].year);
 
   return (
     <main>
       <Hero 
-        title="Geleceği Şekillendiren<br/><span>Kurumsal Güç</span>."
-        subtitle={`${companyInfo.name}, 1999 yılından bu yana 6 ana sektörde inovasyon, teknoloji ve sürdürülebilir büyüme odaklı çözümler sunmaktadır.`}
+        title={t('about_hero_title')}
+        subtitle={`${localizedCompany.name}, ${t('about_hero_sub')}`}
         image={aboutHeroImg}
-        badgeText="Şirket Profili & Tarihçe"
+        badgeText={t('about_badge')}
         showButton={false}
       />
       
@@ -34,9 +39,9 @@ export default function About({ onOpenProposal }) {
               <div style={{ width: 56, height: 56, borderRadius: 'var(--radius-lg)', background: 'rgba(209, 47, 14, 0.1)', color: '#D12F0E', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Compass size={32} />
               </div>
-              <h2 className="display-title" style={{ fontSize: '2.25rem' }}>Vizyonumuz</h2>
+              <h2 className="display-title" style={{ fontSize: '2.25rem' }}>{t('about_vision_title')}</h2>
               <p className="regular-text" style={{ margin: 0, color: 'var(--text-muted)', lineHeight: '1.7' }}>
-                Faaliyet gösterdiğimiz tüm sektörlerde, teknolojiyi insan odaklı ve sürdürülebilir bir yaklaşımla harmanlayarak küresel pazarda ilham veren, standart belirleyen lider bir holding yapısı olmak.
+                {t('about_vision_desc')}
               </p>
             </motion.div>
             
@@ -52,9 +57,9 @@ export default function About({ onOpenProposal }) {
               <div style={{ width: 56, height: 56, borderRadius: 'var(--radius-lg)', background: 'rgba(246, 195, 16, 0.15)', color: '#D12F0E', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Target size={32} />
               </div>
-              <h2 className="display-title" style={{ fontSize: '2.25rem' }}>Misyonumuz</h2>
+              <h2 className="display-title" style={{ fontSize: '2.25rem' }}>{t('about_mission_title')}</h2>
               <p className="regular-text" style={{ margin: 0, color: 'var(--text-muted)', lineHeight: '1.7' }}>
-                Paydaşlarımıza en yüksek katma değeri sunmak; şeffaf, güvenilir ve yenilikçi hizmet anlayışıyla topluma ve çevreye duyarlı sürdürülebilir iş modelleri geliştirmek.
+                {t('about_mission_desc')}
               </p>
             </motion.div>
           </div>
@@ -66,14 +71,14 @@ export default function About({ onOpenProposal }) {
         <div className="container">
           <div className="section-header center">
             <div className="badge-pill">
-              <Sparkles size={14} /> Tarihsel Başarı Yolculuğu
+              <Sparkles size={14} /> {t('about_milestones_badge')}
             </div>
-            <h2 className="display-title">Kilometre Taşlarımız</h2>
-            <p className="display-subtitle">1999'dan günümüze büyüme ve dönüşüm hikayemiz.</p>
+            <h2 className="display-title">{t('about_milestones_title')}</h2>
+            <p className="display-subtitle">{t('about_milestones_sub')}</p>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1rem', marginBottom: '3rem' }}>
-            {companyMilestones.map((m) => (
+            {localizedMilestones.map((m) => (
               <button
                 key={m.year}
                 onClick={() => setActiveYear(m.year)}
@@ -97,7 +102,7 @@ export default function About({ onOpenProposal }) {
 
           {/* Active Milestone Card */}
           {(() => {
-            const currentM = companyMilestones.find(m => m.year === activeYear) || companyMilestones[0];
+            const currentM = localizedMilestones.find(m => m.year === activeYear) || localizedMilestones[0];
             return (
               <div style={{ 
                 padding: '3rem', 
@@ -110,7 +115,7 @@ export default function About({ onOpenProposal }) {
                 gap: '2rem'
               }}>
                 <div>
-                  <span style={{ fontSize: '1rem', fontWeight: '700', color: '#D12F0E' }}>Dönüm Noktası — {currentM.year}</span>
+                  <span style={{ fontSize: '1rem', fontWeight: '700', color: '#D12F0E' }}>{t('about_milestone_tag')} — {currentM.year}</span>
                   <h3 style={{ fontSize: '2rem', fontWeight: '700', margin: '0.5rem 0 1rem' }}>{currentM.title}</h3>
                   <p style={{ fontSize: '1.1rem', color: 'var(--text-muted)', maxWidth: '700px', lineHeight: '1.6' }}>{currentM.desc}</p>
                 </div>
@@ -127,12 +132,12 @@ export default function About({ onOpenProposal }) {
       <section className="section bg-secondary">
         <div className="container">
           <div className="section-header center">
-            <h2 className="display-title">Temel Değerlerimiz</h2>
-            <p className="display-subtitle">Attığımız her adımda rehber edindiğimiz kurumsal ilkelerimiz.</p>
+            <h2 className="display-title">{t('about_values_title')}</h2>
+            <p className="display-subtitle">{t('about_values_sub')}</p>
           </div>
           
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem' }}>
-            {companyValues.map((val, idx) => {
+            {localizedValues.map((val, idx) => {
               const VIcon = val.icon;
               return (
                 <motion.div 
@@ -174,28 +179,28 @@ export default function About({ onOpenProposal }) {
           }}>
             <div>
               <h2 style={{ fontSize: '2.5rem', fontWeight: '700', color: '#ffffff', marginBottom: '1rem' }}>
-                Küresel Kalite Standartları
+                {t('about_standards_title')}
               </h2>
               <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.1rem', lineHeight: '1.6', marginBottom: '2rem' }}>
-                Tüm operasyonlarımız uluslararası sertifikasyonlar ve sürdürülebilirlik protokollerine göre yürütülmektedir.
+                {t('about_standards_sub')}
               </p>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <CheckCircle2 size={20} color="#22c55e" />
-                  <span>ISO 9001 Kalite</span>
+                  <span>{t('about_std1')}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <CheckCircle2 size={20} color="#22c55e" />
-                  <span>ISO 27001 Bilgi Güvenliği</span>
+                  <span>{t('about_std2')}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <CheckCircle2 size={20} color="#22c55e" />
-                  <span>ISO 45001 İSG</span>
+                  <span>{t('about_std3')}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <CheckCircle2 size={20} color="#22c55e" />
-                  <span>%100 Sürdürülebilirlik</span>
+                  <span>{t('about_std4')}</span>
                 </div>
               </div>
             </div>
@@ -206,7 +211,7 @@ export default function About({ onOpenProposal }) {
                 style={{ background: '#ffffff', color: '#09090b', padding: '1.2rem 2.5rem', fontSize: '1.05rem', fontWeight: '600' }}
                 onClick={() => onOpenProposal()}
               >
-                Hızlı Proje Teklifi Al
+                {t('modal_badge')}
               </button>
             </div>
           </div>

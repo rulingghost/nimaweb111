@@ -1,13 +1,18 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Mail, Phone, MapPin, ArrowRight, ShieldCheck, Globe, Share2, MessageCircle, Send, Check } from 'lucide-react';
-import { sectors, companyInfo } from '../data/sectors';
+import { Mail, Phone, MapPin, ArrowRight, Globe, Share2, MessageCircle, Send, Check } from 'lucide-react';
+import { getSectors, getCompanyInfo } from '../data/sectors';
+import { useLanguage } from '../context/LanguageContext';
 import './Footer.css';
 
 export default function Footer() {
+  const { language, t } = useLanguage();
   const location = useLocation();
+  const localizedSectors = getSectors(language);
+  const localizedCompany = getCompanyInfo(language);
+
   const currentSectorPath = location.pathname.split('/')[1];
-  const activeSector = sectors.find(s => s.path === `/${currentSectorPath}`);
+  const activeSector = localizedSectors.find(s => s.path === `/${currentSectorPath}`);
   const [subscribed, setSubscribed] = useState(false);
   const [newsletterEmail, setNewsletterEmail] = useState('');
 
@@ -28,26 +33,26 @@ export default function Footer() {
         {/* Newsletter Bar */}
         <div className="footer-newsletter-box">
           <div className="newsletter-text">
-            <h3>Sektörel İnovasyon Bültenimize Katılın</h3>
-            <p>Teknoloji, telekomünikasyon ve yönetim dünyasından güncel raporlar doğrudan e-postanızda.</p>
+            <h3>{language === 'en' ? 'Join Our Sector Innovation Newsletter' : 'Sektörel İnovasyon Bültenimize Katılın'}</h3>
+            <p>{language === 'en' ? 'Latest reports from technology, telecom, and management directly in your inbox.' : 'Teknoloji, telekomünikasyon ve yönetim dünyasından güncel raporlar doğrudan e-postanızda.'}</p>
           </div>
 
           <form onSubmit={handleSubscribe} className="newsletter-form">
             {subscribed ? (
               <div className="newsletter-success">
-                <Check size={18} /> Bültene başarıyla kaydoldunuz!
+                <Check size={18} /> {language === 'en' ? 'Successfully subscribed to newsletter!' : 'Bültene başarıyla kaydoldunuz!'}
               </div>
             ) : (
               <div className="newsletter-input-group">
                 <input 
                   type="email" 
                   required
-                  placeholder="E-posta adresiniz..."
+                  placeholder={language === 'en' ? 'Your email address...' : 'E-posta adresiniz...'}
                   value={newsletterEmail}
                   onChange={(e) => setNewsletterEmail(e.target.value)}
                 />
                 <button type="submit" className="newsletter-btn">
-                  Abone Ol <ArrowRight size={16} />
+                  {language === 'en' ? 'Subscribe' : 'Abone Ol'} <ArrowRight size={16} />
                 </button>
               </div>
             )}
@@ -62,7 +67,7 @@ export default function Footer() {
               <span>NIMA GRUP.</span>
             </Link>
             <p className="footer-desc">
-              {activeSector ? activeSector.description : companyInfo.description}
+              {activeSector ? activeSector.description : localizedCompany.description}
             </p>
 
             <div className="footer-socials">
@@ -75,15 +80,15 @@ export default function Footer() {
           
           <div className="footer-links-col">
             <div className="footer-nav">
-              <h4 className="footer-heading">Kurumsal Navigasyon</h4>
-              <Link to="/">Ana Sayfa</Link>
-              <Link to="/hakkimizda">Şirket Profili & Tarihçe</Link>
-              <Link to="/iletisim">İletişim & Konum</Link>
+              <h4 className="footer-heading">{t('footer_title_corp')}</h4>
+              <Link to="/">{t('nav_home')}</Link>
+              <Link to="/hakkimizda">{t('nav_about')}</Link>
+              <Link to="/iletisim">{t('nav_contact')}</Link>
             </div>
             
             <div className="footer-nav">
-              <h4 className="footer-heading">Faaliyet Alanlarımız</h4>
-              {sectors.map(s => (
+              <h4 className="footer-heading">{t('footer_title_sectors')}</h4>
+              {localizedSectors.map(s => (
                 <Link key={s.id} to={s.path}>{s.name}</Link>
               ))}
             </div>
@@ -92,12 +97,12 @@ export default function Footer() {
         
         <div className="footer-bottom">
           <div className="footer-contact">
-            <span><MapPin size={16}/> {companyInfo.address}</span>
-            <span><Phone size={16}/> {companyInfo.phone}</span>
-            <span><Mail size={16}/> {companyInfo.email}</span>
+            <span><MapPin size={16}/> {localizedCompany.address}</span>
+            <span><Phone size={16}/> {localizedCompany.phone}</span>
+            <span><Mail size={16}/> {localizedCompany.email}</span>
           </div>
           <div className="footer-copy">
-            &copy; {new Date().getFullYear()} Nima Grup Holding. Tüm hakları saklıdır. ISO 9001 / 27001 Certified.
+            &copy; {new Date().getFullYear()} Nima Grup Holding. {t('footer_rights')} ISO 9001 / 27001 Certified.
           </div>
         </div>
       </div>

@@ -35,6 +35,27 @@
   border-color: var(--text-main);
 }
 
+.lang-toggle-btn {
+  height: 40px;
+  padding: 0 0.85rem;
+  border-radius: 100px;
+  border: 1px solid var(--border-light);
+  background: var(--bg-secondary);
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  font-size: 0.825rem;
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+
+.lang-toggle-btn:hover {
+  border-color: var(--text-main);
+  background: var(--bg-main);
+}
+
 .navbar-inner {
   max-width: var(--container-max);
   margin: 0 auto;

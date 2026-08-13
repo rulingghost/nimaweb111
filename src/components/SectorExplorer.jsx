@@ -2,13 +2,16 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, CheckCircle2, Sparkles } from 'lucide-react';
-import { sectors } from '../data/sectors';
+import { getSectors } from '../data/sectors';
+import { useLanguage } from '../context/LanguageContext';
 import './SectorExplorer.css';
 
 export default function SectorExplorer({ onOpenProposal }) {
-  const [activeId, setActiveId] = useState(sectors[0].id);
+  const { language, t } = useLanguage();
+  const localizedSectors = getSectors(language);
+  const [activeId, setActiveId] = useState(localizedSectors[0].id);
 
-  const activeSector = sectors.find(s => s.id === activeId) || sectors[0];
+  const activeSector = localizedSectors.find(s => s.id === activeId) || localizedSectors[0];
   const IconComponent = activeSector.icon;
 
   return (
@@ -16,17 +19,17 @@ export default function SectorExplorer({ onOpenProposal }) {
       <div className="container">
         <div className="explorer-header">
           <div className="badge-pill">
-            <Sparkles size={14} /> İnteraktif Sektör Rehberi
+            <Sparkles size={14} /> {t('explorer_badge')}
           </div>
-          <h2 className="display-title">Sektörlerimizi Keşfedin</h2>
+          <h2 className="display-title">{t('explorer_title')}</h2>
           <p className="display-subtitle">
-            Hizmet sunduğumuz 6 ana sektörün detaylarını, öne çıkan projelerini ve uzmanlıklarımızı inceleyin.
+            {t('explorer_subtitle')}
           </p>
         </div>
 
         {/* Tab Buttons */}
         <div className="explorer-tabs">
-          {sectors.map((s) => {
+          {localizedSectors.map((s) => {
             const SIcon = s.icon;
             const isActive = s.id === activeId;
             return (
@@ -77,7 +80,7 @@ export default function SectorExplorer({ onOpenProposal }) {
 
                 {/* Features List */}
                 <div className="explorer-features">
-                  <h4>Öne Çıkan Uzmanlık Alanları:</h4>
+                  <h4>{t('explorer_features_title')}</h4>
                   <ul>
                     {activeSector.features.slice(0, 4).map((feat, idx) => (
                       <li key={idx}>
@@ -91,13 +94,13 @@ export default function SectorExplorer({ onOpenProposal }) {
                 {/* Action Buttons */}
                 <div className="explorer-actions">
                   <Link to={activeSector.path} className="btn-modern btn-dark">
-                    Sektör Sayfasına Git <ArrowRight size={18} />
+                    {t('explorer_btn_page')} <ArrowRight size={18} />
                   </Link>
                   <button 
                     className="btn-modern btn-outline"
                     onClick={() => onOpenProposal(activeSector.id)}
                   >
-                    Teklif İste
+                    {t('explorer_btn_proposal')}
                   </button>
                 </div>
               </div>
@@ -111,7 +114,7 @@ export default function SectorExplorer({ onOpenProposal }) {
                 {/* Featured Reference Preview */}
                 {activeSector.references && activeSector.references[0] && (
                   <div className="visual-ref-box">
-                    <div className="ref-tag">Örnek Başarı Hikayesi</div>
+                    <div className="ref-tag">{t('explorer_ref_tag')}</div>
                     <h5>{activeSector.references[0].name}</h5>
                     <p>{activeSector.references[0].description}</p>
                     {activeSector.references[0].metric && (
