@@ -285,5 +285,9 @@ export const defaultContent = {
     heroBg: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=2070&q=80',
     aboutImg: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=2070&q=80',
     contactImg: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=2069&q=80'
+  },
+
+  security: {
+    adminPassword: 'nima2026!'
   }
 };

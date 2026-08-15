@@ -7,10 +7,75 @@ import {
   MessageCircle, Send, Phone, Mail, MapPin, Download, FileJson,
   LayoutTemplate, Award, MessageSquareQuote, CheckCircle2,
   ChevronDown, ChevronUp, Search, Copy, CheckCheck, Palette, Zap,
-  Briefcase, Gift, HelpCircle
+  Briefcase, Gift, HelpCircle, Lock, KeyRound, Eye, EyeOff, LogOut, Key
 } from 'lucide-react';
 import { useContent } from '../context/ContentContext';
 import './Admin.css';
+
+// Admin Login Screen Component
+function AdminLogin({ onLogin, error, brandName }) {
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onLogin(password);
+  };
+
+  return (
+    <div className="admin-login-wrapper">
+      <div className="admin-login-card">
+        <div className="admin-login-icon">
+          <Lock size={26} />
+        </div>
+        <h2>{brandName || 'NİMA'} Yönetim Paneli</h2>
+        <p>Devam etmek için yönetici şifrenizi giriniz.</p>
+
+        {error && (
+          <div className="admin-login-error">
+            <AlertCircle size={16} />
+            <span>{error}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <div className="admin-password-group">
+            <input 
+              type={showPassword ? 'text' : 'password'}
+              className="admin-input" 
+              placeholder="Yönetici Şifresi"
+              autoFocus
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button 
+              type="button" 
+              className="admin-password-toggle"
+              onClick={() => setShowPassword(!showPassword)}
+              title={showPassword ? 'Gizle' : 'Göster'}
+            >
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
+
+          <button 
+            type="submit" 
+            className="admin-btn admin-btn-primary" 
+            style={{ width: '100%', justifyContent: 'center', marginTop: '8px' }}
+          >
+            <KeyRound size={16} /> Giriş Yap
+          </button>
+        </form>
+
+        <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          <Link to="/" style={{ color: 'var(--admin-text-muted)', fontSize: '0.82rem', textDecoration: 'none' }}>
+            ← Ana Sayfaya Dön
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // Error Boundary for Admin Page Resilience
 class AdminErrorBoundary extends Component {
@@ -135,6 +200,81 @@ function IconPickerField({ label, value, onChange }) {
   );
 }
 
+// Quick Page Link Preset Options
+const PAGE_PRESETS = [
+  { label: 'Ana Sayfa', path: '/' },
+  { label: 'Hakkımızda', path: '/hakkimizda' },
+  { label: 'Sektörlerimiz (#)', path: '/#sectors' },
+  { label: 'Telekomünikasyon', path: '/telekomunikasyon' },
+  { label: 'Yazılım & Teknoloji', path: '/yazilim' },
+  { label: 'Promosyon', path: '/promosyon' },
+  { label: 'Reklam & Medya', path: '/reklam' },
+  { label: 'Eğitim & Akademi', path: '/egitim' },
+  { label: 'Danışmanlık', path: '/danismanlik' },
+  { label: 'İletişim', path: '/iletisim' }
+];
+
+function PathInputField({ label, value, onChange, placeholder = '/sayfa-yolu', fullWidth = false }) {
+  return (
+    <div className={`admin-form-group ${fullWidth ? 'full-width' : ''}`}>
+      <label className="admin-form-label">
+        <span style={{ fontWeight: 700, color: '#fff' }}>{label || 'Yönlendirme Linki (Path)'}</span>
+        <span className="optional" style={{ color: '#38bdf8' }}>Hızlı Sayfa Seçici</span>
+      </label>
+      
+      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+        <input 
+          type="text" 
+          className="admin-input" 
+          placeholder={placeholder}
+          value={value || ''} 
+          onChange={(e) => onChange(e.target.value)}
+          style={{ flex: 1 }}
+        />
+        <select 
+          className="admin-select"
+          style={{ 
+            width: 'auto', 
+            minWidth: '150px', 
+            cursor: 'pointer', 
+            color: '#60a5fa', 
+            fontWeight: 600,
+            background: '#111726',
+            borderColor: 'rgba(59, 130, 246, 0.4)'
+          }}
+          value={value || ''}
+          onChange={(e) => {
+            if (e.target.value) {
+              onChange(e.target.value);
+            }
+          }}
+        >
+          <option value="" disabled>Sayfa Seçiniz ▼</option>
+          {PAGE_PRESETS.map((p) => (
+            <option key={p.path} value={p.path} style={{ color: '#fff', background: '#0e121c' }}>
+              {p.label} ({p.path})
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="admin-path-chips" style={{ marginTop: '8px' }}>
+        {PAGE_PRESETS.map((p) => (
+          <button
+            key={p.path}
+            type="button"
+            className={`admin-path-chip ${value === p.path ? 'active' : ''}`}
+            onClick={() => onChange(p.path)}
+            title={p.path}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // Reusable Inline Image Uploader with Vercel Blob & 1-Click Copy
 function ImageField({ label, value, onChange, placeholder = 'https://...' }) {
   const { uploadImage } = useContent();
@@ -252,12 +392,34 @@ function AdminMain() {
     setSaveStatus 
   } = useContent();
 
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return sessionStorage.getItem('nima_admin_auth') === 'true';
+  });
+  const [loginError, setLoginError] = useState(null);
+  const [newAdminPassword, setNewAdminPassword] = useState('');
+
   const [activeTab, setActiveTab] = useState('nav');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [localMessage, setLocalMessage] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [collapsedCards, setCollapsedCards] = useState({});
   const fileImportRef = useRef(null);
+
+  const handleLogin = (enteredPassword) => {
+    const validPassword = content.security?.adminPassword || 'nima2026!';
+    if (enteredPassword.trim() === validPassword.trim()) {
+      sessionStorage.setItem('nima_admin_auth', 'true');
+      setIsAuthenticated(true);
+      setLoginError(null);
+    } else {
+      setLoginError('Hatalı şifre girdiniz. Lütfen tekrar deneyin.');
+    }
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('nima_admin_auth');
+    setIsAuthenticated(false);
+  };
 
   // Unsaved changes browser prompt
   useEffect(() => {
@@ -436,6 +598,17 @@ function AdminMain() {
     if (fileImportRef.current) fileImportRef.current.value = '';
   };
 
+  // If not authenticated, render Login Screen
+  if (!isAuthenticated) {
+    return (
+      <AdminLogin 
+        onLogin={handleLogin} 
+        error={loginError} 
+        brandName={content.navigation?.brandName} 
+      />
+    );
+  }
+
   return (
     <div className="admin-layout">
       {/* Unsaved Changes Sticky Notification */}
@@ -482,6 +655,15 @@ function AdminMain() {
             >
               <Save size={16} />
               {isSaving ? 'Kaydediliyor...' : 'Değişiklikleri Kaydet'}
+            </button>
+
+            <button 
+              type="button" 
+              className="admin-btn admin-btn-outline" 
+              onClick={handleLogout}
+              title="Yönetimden Çıkış Yap"
+            >
+              <LogOut size={15} /> Çıkış
             </button>
           </div>
         </div>
@@ -668,15 +850,11 @@ function AdminMain() {
                           onChange={(e) => handleUpdateNavItem(index, 'title', e.target.value)}
                         />
                       </div>
-                      <div className="admin-form-group">
-                        <label className="admin-form-label">Yönlendirme Linki (Path)</label>
-                        <input 
-                          type="text" 
-                          className="admin-input" 
-                          value={item.path || ''} 
-                          onChange={(e) => handleUpdateNavItem(index, 'path', e.target.value)}
-                        />
-                      </div>
+                      <PathInputField 
+                        label="Yönlendirme Linki (Path)"
+                        value={item.path || ''}
+                        onChange={(p) => handleUpdateNavItem(index, 'path', p)}
+                      />
                       <div className="admin-form-group">
                         <label className="admin-form-label">Rozet (Badge)</label>
                         <input 
@@ -716,13 +894,18 @@ function AdminMain() {
                               value={subItem.title || ''} 
                               onChange={(e) => handleUpdateSubItem(index, subIdx, 'title', e.target.value)}
                             />
-                            <input 
-                              type="text" 
-                              className="admin-input" 
-                              placeholder="Path (/sayfa)"
+                            <select 
+                              className="admin-select" 
                               value={subItem.path || ''} 
                               onChange={(e) => handleUpdateSubItem(index, subIdx, 'path', e.target.value)}
-                            />
+                            >
+                              <option value="" disabled>Sayfa Seç ▼</option>
+                              {PAGE_PRESETS.map((p) => (
+                                <option key={p.path} value={p.path}>
+                                  {p.label} ({p.path})
+                                </option>
+                              ))}
+                            </select>
                             <input 
                               type="text" 
                               className="admin-input" 
@@ -805,15 +988,11 @@ function AdminMain() {
                 />
               </div>
 
-              <div className="admin-form-group">
-                <label className="admin-form-label">Birincil Buton Linki</label>
-                <input 
-                  type="text" 
-                  className="admin-input" 
-                  value={content.hero?.primaryBtnLink || ''} 
-                  onChange={(e) => setField('hero', 'primaryBtnLink', e.target.value)}
-                />
-              </div>
+              <PathInputField 
+                label="Birincil Buton Linki"
+                value={content.hero?.primaryBtnLink || ''}
+                onChange={(p) => setField('hero', 'primaryBtnLink', p)}
+              />
 
               <div className="admin-form-group">
                 <label className="admin-form-label">İkincil Buton Metni</label>
@@ -825,15 +1004,11 @@ function AdminMain() {
                 />
               </div>
 
-              <div className="admin-form-group">
-                <label className="admin-form-label">İkincil Buton Linki</label>
-                <input 
-                  type="text" 
-                  className="admin-input" 
-                  value={content.hero?.secondaryBtnLink || ''} 
-                  onChange={(e) => setField('hero', 'secondaryBtnLink', e.target.value)}
-                />
-              </div>
+              <PathInputField 
+                label="İkincil Buton Linki"
+                value={content.hero?.secondaryBtnLink || ''}
+                onChange={(p) => setField('hero', 'secondaryBtnLink', p)}
+              />
 
               <ImageField 
                 label="Hero Arka Plan Görseli"
@@ -1396,19 +1571,15 @@ function AdminMain() {
                             }}
                           />
                         </div>
-                        <div className="admin-form-group">
-                          <label className="admin-form-label">Sayfa Yolu (Path)</label>
-                          <input 
-                            type="text" 
-                            className="admin-input" 
-                            value={sec.path || ''} 
-                            onChange={(e) => {
-                              const updated = [...(content.services?.items || [])];
-                              updated[sIdx] = { ...updated[sIdx], path: e.target.value };
-                              setField('services', 'items', updated);
-                            }}
-                          />
-                        </div>
+                        <PathInputField 
+                          label="Sayfa Yolu (Path)"
+                          value={sec.path || ''} 
+                          onChange={(p) => {
+                            const updated = [...(content.services?.items || [])];
+                            updated[sIdx] = { ...updated[sIdx], path: p };
+                            setField('services', 'items', updated);
+                          }}
+                        />
                         <div className="admin-form-group">
                           <label className="admin-form-label">Rozet (Badge)</label>
                           <input 
@@ -1971,6 +2142,54 @@ function AdminMain() {
               </button>
             </div>
 
+            {/* Password Management */}
+            <div className="admin-section-header" style={{ marginTop: '28px' }}>
+              <div>
+                <h3 style={{ fontSize: '1rem', color: '#fff', margin: 0 }}>
+                  <Lock size={16} style={{ verticalAlign: 'middle', marginRight: '6px' }} />
+                  Yönetici Giriş Şifresi
+                </h3>
+                <p>Admin paneline giriş yaparken kullanılan şifreyi buradan güncelleyebilirsiniz.</p>
+              </div>
+            </div>
+
+            <div className="admin-grid-2" style={{ marginBottom: '24px' }}>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Mevcut Şifre</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  disabled
+                  value={content.security?.adminPassword || 'nima2026!'} 
+                />
+              </div>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Yeni Şifre Belirle</label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input 
+                    type="text" 
+                    className="admin-input" 
+                    placeholder="Yeni şifreyi girin..."
+                    value={newAdminPassword}
+                    onChange={(e) => setNewAdminPassword(e.target.value)}
+                  />
+                  <button 
+                    type="button" 
+                    className="admin-btn admin-btn-primary"
+                    style={{ whiteSpace: 'nowrap' }}
+                    disabled={!newAdminPassword.trim()}
+                    onClick={() => {
+                      setField('security', 'adminPassword', newAdminPassword.trim());
+                      setNewAdminPassword('');
+                      showToast('Yeni şifre ayarlandı! "Değişiklikleri Kaydet" butonuna tıklayarak onaylayın.', 'success');
+                    }}
+                  >
+                    <Key size={14} /> Şifreyi Güncelle
+                  </button>
+                </div>
+              </div>
+            </div>
+
             <h3 style={{ fontSize: '0.95rem', color: '#fff', marginBottom: '10px' }}>
               Canlı JSON Veri Yapısı (Vercel KV `site_content`)
             </h3>
@@ -1980,6 +2199,13 @@ function AdminMain() {
           </section>
         )}
       </main>
+
+      {/* Global Datalist for Quick Path Autocomplete */}
+      <datalist id="page-paths-list">
+        {PAGE_PRESETS.map((p) => (
+          <option key={p.path} value={p.path}>{p.label}</option>
+        ))}
+      </datalist>
     </div>
   );
 }
