@@ -1,0 +1,1993 @@
+import { useState, useRef, useEffect, useCallback, Component } from 'react';
+import { Link } from 'react-router-dom';
+import { 
+  Save, RefreshCw, Upload, Image as ImageIcon, Plus, Trash2, 
+  ArrowUp, ArrowDown, ExternalLink, Check, AlertCircle, Sparkles, 
+  Layers, Compass, Radio, Cpu, ShieldCheck, Globe, Share2, 
+  MessageCircle, Send, Phone, Mail, MapPin, Download, FileJson,
+  LayoutTemplate, Award, MessageSquareQuote, CheckCircle2,
+  ChevronDown, ChevronUp, Search, Copy, CheckCheck, Palette, Zap,
+  Briefcase, Gift, HelpCircle
+} from 'lucide-react';
+import { useContent } from '../context/ContentContext';
+import './Admin.css';
+
+// Error Boundary for Admin Page Resilience
+class AdminErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('Admin Panel error boundary caught error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="admin-layout">
+          <div className="admin-error-fallback">
+            <AlertCircle size={48} color="#ef4444" style={{ marginBottom: '16px' }} />
+            <h2 style={{ color: '#fff', fontSize: '1.4rem', marginBottom: '8px' }}>Yönetim Panelinde Beklenmedik Bir Hata Oluştu</h2>
+            <p style={{ color: 'var(--admin-text-muted)', marginBottom: '24px' }}>
+              {this.state.error?.message || 'Veri yapısı işlenirken bir sorun meydana geldi.'}
+            </p>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <button 
+                className="admin-btn admin-btn-outline" 
+                onClick={() => window.location.reload()}
+              >
+                Sayfayı Yenile
+              </button>
+              <button 
+                className="admin-btn admin-btn-danger" 
+                onClick={() => {
+                  localStorage.removeItem('nima_site_content_cache');
+                  window.location.reload();
+                }}
+              >
+                Önbelleği Temizle & Kurtar
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+// Quick Color Preset Palette Component
+const COLOR_PRESETS = [
+  '#D12F0E', '#F6C310', '#E97B1A', '#B7442E', 
+  '#2563EB', '#059669', '#8B5CF6', '#EC4899', '#06B6D4'
+];
+
+function ColorPickerField({ label, value, onChange }) {
+  return (
+    <div className="admin-form-group">
+      <label className="admin-form-label">{label || 'Vurgu Rengi'}</label>
+      <input 
+        type="text" 
+        className="admin-input" 
+        value={value || '#D12F0E'} 
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="#D12F0E"
+      />
+      <div className="admin-color-presets">
+        {COLOR_PRESETS.map((color) => (
+          <button
+            key={color}
+            type="button"
+            className={`admin-color-swatch ${value === color ? 'selected' : ''}`}
+            style={{ backgroundColor: color }}
+            onClick={() => onChange(color)}
+            title={color}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Quick Icon Picker Component
+const ICON_OPTIONS = [
+  { name: 'Radio', icon: Radio },
+  { name: 'Cpu', icon: Cpu },
+  { name: 'Sparkles', icon: Sparkles },
+  { name: 'Layers', icon: Layers },
+  { name: 'Compass', icon: Compass },
+  { name: 'ShieldCheck', icon: ShieldCheck },
+  { name: 'Globe', icon: Globe },
+  { name: 'Award', icon: Award },
+  { name: 'Briefcase', icon: Briefcase },
+  { name: 'Gift', icon: Gift },
+  { name: 'Zap', icon: Zap }
+];
+
+function IconPickerField({ label, value, onChange }) {
+  return (
+    <div className="admin-form-group">
+      <label className="admin-form-label">{label || 'İkon Seçimi'}</label>
+      <div className="admin-icon-picker">
+        {ICON_OPTIONS.map((item) => {
+          const IconC = item.icon;
+          const isSelected = value === item.name;
+          return (
+            <button
+              key={item.name}
+              type="button"
+              className={`admin-icon-chip ${isSelected ? 'active' : ''}`}
+              onClick={() => onChange(item.name)}
+            >
+              <IconC size={14} />
+              <span>{item.name}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// Reusable Inline Image Uploader with Vercel Blob & 1-Click Copy
+function ImageField({ label, value, onChange, placeholder = 'https://...' }) {
+  const { uploadImage } = useContent();
+  const [isUploading, setIsUploading] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [error, setError] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    setError(null);
+    try {
+      const result = await uploadImage(file);
+      if (result.success && result.url) {
+        onChange(result.url);
+      }
+    } catch (err) {
+      console.error('Image upload failed:', err);
+      setError('Yükleme başarısız oldu.');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleCopy = () => {
+    if (!value) return;
+    navigator.clipboard.writeText(value);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="admin-form-group full-width">
+      {label && (
+        <label className="admin-form-label">
+          <span>{label}</span>
+          <span className="optional">Vercel Blob Yükleyici & CDN</span>
+        </label>
+      )}
+      <div className="admin-image-uploader">
+        <div className="admin-image-preview-box">
+          {value ? (
+            <img src={value} alt="Önizleme" className="admin-image-thumb" />
+          ) : (
+            <div className="admin-image-thumb-placeholder">
+              <ImageIcon size={22} />
+            </div>
+          )}
+
+          <div className="admin-image-input-methods">
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <label className="admin-file-upload-btn">
+                <Upload size={14} />
+                {isUploading ? 'Yükleniyor...' : 'Görsel Seç & Yükle (Blob)'}
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  ref={fileInputRef}
+                  onChange={handleFileUpload} 
+                  disabled={isUploading}
+                />
+              </label>
+
+              {value && (
+                <>
+                  <button 
+                    type="button" 
+                    className="admin-btn-icon" 
+                    onClick={handleCopy}
+                    title="URL'i Kopyala"
+                  >
+                    {copied ? <CheckCheck size={14} color="#10b981" /> : <Copy size={14} />}
+                  </button>
+                  <button 
+                    type="button" 
+                    className="admin-btn-icon delete" 
+                    onClick={() => onChange('')}
+                    title="Görseli Temizle"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </>
+              )}
+            </div>
+
+            <input 
+              type="text" 
+              className="admin-input" 
+              placeholder={placeholder}
+              value={value || ''} 
+              onChange={(e) => onChange(e.target.value)}
+            />
+          </div>
+        </div>
+        {error && <div style={{ color: '#ef4444', fontSize: '0.8rem' }}>{error}</div>}
+      </div>
+    </div>
+  );
+}
+
+function AdminMain() {
+  const { 
+    content, 
+    updateContent, 
+    saveContent, 
+    uploadImage, 
+    resetToDefault, 
+    isSaving, 
+    lastSavedAt, 
+    saveStatus, 
+    setSaveStatus 
+  } = useContent();
+
+  const [activeTab, setActiveTab] = useState('nav');
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [localMessage, setLocalMessage] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [collapsedCards, setCollapsedCards] = useState({});
+  const fileImportRef = useRef(null);
+
+  // Unsaved changes browser prompt
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
+
+  // Keyboard shortcut: Ctrl + S / Cmd + S to save
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        handleSave();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [content]);
+
+  const showToast = (msg, type = 'success') => {
+    setLocalMessage({ text: msg, type });
+    setTimeout(() => setLocalMessage(null), 4000);
+  };
+
+  const handleSave = async () => {
+    const res = await saveContent();
+    if (res?.success) {
+      setHasUnsavedChanges(false);
+      showToast('Tüm değişiklikler başarıyla kaydedildi!', 'success');
+    }
+  };
+
+  // Helper for tracking modifications
+  const setField = (section, key, value) => {
+    setHasUnsavedChanges(true);
+    updateContent(section, (prev) => ({
+      ...prev,
+      [key]: value
+    }));
+  };
+
+  const toggleCollapse = (id) => {
+    setCollapsedCards(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  // Nav Handlers
+  const handleAddNavItem = () => {
+    setHasUnsavedChanges(true);
+    const newItem = {
+      id: `link_${Date.now()}`,
+      title: 'Yeni Menü Öğesi',
+      path: '/yeni-sayfa',
+      badge: '',
+      hasChildren: false,
+      children: []
+    };
+    updateContent('navigation', prev => ({
+      ...prev,
+      items: [...(prev.items || []), newItem]
+    }));
+  };
+
+  const handleRemoveNavItem = (index) => {
+    setHasUnsavedChanges(true);
+    updateContent('navigation', prev => ({
+      ...prev,
+      items: prev.items.filter((_, idx) => idx !== index)
+    }));
+  };
+
+  const handleMoveNavItem = (index, direction) => {
+    setHasUnsavedChanges(true);
+    updateContent('navigation', prev => {
+      const items = [...prev.items];
+      const targetIndex = direction === 'up' ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= items.length) return prev;
+      const temp = items[index];
+      items[index] = items[targetIndex];
+      items[targetIndex] = temp;
+      return { ...prev, items };
+    });
+  };
+
+  const handleUpdateNavItem = (index, field, value) => {
+    setHasUnsavedChanges(true);
+    updateContent('navigation', prev => {
+      const items = [...prev.items];
+      items[index] = { ...items[index], [field]: value };
+      return { ...prev, items };
+    });
+  };
+
+  const handleAddSubItem = (navIndex) => {
+    setHasUnsavedChanges(true);
+    updateContent('navigation', prev => {
+      const items = [...prev.items];
+      const parent = items[navIndex];
+      const newChild = {
+        id: `sub_${Date.now()}`,
+        title: 'Yeni Alt Menü',
+        path: '/yeni-hizmet',
+        badge: '',
+        icon: 'Sparkles',
+        color: '#D12F0E'
+      };
+      items[navIndex] = {
+        ...parent,
+        hasChildren: true,
+        children: [...(parent.children || []), newChild]
+      };
+      return { ...prev, items };
+    });
+  };
+
+  const handleRemoveSubItem = (navIndex, subIndex) => {
+    setHasUnsavedChanges(true);
+    updateContent('navigation', prev => {
+      const items = [...prev.items];
+      const parent = items[navIndex];
+      const newChildren = (parent.children || []).filter((_, idx) => idx !== subIndex);
+      items[navIndex] = {
+        ...parent,
+        children: newChildren,
+        hasChildren: newChildren.length > 0
+      };
+      return { ...prev, items };
+    });
+  };
+
+  const handleUpdateSubItem = (navIndex, subIndex, field, value) => {
+    setHasUnsavedChanges(true);
+    updateContent('navigation', prev => {
+      const items = [...prev.items];
+      const children = [...(items[navIndex].children || [])];
+      children[subIndex] = { ...children[subIndex], [field]: value };
+      items[navIndex] = { ...items[navIndex], children };
+      return { ...prev, items };
+    });
+  };
+
+  // Export / Import
+  const handleExportJSON = () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(content, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `nima_content_backup_${new Date().toISOString().slice(0,10)}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+    showToast('Yedek JSON dosyası indirildi.', 'info');
+  };
+
+  const handleImportJSON = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const parsed = JSON.parse(event.target?.result);
+        if (parsed && typeof parsed === 'object') {
+          updateContent(() => parsed);
+          setHasUnsavedChanges(true);
+          showToast('JSON içeriği yüklendi! "Değişiklikleri Kaydet" ile onaylayabilirsiniz.', 'success');
+        }
+      } catch (err) {
+        showToast('Geçersiz JSON dosyası!', 'error');
+      }
+    };
+    reader.readAsText(file);
+    if (fileImportRef.current) fileImportRef.current.value = '';
+  };
+
+  return (
+    <div className="admin-layout">
+      {/* Unsaved Changes Sticky Notification */}
+      {hasUnsavedChanges && (
+        <div className="admin-unsaved-banner">
+          <span>⚠️ Kaydedilmemiş değişiklikleriniz bulunmaktadır (Kısayol: Ctrl + S).</span>
+          <button type="button" onClick={handleSave} disabled={isSaving}>
+            <Save size={13} /> {isSaving ? 'Kaydediliyor...' : 'Şimdi Kaydet'}
+          </button>
+        </div>
+      )}
+
+      {/* Sticky Header Bar */}
+      <header className="admin-header">
+        <div className="admin-header-inner">
+          <div className="admin-brand-info">
+            <div className="admin-badge-icon">N</div>
+            <div className="admin-title-group">
+              <h1>
+                NİMA Yönetim Paneli
+                <span className="admin-version-tag">Pro v2.0</span>
+              </h1>
+              <p>Site içeriği, menü yapısı ve medyaları dinamik yönetin</p>
+            </div>
+          </div>
+
+          <div className="admin-header-actions">
+            {lastSavedAt && (
+              <div className="admin-save-indicator">
+                <span className={`indicator-dot ${isSaving ? 'saving' : hasUnsavedChanges ? 'dirty' : ''}`} />
+                <span>{hasUnsavedChanges ? 'Değişiklik Var' : `Son Kayıt: ${new Date(lastSavedAt).toLocaleTimeString('tr-TR')}`}</span>
+              </div>
+            )}
+
+            <Link to="/" target="_blank" className="admin-btn admin-btn-outline" title="Siteyi Yeni Sekmede Gör">
+              <ExternalLink size={15} /> Siteyi İncele
+            </Link>
+
+            <button 
+              type="button"
+              className="admin-btn admin-btn-primary" 
+              onClick={handleSave} 
+              disabled={isSaving}
+            >
+              <Save size={16} />
+              {isSaving ? 'Kaydediliyor...' : 'Değişiklikleri Kaydet'}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Floating Toast */}
+      {(localMessage || saveStatus) && (
+        <div className={`admin-toast ${(localMessage?.type || saveStatus?.type || 'success')}`}>
+          <CheckCircle2 size={18} />
+          <span>{localMessage?.text || saveStatus?.message}</span>
+        </div>
+      )}
+
+      {/* Main Admin Container */}
+      <main className="admin-container">
+        {/* Tabs Bar */}
+        <nav className="admin-tabs-bar">
+          <button 
+            type="button"
+            className={`admin-tab-btn ${activeTab === 'nav' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('nav'); setSearchQuery(''); }}
+          >
+            <Compass size={17} /> Menü & Navigasyon
+          </button>
+
+          <button 
+            type="button"
+            className={`admin-tab-btn ${activeTab === 'hero' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('hero'); setSearchQuery(''); }}
+          >
+            <Sparkles size={17} /> Hero Bölümü
+          </button>
+
+          <button 
+            type="button"
+            className={`admin-tab-btn ${activeTab === 'about' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('about'); setSearchQuery(''); }}
+          >
+            <LayoutTemplate size={17} /> Hakkımızda & Journey
+          </button>
+
+          <button 
+            type="button"
+            className={`admin-tab-btn ${activeTab === 'services' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('services'); setSearchQuery(''); }}
+          >
+            <Layers size={17} /> Hizmetler & Sektörler
+          </button>
+
+          <button 
+            type="button"
+            className={`admin-tab-btn ${activeTab === 'testimonials' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('testimonials'); setSearchQuery(''); }}
+          >
+            <MessageSquareQuote size={17} /> Referanslar & Yorumlar
+          </button>
+
+          <button 
+            type="button"
+            className={`admin-tab-btn ${activeTab === 'contact' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('contact'); setSearchQuery(''); }}
+          >
+            <Phone size={17} /> İletişim & Footer
+          </button>
+
+          <button 
+            type="button"
+            className={`admin-tab-btn ${activeTab === 'media' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('media'); setSearchQuery(''); }}
+          >
+            <ImageIcon size={17} /> Medya Kütüphanesi
+          </button>
+
+          <button 
+            type="button"
+            className={`admin-tab-btn ${activeTab === 'advanced' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('advanced'); setSearchQuery(''); }}
+          >
+            <FileJson size={17} /> Yedekleme & Gelişmiş
+          </button>
+        </nav>
+
+        {/* 1. TAB: Menü ve Navigasyon */}
+        {activeTab === 'nav' && (
+          <section className="admin-section-card">
+            <div className="admin-section-header">
+              <div>
+                <h2><Compass size={20} /> Menü ve Navigasyon Yönetimi</h2>
+                <p>Header ve menü bağlantılarını düzenleyin, sıralayın veya yeni alt kategoriler ekleyin.</p>
+              </div>
+              <button type="button" className="admin-btn admin-btn-outline" onClick={handleAddNavItem}>
+                <Plus size={15} /> Yeni Menü Öğesi Ekle
+              </button>
+            </div>
+
+            <div className="admin-grid-2" style={{ marginBottom: '24px' }}>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Marka Adı (Brand Text)</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.navigation?.brandName || ''} 
+                  onChange={(e) => setField('navigation', 'brandName', e.target.value)}
+                />
+              </div>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Marka Logo Rozet Harfi</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.navigation?.brandLogoMark || ''} 
+                  onChange={(e) => setField('navigation', 'brandLogoMark', e.target.value)}
+                />
+              </div>
+              <ImageField 
+                label="Özel Logo Görseli (Opsiyonel)"
+                value={content.navigation?.logoUrl || ''}
+                onChange={(url) => setField('navigation', 'logoUrl', url)}
+              />
+            </div>
+
+            <h3 style={{ fontSize: '1rem', color: '#fff', margin: '20px 0 12px 0' }}>Menü Bağlantıları</h3>
+
+            {content.navigation?.items?.map((item, index) => (
+              <div key={item.id || index} className="admin-item-card">
+                <div className="admin-item-card-header" onClick={() => toggleCollapse(`nav_${index}`)}>
+                  <div className="admin-item-card-title">
+                    <span className="admin-item-index">{index + 1}</span>
+                    <span>{item.title || 'Başlıksız Menü'}</span>
+                    {item.badge && <span className="admin-version-tag">{item.badge}</span>}
+                    {item.hasChildren && (
+                      <span style={{ fontSize: '0.75rem', color: '#38bdf8' }}>
+                        ({(item.children || []).length} Alt Menü)
+                      </span>
+                    )}
+                  </div>
+                  <div className="admin-item-actions" onClick={(e) => e.stopPropagation()}>
+                    <button 
+                      type="button" 
+                      className="admin-btn-icon" 
+                      disabled={index === 0}
+                      onClick={() => handleMoveNavItem(index, 'up')}
+                      title="Yukarı Taşı"
+                    >
+                      <ArrowUp size={14} />
+                    </button>
+                    <button 
+                      type="button" 
+                      className="admin-btn-icon" 
+                      disabled={index === (content.navigation?.items?.length || 0) - 1}
+                      onClick={() => handleMoveNavItem(index, 'down')}
+                      title="Aşağı Taşı"
+                    >
+                      <ArrowDown size={14} />
+                    </button>
+                    <button 
+                      type="button" 
+                      className="admin-btn-icon delete" 
+                      onClick={() => handleRemoveNavItem(index)}
+                      title="Sil"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                    <button 
+                      type="button" 
+                      className="admin-btn-icon" 
+                      onClick={() => toggleCollapse(`nav_${index}`)}
+                      title="Daralt / Genişlet"
+                    >
+                      {collapsedCards[`nav_${index}`] ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+                    </button>
+                  </div>
+                </div>
+
+                {!collapsedCards[`nav_${index}`] && (
+                  <div className="admin-card-body">
+                    <div className="admin-grid-3">
+                      <div className="admin-form-group">
+                        <label className="admin-form-label">Menü Başlığı</label>
+                        <input 
+                          type="text" 
+                          className="admin-input" 
+                          value={item.title || ''} 
+                          onChange={(e) => handleUpdateNavItem(index, 'title', e.target.value)}
+                        />
+                      </div>
+                      <div className="admin-form-group">
+                        <label className="admin-form-label">Yönlendirme Linki (Path)</label>
+                        <input 
+                          type="text" 
+                          className="admin-input" 
+                          value={item.path || ''} 
+                          onChange={(e) => handleUpdateNavItem(index, 'path', e.target.value)}
+                        />
+                      </div>
+                      <div className="admin-form-group">
+                        <label className="admin-form-label">Rozet (Badge)</label>
+                        <input 
+                          type="text" 
+                          className="admin-input" 
+                          placeholder="Örn: 6 Sektör"
+                          value={item.badge || ''} 
+                          onChange={(e) => handleUpdateNavItem(index, 'badge', e.target.value)}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Submenu Dropdown Items */}
+                    <div className="admin-nested-container">
+                      <div className="admin-nested-header">
+                        <h4>Alt Menü Elemanları (Dropdown)</h4>
+                        <button 
+                          type="button" 
+                          className="admin-btn admin-btn-outline admin-btn-sm"
+                          onClick={() => handleAddSubItem(index)}
+                        >
+                          <Plus size={13} /> Alt Menü Ekle
+                        </button>
+                      </div>
+
+                      {(item.children || []).length === 0 ? (
+                        <div style={{ fontSize: '0.8rem', color: 'var(--admin-text-dim)' }}>
+                          Bu menü için alt menü bulunmuyor.
+                        </div>
+                      ) : (
+                        item.children.map((subItem, subIdx) => (
+                          <div key={subItem.id || subIdx} className="admin-nested-item">
+                            <input 
+                              type="text" 
+                              className="admin-input" 
+                              placeholder="Alt Menü Başlığı"
+                              value={subItem.title || ''} 
+                              onChange={(e) => handleUpdateSubItem(index, subIdx, 'title', e.target.value)}
+                            />
+                            <input 
+                              type="text" 
+                              className="admin-input" 
+                              placeholder="Path (/sayfa)"
+                              value={subItem.path || ''} 
+                              onChange={(e) => handleUpdateSubItem(index, subIdx, 'path', e.target.value)}
+                            />
+                            <input 
+                              type="text" 
+                              className="admin-input" 
+                              placeholder="Rozet"
+                              value={subItem.badge || ''} 
+                              onChange={(e) => handleUpdateSubItem(index, subIdx, 'badge', e.target.value)}
+                            />
+                            <input 
+                              type="text" 
+                              className="admin-input" 
+                              placeholder="Renk (#D12F0E)"
+                              value={subItem.color || ''} 
+                              onChange={(e) => handleUpdateSubItem(index, subIdx, 'color', e.target.value)}
+                            />
+                            <button 
+                              type="button" 
+                              className="admin-btn-icon delete"
+                              onClick={() => handleRemoveSubItem(index, subIdx)}
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </section>
+        )}
+
+        {/* 2. TAB: Hero Bölümü */}
+        {activeTab === 'hero' && (
+          <section className="admin-section-card">
+            <div className="admin-section-header">
+              <div>
+                <h2><Sparkles size={20} /> Hero & Manşet Bölümü</h2>
+                <p>Ana sayfadaki büyük karşılama başlığı, sloganlar, butonlar ve slaytları yönetin.</p>
+              </div>
+            </div>
+
+            <div className="admin-grid-2">
+              <div className="admin-form-group full-width">
+                <label className="admin-form-label">Üst Slogan Rozeti</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.hero?.badge || ''} 
+                  onChange={(e) => setField('hero', 'badge', e.target.value)}
+                />
+              </div>
+
+              <div className="admin-form-group full-width">
+                <label className="admin-form-label">Ana Başlık (Hero Title)</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.hero?.title || ''} 
+                  onChange={(e) => setField('hero', 'title', e.target.value)}
+                />
+              </div>
+
+              <div className="admin-form-group full-width">
+                <label className="admin-form-label">Alt Açıklama (Hero Subtitle)</label>
+                <textarea 
+                  className="admin-textarea" 
+                  value={content.hero?.subtitle || ''} 
+                  onChange={(e) => setField('hero', 'subtitle', e.target.value)}
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label className="admin-form-label">Birincil Buton Metni</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.hero?.primaryBtnText || ''} 
+                  onChange={(e) => setField('hero', 'primaryBtnText', e.target.value)}
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label className="admin-form-label">Birincil Buton Linki</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.hero?.primaryBtnLink || ''} 
+                  onChange={(e) => setField('hero', 'primaryBtnLink', e.target.value)}
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label className="admin-form-label">İkincil Buton Metni</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.hero?.secondaryBtnText || ''} 
+                  onChange={(e) => setField('hero', 'secondaryBtnText', e.target.value)}
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label className="admin-form-label">İkincil Buton Linki</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.hero?.secondaryBtnLink || ''} 
+                  onChange={(e) => setField('hero', 'secondaryBtnLink', e.target.value)}
+                />
+              </div>
+
+              <ImageField 
+                label="Hero Arka Plan Görseli"
+                value={content.hero?.bgImage || ''}
+                onChange={(url) => setField('hero', 'bgImage', url)}
+              />
+            </div>
+
+            {/* Quick Hero Stats */}
+            <h3 style={{ fontSize: '1rem', color: '#fff', margin: '28px 0 12px 0' }}>Manşet İstatistik Sayaçları</h3>
+            <div className="admin-grid-2">
+              {(content.hero?.stats || []).map((st, sIdx) => (
+                <div key={st.id || sIdx} className="admin-item-card" style={{ padding: '12px' }}>
+                  <div className="admin-grid-2">
+                    <input 
+                      type="text" 
+                      className="admin-input" 
+                      placeholder="Sayı (örn: 150+)"
+                      value={st.num || ''} 
+                      onChange={(e) => {
+                        const newStats = [...(content.hero?.stats || [])];
+                        newStats[sIdx] = { ...newStats[sIdx], num: e.target.value };
+                        setField('hero', 'stats', newStats);
+                      }}
+                    />
+                    <input 
+                      type="text" 
+                      className="admin-input" 
+                      placeholder="Etiket (örn: Tamamlanan Proje)"
+                      value={st.label || ''} 
+                      onChange={(e) => {
+                        const newStats = [...(content.hero?.stats || [])];
+                        newStats[sIdx] = { ...newStats[sIdx], label: e.target.value };
+                        setField('hero', 'stats', newStats);
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Multi-Slide Carousel Items */}
+            <div className="admin-section-header" style={{ marginTop: '28px' }}>
+              <div>
+                <h3 style={{ fontSize: '1rem', color: '#fff', margin: 0 }}>Hero Çoklu Slaytları (Carousel)</h3>
+                <p>Hero bileşeni slayt modundayken gösterilecek içerikler</p>
+              </div>
+              <button 
+                type="button" 
+                className="admin-btn admin-btn-outline admin-btn-sm"
+                onClick={() => {
+                  const newSlide = {
+                    id: `slide_${Date.now()}`,
+                    badge: 'Yeni Slayt',
+                    title: 'Slayt Başlığı',
+                    subtitle: 'Slayt açıklaması...',
+                    image: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=1600&q=80',
+                    color: '#D12F0E',
+                    statNum: '100+',
+                    statTxt: 'Referans'
+                  };
+                  setField('hero', 'slides', [...(content.hero?.slides || []), newSlide]);
+                }}
+              >
+                <Plus size={14} /> Yeni Slayt Ekle
+              </button>
+            </div>
+
+            {(content.hero?.slides || []).map((slide, slIdx) => (
+              <div key={slide.id || slIdx} className="admin-item-card">
+                <div className="admin-item-card-header" onClick={() => toggleCollapse(`slide_${slIdx}`)}>
+                  <div className="admin-item-card-title">
+                    <span className="admin-item-index">{slIdx + 1}</span>
+                    <span>{slide.title || 'Yeni Slayt'}</span>
+                    <span className="admin-version-tag">{slide.badge}</span>
+                  </div>
+                  <div className="admin-item-actions" onClick={(e) => e.stopPropagation()}>
+                    <button 
+                      type="button" 
+                      className="admin-btn-icon delete"
+                      onClick={() => {
+                        const updated = (content.hero?.slides || []).filter((_, idx) => idx !== slIdx);
+                        setField('hero', 'slides', updated);
+                      }}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                    <button 
+                      type="button" 
+                      className="admin-btn-icon" 
+                      onClick={() => toggleCollapse(`slide_${slIdx}`)}
+                    >
+                      {collapsedCards[`slide_${slIdx}`] ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+                    </button>
+                  </div>
+                </div>
+
+                {!collapsedCards[`slide_${slIdx}`] && (
+                  <div className="admin-card-body">
+                    <div className="admin-grid-2">
+                      <div className="admin-form-group">
+                        <label className="admin-form-label">Slayt Rozeti</label>
+                        <input 
+                          type="text" 
+                          className="admin-input" 
+                          value={slide.badge || ''} 
+                          onChange={(e) => {
+                            const updated = [...(content.hero?.slides || [])];
+                            updated[slIdx] = { ...updated[slIdx], badge: e.target.value };
+                            setField('hero', 'slides', updated);
+                          }}
+                        />
+                      </div>
+                      <ColorPickerField 
+                        label="Slayt Vurgu Rengi"
+                        value={slide.color || '#D12F0E'}
+                        onChange={(col) => {
+                          const updated = [...(content.hero?.slides || [])];
+                          updated[slIdx] = { ...updated[slIdx], color: col };
+                          setField('hero', 'slides', updated);
+                        }}
+                      />
+                      <div className="admin-form-group full-width">
+                        <label className="admin-form-label">Slayt Başlığı</label>
+                        <input 
+                          type="text" 
+                          className="admin-input" 
+                          value={slide.title || ''} 
+                          onChange={(e) => {
+                            const updated = [...(content.hero?.slides || [])];
+                            updated[slIdx] = { ...updated[slIdx], title: e.target.value };
+                            setField('hero', 'slides', updated);
+                          }}
+                        />
+                      </div>
+                      <div className="admin-form-group full-width">
+                        <label className="admin-form-label">Slayt Açıklaması</label>
+                        <textarea 
+                          className="admin-textarea" 
+                          value={slide.subtitle || ''} 
+                          onChange={(e) => {
+                            const updated = [...(content.hero?.slides || [])];
+                            updated[slIdx] = { ...updated[slIdx], subtitle: e.target.value };
+                            setField('hero', 'slides', updated);
+                          }}
+                        />
+                      </div>
+                      <ImageField 
+                        label="Slayt Görseli"
+                        value={slide.image || ''}
+                        onChange={(url) => {
+                          const updated = [...(content.hero?.slides || [])];
+                          updated[slIdx] = { ...updated[slIdx], image: url };
+                          setField('hero', 'slides', updated);
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </section>
+        )}
+
+        {/* 3. TAB: Hakkımızda & Journey */}
+        {activeTab === 'about' && (
+          <section className="admin-section-card">
+            <div className="admin-section-header">
+              <div>
+                <h2><LayoutTemplate size={20} /> Hakkımızda & Zaman Çizelgesi</h2>
+                <p>Kurumsal açıklama, vizyon özellikleri ve başarı kilometre taşları.</p>
+              </div>
+            </div>
+
+            <div className="admin-grid-2">
+              <div className="admin-form-group">
+                <label className="admin-form-label">Bölüm Rozeti</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.about?.badge || ''} 
+                  onChange={(e) => setField('about', 'badge', e.target.value)}
+                />
+              </div>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Deneyim Yılı</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.about?.experienceYears || ''} 
+                  onChange={(e) => setField('about', 'experienceYears', e.target.value)}
+                />
+              </div>
+
+              <div className="admin-form-group full-width">
+                <label className="admin-form-label">Ana Başlık</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.about?.title || ''} 
+                  onChange={(e) => setField('about', 'title', e.target.value)}
+                />
+              </div>
+
+              <div className="admin-form-group full-width">
+                <label className="admin-form-label">Alt Başlık</label>
+                <textarea 
+                  className="admin-textarea" 
+                  value={content.about?.subtitle || ''} 
+                  onChange={(e) => setField('about', 'subtitle', e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Paragraphs */}
+            <div className="admin-section-header" style={{ marginTop: '20px' }}>
+              <h3 style={{ fontSize: '1rem', color: '#fff', margin: 0 }}>Kurumsal Açıklama Paragrafları</h3>
+              <button 
+                type="button" 
+                className="admin-btn admin-btn-outline admin-btn-sm"
+                onClick={() => {
+                  const paras = [...(content.about?.paragraphs || []), 'Yeni açıklama paragrafı...'];
+                  setField('about', 'paragraphs', paras);
+                }}
+              >
+                <Plus size={13} /> Paragraf Ekle
+              </button>
+            </div>
+
+            {(content.about?.paragraphs || []).map((p, pIdx) => (
+              <div key={pIdx} style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                <textarea 
+                  className="admin-textarea" 
+                  value={p} 
+                  onChange={(e) => {
+                    const paras = [...(content.about?.paragraphs || [])];
+                    paras[pIdx] = e.target.value;
+                    setField('about', 'paragraphs', paras);
+                  }}
+                />
+                <button 
+                  type="button" 
+                  className="admin-btn-icon delete"
+                  onClick={() => {
+                    const paras = (content.about?.paragraphs || []).filter((_, idx) => idx !== pIdx);
+                    setField('about', 'paragraphs', paras);
+                  }}
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            ))}
+
+            {/* Feature Cards */}
+            <div className="admin-section-header" style={{ marginTop: '28px' }}>
+              <h3 style={{ fontSize: '1rem', color: '#fff', margin: 0 }}>Özellik Kartları</h3>
+              <button 
+                type="button" 
+                className="admin-btn admin-btn-outline admin-btn-sm"
+                onClick={() => {
+                  const newFeature = {
+                    id: `feat_${Date.now()}`,
+                    title: 'Yeni Özellik',
+                    desc: 'Açıklama metni...',
+                    icon: 'Cpu'
+                  };
+                  setField('about', 'features', [...(content.about?.features || []), newFeature]);
+                }}
+              >
+                <Plus size={13} /> Özellik Kartı Ekle
+              </button>
+            </div>
+
+            <div className="admin-grid-3">
+              {(content.about?.features || []).map((feat, fIdx) => (
+                <div key={feat.id || fIdx} className="admin-item-card">
+                  <div className="admin-item-card-header">
+                    <span className="admin-item-card-title">{feat.title || 'Özellik'}</span>
+                    <button 
+                      type="button" 
+                      className="admin-btn-icon delete"
+                      onClick={() => {
+                        const updated = (content.about?.features || []).filter((_, idx) => idx !== fIdx);
+                        setField('about', 'features', updated);
+                      }}
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                  <div className="admin-form-group">
+                    <label className="admin-form-label">Başlık</label>
+                    <input 
+                      type="text" 
+                      className="admin-input" 
+                      value={feat.title || ''} 
+                      onChange={(e) => {
+                        const updated = [...(content.about?.features || [])];
+                        updated[fIdx] = { ...updated[fIdx], title: e.target.value };
+                        setField('about', 'features', updated);
+                      }}
+                    />
+                  </div>
+                  <div className="admin-form-group">
+                    <label className="admin-form-label">Açıklama</label>
+                    <textarea 
+                      className="admin-textarea" 
+                      style={{ minHeight: '60px' }}
+                      value={feat.desc || ''} 
+                      onChange={(e) => {
+                        const updated = [...(content.about?.features || [])];
+                        updated[fIdx] = { ...updated[fIdx], desc: e.target.value };
+                        setField('about', 'features', updated);
+                      }}
+                    />
+                  </div>
+                  <IconPickerField 
+                    label="İkon"
+                    value={feat.icon || 'Cpu'}
+                    onChange={(ic) => {
+                      const updated = [...(content.about?.features || [])];
+                      updated[fIdx] = { ...updated[fIdx], icon: ic };
+                      setField('about', 'features', updated);
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Journey Timeline */}
+            <div className="admin-section-header" style={{ marginTop: '32px' }}>
+              <div>
+                <h3 style={{ fontSize: '1rem', color: '#fff', margin: 0 }}>Başarı Yolculuğumuz (Timeline)</h3>
+                <p>Tarihsel başarı ve inovasyon adımları</p>
+              </div>
+              <button 
+                type="button" 
+                className="admin-btn admin-btn-outline admin-btn-sm"
+                onClick={() => {
+                  const newMilestone = {
+                    id: `mile_${Date.now()}`,
+                    year: '2026',
+                    title: 'Yeni Başarı Adımı',
+                    desc: 'Açıklama metni...',
+                    badge: 'Gelişme'
+                  };
+                  setField('journey', 'items', [...(content.journey?.items || []), newMilestone]);
+                }}
+              >
+                <Plus size={13} /> Kilometre Taşı Ekle
+              </button>
+            </div>
+
+            {(content.journey?.items || []).map((mile, mIdx) => (
+              <div key={mile.id || mIdx} className="admin-item-card">
+                <div className="admin-item-card-header">
+                  <span className="admin-item-card-title">
+                    <span className="admin-version-tag" style={{ background: 'rgba(209, 47, 14, 0.2)', color: '#ff6b4a' }}>
+                      {mile.year || 'Yıl'}
+                    </span>
+                    {mile.title}
+                  </span>
+                  <button 
+                    type="button" 
+                    className="admin-btn-icon delete"
+                    onClick={() => {
+                      const updated = (content.journey?.items || []).filter((_, idx) => idx !== mIdx);
+                      setField('journey', 'items', updated);
+                    }}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+                <div className="admin-grid-3">
+                  <div className="admin-form-group">
+                    <label className="admin-form-label">Yıl</label>
+                    <input 
+                      type="text" 
+                      className="admin-input" 
+                      value={mile.year || ''} 
+                      onChange={(e) => {
+                        const updated = [...(content.journey?.items || [])];
+                        updated[mIdx] = { ...updated[mIdx], year: e.target.value };
+                        setField('journey', 'items', updated);
+                      }}
+                    />
+                  </div>
+                  <div className="admin-form-group">
+                    <label className="admin-form-label">Başlık</label>
+                    <input 
+                      type="text" 
+                      className="admin-input" 
+                      value={mile.title || ''} 
+                      onChange={(e) => {
+                        const updated = [...(content.journey?.items || [])];
+                        updated[mIdx] = { ...updated[mIdx], title: e.target.value };
+                        setField('journey', 'items', updated);
+                      }}
+                    />
+                  </div>
+                  <div className="admin-form-group">
+                    <label className="admin-form-label">Rozet</label>
+                    <input 
+                      type="text" 
+                      className="admin-input" 
+                      value={mile.badge || ''} 
+                      onChange={(e) => {
+                        const updated = [...(content.journey?.items || [])];
+                        updated[mIdx] = { ...updated[mIdx], badge: e.target.value };
+                        setField('journey', 'items', updated);
+                      }}
+                    />
+                  </div>
+                  <div className="admin-form-group full-width">
+                    <label className="admin-form-label">Detaylı Açıklama</label>
+                    <textarea 
+                      className="admin-textarea" 
+                      style={{ minHeight: '60px' }}
+                      value={mile.desc || ''} 
+                      onChange={(e) => {
+                        const updated = [...(content.journey?.items || [])];
+                        updated[mIdx] = { ...updated[mIdx], desc: e.target.value };
+                        setField('journey', 'items', updated);
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </section>
+        )}
+
+        {/* 4. TAB: Hizmetler & Sektörler */}
+        {activeTab === 'services' && (
+          <section className="admin-section-card">
+            <div className="admin-section-header">
+              <div>
+                <h2><Layers size={20} /> Hizmetler ve Sektör Yönetimi</h2>
+                <p>Sektör kartları, detay açıklamaları, maddeler ve görselleri yönetin.</p>
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <div className="admin-filter-box">
+                  <Search size={15} />
+                  <input 
+                    type="text" 
+                    className="admin-input" 
+                    placeholder="Sektörlerde ara..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                <button 
+                  type="button" 
+                  className="admin-btn admin-btn-outline"
+                  onClick={() => {
+                    const newSec = {
+                      id: `sector_${Date.now()}`,
+                      title: 'Yeni Sektör / Hizmet',
+                      shortName: 'Yeni Sektör',
+                      description: 'Sektör detay açıklaması...',
+                      icon: 'Layers',
+                      color: '#D12F0E',
+                      badge: 'Yeni',
+                      image: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80',
+                      path: '/yeni-sektor',
+                      points: ['Hizmet Maddesi 1', 'Hizmet Maddesi 2']
+                    };
+                    setField('services', 'items', [...(content.services?.items || []), newSec]);
+                  }}
+                >
+                  <Plus size={15} /> Yeni Sektör Ekle
+                </button>
+              </div>
+            </div>
+
+            <div className="admin-grid-2" style={{ marginBottom: '20px' }}>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Sektörler Bölüm Başlığı</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.services?.title || ''} 
+                  onChange={(e) => setField('services', 'title', e.target.value)}
+                />
+              </div>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Sektörler Alt Başlığı</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.services?.subtitle || ''} 
+                  onChange={(e) => setField('services', 'subtitle', e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Filtered Sector Cards */}
+            {(content.services?.items || [])
+              .filter(sec => !searchQuery.trim() || 
+                sec.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                sec.shortName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                sec.description?.toLowerCase().includes(searchQuery.toLowerCase())
+              )
+              .map((sec, sIdx) => (
+                <div key={sec.id || sIdx} className="admin-item-card">
+                  <div className="admin-item-card-header" onClick={() => toggleCollapse(`sec_${sIdx}`)}>
+                    <div className="admin-item-card-title">
+                      <span className="admin-item-index">{sIdx + 1}</span>
+                      <span style={{ color: sec.color || '#fff' }}>●</span>
+                      <span>{sec.title || 'Sektör'}</span>
+                      {sec.badge && <span className="admin-version-tag">{sec.badge}</span>}
+                    </div>
+                    <div className="admin-item-actions" onClick={(e) => e.stopPropagation()}>
+                      <button 
+                        type="button" 
+                        className="admin-btn-icon delete"
+                        onClick={() => {
+                          const updated = (content.services?.items || []).filter((_, idx) => idx !== sIdx);
+                          setField('services', 'items', updated);
+                        }}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                      <button 
+                        type="button" 
+                        className="admin-btn-icon" 
+                        onClick={() => toggleCollapse(`sec_${sIdx}`)}
+                      >
+                        {collapsedCards[`sec_${sIdx}`] ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {!collapsedCards[`sec_${sIdx}`] && (
+                    <div className="admin-card-body">
+                      <div className="admin-grid-3">
+                        <div className="admin-form-group">
+                          <label className="admin-form-label">Tam Başlık</label>
+                          <input 
+                            type="text" 
+                            className="admin-input" 
+                            value={sec.title || ''} 
+                            onChange={(e) => {
+                              const updated = [...(content.services?.items || [])];
+                              updated[sIdx] = { ...updated[sIdx], title: e.target.value };
+                              setField('services', 'items', updated);
+                            }}
+                          />
+                        </div>
+                        <div className="admin-form-group">
+                          <label className="admin-form-label">Kısa İsim (Menü için)</label>
+                          <input 
+                            type="text" 
+                            className="admin-input" 
+                            value={sec.shortName || ''} 
+                            onChange={(e) => {
+                              const updated = [...(content.services?.items || [])];
+                              updated[sIdx] = { ...updated[sIdx], shortName: e.target.value };
+                              setField('services', 'items', updated);
+                            }}
+                          />
+                        </div>
+                        <div className="admin-form-group">
+                          <label className="admin-form-label">Sayfa Yolu (Path)</label>
+                          <input 
+                            type="text" 
+                            className="admin-input" 
+                            value={sec.path || ''} 
+                            onChange={(e) => {
+                              const updated = [...(content.services?.items || [])];
+                              updated[sIdx] = { ...updated[sIdx], path: e.target.value };
+                              setField('services', 'items', updated);
+                            }}
+                          />
+                        </div>
+                        <div className="admin-form-group">
+                          <label className="admin-form-label">Rozet (Badge)</label>
+                          <input 
+                            type="text" 
+                            className="admin-input" 
+                            value={sec.badge || ''} 
+                            onChange={(e) => {
+                              const updated = [...(content.services?.items || [])];
+                              updated[sIdx] = { ...updated[sIdx], badge: e.target.value };
+                              setField('services', 'items', updated);
+                            }}
+                          />
+                        </div>
+                        <ColorPickerField 
+                          label="Vurgu Rengi"
+                          value={sec.color || '#D12F0E'}
+                          onChange={(col) => {
+                            const updated = [...(content.services?.items || [])];
+                            updated[sIdx] = { ...updated[sIdx], color: col };
+                            setField('services', 'items', updated);
+                          }}
+                        />
+                        <IconPickerField 
+                          label="İkon"
+                          value={sec.icon || 'Layers'}
+                          onChange={(ic) => {
+                            const updated = [...(content.services?.items || [])];
+                            updated[sIdx] = { ...updated[sIdx], icon: ic };
+                            setField('services', 'items', updated);
+                          }}
+                        />
+                        <div className="admin-form-group full-width">
+                          <label className="admin-form-label">Detaylı Açıklama</label>
+                          <textarea 
+                            className="admin-textarea" 
+                            value={sec.description || ''} 
+                            onChange={(e) => {
+                              const updated = [...(content.services?.items || [])];
+                              updated[sIdx] = { ...updated[sIdx], description: e.target.value };
+                              setField('services', 'items', updated);
+                            }}
+                          />
+                        </div>
+
+                        <ImageField 
+                          label="Sektör Görseli (Vercel Blob)"
+                          value={sec.image || ''}
+                          onChange={(url) => {
+                            const updated = [...(content.services?.items || [])];
+                            updated[sIdx] = { ...updated[sIdx], image: url };
+                            setField('services', 'items', updated);
+                          }}
+                        />
+                      </div>
+
+                      {/* Bullet points */}
+                      <div className="admin-nested-container">
+                        <div className="admin-nested-header">
+                          <h4>Hizmet Maddeleri (Bullet Points)</h4>
+                          <button 
+                            type="button" 
+                            className="admin-btn admin-btn-outline admin-btn-sm"
+                            onClick={() => {
+                              const updated = [...(content.services?.items || [])];
+                              const points = [...(updated[sIdx].points || []), 'Yeni Hizmet Maddesi'];
+                              updated[sIdx] = { ...updated[sIdx], points };
+                              setField('services', 'items', updated);
+                            }}
+                          >
+                            <Plus size={12} /> Madde Ekle
+                          </button>
+                        </div>
+                        {(sec.points || []).map((pt, ptIdx) => (
+                          <div key={ptIdx} style={{ display: 'flex', gap: '8px', marginBottom: '6px' }}>
+                            <input 
+                              type="text" 
+                              className="admin-input" 
+                              value={pt} 
+                              onChange={(e) => {
+                                const updated = [...(content.services?.items || [])];
+                                const points = [...(updated[sIdx].points || [])];
+                                points[ptIdx] = e.target.value;
+                                updated[sIdx] = { ...updated[sIdx], points };
+                                setField('services', 'items', updated);
+                              }}
+                            />
+                            <button 
+                              type="button" 
+                              className="admin-btn-icon delete"
+                              onClick={() => {
+                                const updated = [...(content.services?.items || [])];
+                                const points = (updated[sIdx].points || []).filter((_, idx) => idx !== ptIdx);
+                                updated[sIdx] = { ...updated[sIdx], points };
+                                setField('services', 'items', updated);
+                              }}
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+          </section>
+        )}
+
+        {/* 5. TAB: Referanslar & Yorumlar */}
+        {activeTab === 'testimonials' && (
+          <section className="admin-section-card">
+            {/* References */}
+            <div className="admin-section-header">
+              <div>
+                <h2><Award size={20} /> Referanslar ve Güvenen Markalar</h2>
+                <p>Referans marka logoları, şirket adları ve kategori bilgilerini yönetin.</p>
+              </div>
+              <button 
+                type="button" 
+                className="admin-btn admin-btn-outline admin-btn-sm"
+                onClick={() => {
+                  const newRef = {
+                    id: `ref_${Date.now()}`,
+                    name: 'Yeni Referans Şirketi',
+                    category: 'Sektör',
+                    logoUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=300&q=80',
+                    link: '#'
+                  };
+                  setField('references', 'items', [...(content.references?.items || []), newRef]);
+                }}
+              >
+                <Plus size={13} /> Referans Ekle
+              </button>
+            </div>
+
+            <div className="admin-grid-2">
+              {(content.references?.items || []).map((refItem, rIdx) => (
+                <div key={refItem.id || rIdx} className="admin-item-card">
+                  <div className="admin-item-card-header">
+                    <span className="admin-item-card-title">{refItem.name || 'Referans'}</span>
+                    <button 
+                      type="button" 
+                      className="admin-btn-icon delete"
+                      onClick={() => {
+                        const updated = (content.references?.items || []).filter((_, idx) => idx !== rIdx);
+                        setField('references', 'items', updated);
+                      }}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                  <div className="admin-form-group">
+                    <label className="admin-form-label">Kurum / Marka Adı</label>
+                    <input 
+                      type="text" 
+                      className="admin-input" 
+                      value={refItem.name || ''} 
+                      onChange={(e) => {
+                        const updated = [...(content.references?.items || [])];
+                        updated[rIdx] = { ...updated[rIdx], name: e.target.value };
+                        setField('references', 'items', updated);
+                      }}
+                    />
+                  </div>
+                  <div className="admin-form-group">
+                    <label className="admin-form-label">Kategori / Sektör</label>
+                    <input 
+                      type="text" 
+                      className="admin-input" 
+                      value={refItem.category || ''} 
+                      onChange={(e) => {
+                        const updated = [...(content.references?.items || [])];
+                        updated[rIdx] = { ...updated[rIdx], category: e.target.value };
+                        setField('references', 'items', updated);
+                      }}
+                    />
+                  </div>
+                  <ImageField 
+                    label="Referans Logosu"
+                    value={refItem.logoUrl || ''}
+                    onChange={(url) => {
+                      const updated = [...(content.references?.items || [])];
+                      updated[rIdx] = { ...updated[rIdx], logoUrl: url };
+                      setField('references', 'items', updated);
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Testimonials */}
+            <div className="admin-section-header" style={{ marginTop: '36px' }}>
+              <div>
+                <h2><MessageSquareQuote size={20} /> Müşteri & Yönetici Yorumları</h2>
+                <p>İş ortaklarının görüş ve referans bildirimleri.</p>
+              </div>
+              <button 
+                type="button" 
+                className="admin-btn admin-btn-outline admin-btn-sm"
+                onClick={() => {
+                  const newTestimonial = {
+                    id: `test_${Date.now()}`,
+                    name: 'Yeni Yönetici',
+                    role: 'Pozisyon',
+                    company: 'Şirket Adı',
+                    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+                    text: 'İş ortaklığımızdan son derece memnunuz.',
+                    rating: 5
+                  };
+                  setField('testimonials', 'items', [...(content.testimonials?.items || []), newTestimonial]);
+                }}
+              >
+                <Plus size={13} /> Yorum Ekle
+              </button>
+            </div>
+
+            {(content.testimonials?.items || []).map((tItem, tIdx) => (
+              <div key={tItem.id || tIdx} className="admin-item-card">
+                <div className="admin-item-card-header">
+                  <span className="admin-item-card-title">{tItem.name} — {tItem.company}</span>
+                  <button 
+                    type="button" 
+                    className="admin-btn-icon delete"
+                    onClick={() => {
+                      const updated = (content.testimonials?.items || []).filter((_, idx) => idx !== tIdx);
+                      setField('testimonials', 'items', updated);
+                    }}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+                <div className="admin-grid-3">
+                  <div className="admin-form-group">
+                    <label className="admin-form-label">Ad Soyad</label>
+                    <input 
+                      type="text" 
+                      className="admin-input" 
+                      value={tItem.name || ''} 
+                      onChange={(e) => {
+                        const updated = [...(content.testimonials?.items || [])];
+                        updated[tIdx] = { ...updated[tIdx], name: e.target.value };
+                        setField('testimonials', 'items', updated);
+                      }}
+                    />
+                  </div>
+                  <div className="admin-form-group">
+                    <label className="admin-form-label">Pozisyon / Ünvan</label>
+                    <input 
+                      type="text" 
+                      className="admin-input" 
+                      value={tItem.role || ''} 
+                      onChange={(e) => {
+                        const updated = [...(content.testimonials?.items || [])];
+                        updated[tIdx] = { ...updated[tIdx], role: e.target.value };
+                        setField('testimonials', 'items', updated);
+                      }}
+                    />
+                  </div>
+                  <div className="admin-form-group">
+                    <label className="admin-form-label">Şirket / Kurum</label>
+                    <input 
+                      type="text" 
+                      className="admin-input" 
+                      value={tItem.company || ''} 
+                      onChange={(e) => {
+                        const updated = [...(content.testimonials?.items || [])];
+                        updated[tIdx] = { ...updated[tIdx], company: e.target.value };
+                        setField('testimonials', 'items', updated);
+                      }}
+                    />
+                  </div>
+                  <div className="admin-form-group full-width">
+                    <label className="admin-form-label">Görüş Metni</label>
+                    <textarea 
+                      className="admin-textarea" 
+                      value={tItem.text || ''} 
+                      onChange={(e) => {
+                        const updated = [...(content.testimonials?.items || [])];
+                        updated[tIdx] = { ...updated[tIdx], text: e.target.value };
+                        setField('testimonials', 'items', updated);
+                      }}
+                    />
+                  </div>
+                  <ImageField 
+                    label="Avatar Görseli"
+                    value={tItem.avatar || ''}
+                    onChange={(url) => {
+                      const updated = [...(content.testimonials?.items || [])];
+                      updated[tIdx] = { ...updated[tIdx], avatar: url };
+                      setField('testimonials', 'items', updated);
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </section>
+        )}
+
+        {/* 6. TAB: İletişim & Footer */}
+        {activeTab === 'contact' && (
+          <section className="admin-section-card">
+            <div className="admin-section-header">
+              <div>
+                <h2><Phone size={20} /> İletişim ve Footer Ayarları</h2>
+                <p>Telefonlar, e-postalar, açık adres, harita bağlantısı ve sosyal medya hesapları.</p>
+              </div>
+            </div>
+
+            <div className="admin-grid-2">
+              <div className="admin-form-group">
+                <label className="admin-form-label">Birincil Telefon</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.contact?.phone || ''} 
+                  onChange={(e) => setField('contact', 'phone', e.target.value)}
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label className="admin-form-label">GSM / İkinci Telefon</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.contact?.phoneSecondary || ''} 
+                  onChange={(e) => setField('contact', 'phoneSecondary', e.target.value)}
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label className="admin-form-label">Genel İletişim E-Postası</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.contact?.email || ''} 
+                  onChange={(e) => setField('contact', 'email', e.target.value)}
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label className="admin-form-label">Destek E-Postası</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.contact?.emailSupport || ''} 
+                  onChange={(e) => setField('contact', 'emailSupport', e.target.value)}
+                />
+              </div>
+
+              <div className="admin-form-group full-width">
+                <label className="admin-form-label">Genel Merkez Açık Adresi</label>
+                <textarea 
+                  className="admin-textarea" 
+                  style={{ minHeight: '60px' }}
+                  value={content.contact?.address || ''} 
+                  onChange={(e) => setField('contact', 'address', e.target.value)}
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label className="admin-form-label">Çalışma Saatleri</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.contact?.workingHours || ''} 
+                  onChange={(e) => setField('contact', 'workingHours', e.target.value)}
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label className="admin-form-label">Google Harita Bağlantısı</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.contact?.mapEmbedUrl || ''} 
+                  onChange={(e) => setField('contact', 'mapEmbedUrl', e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Footer Settings */}
+            <div className="admin-section-header" style={{ marginTop: '28px' }}>
+              <h3 style={{ fontSize: '1rem', color: '#fff', margin: 0 }}>Footer ve Telif Metinleri</h3>
+            </div>
+
+            <div className="admin-grid-2">
+              <div className="admin-form-group full-width">
+                <label className="admin-form-label">Footer Şirket Tanıtım Metni</label>
+                <textarea 
+                  className="admin-textarea" 
+                  value={content.footer?.description || ''} 
+                  onChange={(e) => setField('footer', 'description', e.target.value)}
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label className="admin-form-label">Telif Hakkı Metni (Copyright)</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.footer?.copyright || ''} 
+                  onChange={(e) => setField('footer', 'copyright', e.target.value)}
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label className="admin-form-label">Bülten Başlığı (Newsletter)</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.footer?.newsletterTitle || ''} 
+                  onChange={(e) => setField('footer', 'newsletterTitle', e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Social Media Links */}
+            <div className="admin-section-header" style={{ marginTop: '24px' }}>
+              <h3 style={{ fontSize: '1rem', color: '#fff', margin: 0 }}>Sosyal Medya Hesapları</h3>
+              <button 
+                type="button" 
+                className="admin-btn admin-btn-outline admin-btn-sm"
+                onClick={() => {
+                  const newSocial = {
+                    id: `soc_${Date.now()}`,
+                    name: 'Yeni Platform',
+                    url: 'https://...',
+                    icon: 'Globe'
+                  };
+                  setField('footer', 'socials', [...(content.footer?.socials || []), newSocial]);
+                }}
+              >
+                <Plus size={13} /> Sosyal Medya Ekle
+              </button>
+            </div>
+
+            {(content.footer?.socials || []).map((soc, sIdx) => (
+              <div key={soc.id || sIdx} className="admin-nested-item" style={{ gridTemplateColumns: '150px 1fr 120px auto' }}>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  placeholder="Platform Adı"
+                  value={soc.name || ''} 
+                  onChange={(e) => {
+                    const updated = [...(content.footer?.socials || [])];
+                    updated[sIdx] = { ...updated[sIdx], name: e.target.value };
+                    setField('footer', 'socials', updated);
+                  }}
+                />
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  placeholder="Profil URL"
+                  value={soc.url || ''} 
+                  onChange={(e) => {
+                    const updated = [...(content.footer?.socials || [])];
+                    updated[sIdx] = { ...updated[sIdx], url: e.target.value };
+                    setField('footer', 'socials', updated);
+                  }}
+                />
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  placeholder="İkon Adı"
+                  value={soc.icon || ''} 
+                  onChange={(e) => {
+                    const updated = [...(content.footer?.socials || [])];
+                    updated[sIdx] = { ...updated[sIdx], icon: e.target.value };
+                    setField('footer', 'socials', updated);
+                  }}
+                />
+                <button 
+                  type="button" 
+                  className="admin-btn-icon delete"
+                  onClick={() => {
+                    const updated = (content.footer?.socials || []).filter((_, idx) => idx !== sIdx);
+                    setField('footer', 'socials', updated);
+                  }}
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            ))}
+          </section>
+        )}
+
+        {/* 7. TAB: Medya Kütüphanesi */}
+        {activeTab === 'media' && (
+          <section className="admin-section-card">
+            <div className="admin-section-header">
+              <div>
+                <h2><ImageIcon size={20} /> Medya Kütüphanesi & Vercel Blob</h2>
+                <p>Doğrudan bilgisayarınızdan Vercel Blob bulutuna görsel yükleyin ve anında genel CDN URL’i elde edin.</p>
+              </div>
+            </div>
+
+            <div className="admin-grid-2">
+              <ImageField 
+                label="Genel Logo & Marka Varlığı"
+                value={content.images?.logoUrl || ''}
+                onChange={(url) => setField('images', 'logoUrl', url)}
+              />
+              <ImageField 
+                label="Hero Ana Arka Plan Görseli"
+                value={content.images?.heroBg || ''}
+                onChange={(url) => setField('images', 'heroBg', url)}
+              />
+              <ImageField 
+                label="Hakkımızda Banner Görseli"
+                value={content.images?.aboutImg || ''}
+                onChange={(url) => setField('images', 'aboutImg', url)}
+              />
+              <ImageField 
+                label="İletişim Banner Görseli"
+                value={content.images?.contactImg || ''}
+                onChange={(url) => setField('images', 'contactImg', url)}
+              />
+            </div>
+          </section>
+        )}
+
+        {/* 8. TAB: Yedekleme & Gelişmiş */}
+        {activeTab === 'advanced' && (
+          <section className="admin-section-card">
+            <div className="admin-section-header">
+              <div>
+                <h2><FileJson size={20} /> Yedekleme, Dışa Aktarma & Sıfırlama</h2>
+                <p>Vercel KV üzerindeki merkezi `site_content` JSON verisini dışa aktarın veya sıfırlayın.</p>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginBottom: '24px' }}>
+              <button type="button" className="admin-btn admin-btn-outline" onClick={handleExportJSON}>
+                <Download size={16} /> JSON Yedek İndir (Export)
+              </button>
+
+              <label className="admin-btn admin-btn-outline" style={{ cursor: 'pointer' }}>
+                <Upload size={16} /> JSON Yedek Yükle (Import)
+                <input 
+                  type="file" 
+                  accept=".json" 
+                  ref={fileImportRef}
+                  style={{ display: 'none' }} 
+                  onChange={handleImportJSON} 
+                />
+              </label>
+
+              <button 
+                type="button" 
+                className="admin-btn admin-btn-danger" 
+                onClick={() => {
+                  if (window.confirm('Tüm içerikler varsayılan fabrika ayarlarına döndürülecek. Emin misiniz?')) {
+                    resetToDefault();
+                    setHasUnsavedChanges(true);
+                    showToast('Varsayılan şablona dönüldü.', 'info');
+                  }
+                }}
+              >
+                <RefreshCw size={16} /> Varsayılan Fabrika Ayarlarına Sıfırla
+              </button>
+            </div>
+
+            <h3 style={{ fontSize: '0.95rem', color: '#fff', marginBottom: '10px' }}>
+              Canlı JSON Veri Yapısı (Vercel KV `site_content`)
+            </h3>
+            <pre className="admin-json-viewer">
+              {JSON.stringify(content, null, 2)}
+            </pre>
+          </section>
+        )}
+      </main>
+    </div>
+  );
+}
+
+export default function Admin() {
+  return (
+    <AdminErrorBoundary>
+      <AdminMain />
+    </AdminErrorBoundary>
+  );
+}

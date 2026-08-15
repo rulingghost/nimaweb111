@@ -3,17 +3,63 @@ import { useParams, Navigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   CheckCircle2, ArrowRight, Sparkles, MessageSquarePlus, 
-  ChevronDown, Award, TrendingUp, Layers, HelpCircle, Handshake, Briefcase
+  ChevronDown, Award, TrendingUp, Layers, HelpCircle, Handshake, Briefcase,
+  Radio, Cpu, Gift, GraduationCap, Megaphone
 } from 'lucide-react';
 import PageHero from '../components/PageHero';
 import DirectContactChannels from '../components/DirectContactChannels';
 import { getSectors, getCompanyInfo } from '../data/sectors';
 import { useLanguage } from '../context/LanguageContext';
+import { useContent } from '../context/ContentContext';
+
+// Path & Slug alias mapping to guarantee every route opens
+const SECTOR_ALIASES = {
+  'telekomunikasyon': 'telekomunikasyon',
+  'telecom': 'telekomunikasyon',
+  'yazilim': 'yazilim',
+  'yazilim-ve-teknoloji': 'yazilim',
+  'software': 'yazilim',
+  'promosyon': 'promosyon',
+  'promosyon-ve-kurumsal-urunler': 'promosyon',
+  'promotion': 'promosyon',
+  'reklam': 'reklam',
+  'acikhava-ve-reklamcilik': 'reklam',
+  'advertising': 'reklam',
+  'egitim': 'egitim',
+  'egitim-ve-danismanlik': 'egitim',
+  'education': 'egitim',
+  'danismanlik': 'danismanlik',
+  'yonetim-ve-strateji-danismanligi': 'danismanlik',
+  'consulting': 'danismanlik'
+};
+
+// Safe React Partner Logo Component with error fallback
+function PartnerLogo({ logo, name, color, maxHeight = '55px', maxWidth = '180px' }) {
+  const [hasError, setHasError] = useState(false);
+
+  if (hasError || !logo) {
+    return (
+      <span style={{ fontSize: '1.3rem', fontWeight: '700', color: color }}>
+        {name}
+      </span>
+    );
+  }
+
+  return (
+    <img 
+      src={logo} 
+      alt={name} 
+      style={{ maxHeight, maxWidth, objectFit: 'contain' }}
+      onError={() => setHasError(true)}
+    />
+  );
+}
 
 export default function SectorPage({ onOpenProposal }) {
   const { sectorId } = useParams();
   const [activeTab, setActiveTab] = useState('overview');
   const { language, t } = useLanguage();
+  const { content } = useContent();
 
   useEffect(() => {
     setActiveTab('overview');
@@ -22,7 +68,60 @@ export default function SectorPage({ onOpenProposal }) {
   
   const localizedSectors = getSectors(language);
   const localizedCompany = getCompanyInfo(language);
-  const sector = localizedSectors.find(s => s.path === `/${sectorId}`);
+
+  // Normalize incoming param
+  const cleanId = (sectorId || '').toLowerCase().trim();
+  const canonicalId = SECTOR_ALIASES[cleanId] || cleanId;
+
+  // 1. Check in static localized sectors by path, id, or canonical ID
+  let sector = localizedSectors.find(
+    s => s.path === `/${cleanId}` || 
+         s.path === `/${canonicalId}` || 
+         s.id === cleanId || 
+         s.id === canonicalId
+  );
+
+  // 2. Check in dynamic content if not found
+  if (!sector && content?.services?.items) {
+    const dynSector = content.services.items.find(
+      s => s.path === `/${cleanId}` || s.path === `/${canonicalId}` || s.id === cleanId || s.id === canonicalId
+    );
+    if (dynSector) {
+      sector = {
+        id: dynSector.id || cleanId,
+        name: dynSector.title || dynSector.name || 'Sektörel Hizmet',
+        shortName: dynSector.shortName || dynSector.title || 'Sektör',
+        description: dynSector.description || 'Detaylı sektörel çözümlerimiz.',
+        badge: dynSector.badge || 'Sektör',
+        color: dynSector.color || '#D12F0E',
+        lightColor: dynSector.color ? `${dynSector.color}15` : 'rgba(209, 47, 14, 0.12)',
+        heroImage: dynSector.image || dynSector.heroImage,
+        icon: dynSector.icon === 'Radio' ? Radio :
+              dynSector.icon === 'Cpu' ? Cpu :
+              dynSector.icon === 'Sparkles' ? Sparkles :
+              dynSector.icon === 'Layers' ? Layers :
+              dynSector.icon === 'Compass' ? GraduationCap :
+              dynSector.icon === 'ShieldCheck' ? Briefcase : Layers,
+        stats: [
+          { label: 'Başarılı Proje', value: '100+' },
+          { label: 'Müşteri Memnuniyeti', value: '%99' },
+          { label: 'Saha Desteği', value: '7/24' },
+          { label: 'Hizmet Kapsamı', value: 'Türkiye Geneli' }
+        ],
+        features: dynSector.points || ['Özel Danışmanlık', 'Uçtan Uca Projelendirme', '7/24 Kesintisiz Destek'],
+        process: [
+          { title: 'İhtiyaç & Süreç Analizi', desc: 'Sektörünüze özel gereksinimleri detaylandırıyoruz.' },
+          { title: 'Uygulama & Geliştirme', desc: 'En yüksek kalite standartlarında hayata geçiriyoruz.' },
+          { title: 'Devreye Alma & Takip', desc: 'Sürekli izleme ve destek sağlıyoruz.' }
+        ],
+        partners: [],
+        references: [],
+        faqs: [
+          { q: 'Hizmet süreci nasıl işlemektedir?', a: 'Talebiniz doğrultusunda uzman ekibimiz en geç 24 saat içinde sizinle iletişime geçer.' }
+        ]
+      };
+    }
+  }
 
   if (!sector) {
     return <Navigate to="/" replace />;
@@ -195,15 +294,12 @@ export default function SectorPage({ onOpenProposal }) {
                       }}
                     >
                       <div style={{ height: '70px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <img 
-                          src={partner.logo} 
-                          alt={partner.name} 
-                          style={{ maxHeight: '55px', maxWidth: '180px', objectFit: 'contain' }}
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.style.display = 'none';
-                            e.target.parentNode.innerHTML = `<span style="font-size:1.5rem;font-weight:700;color:${sector.color}">${partner.name}</span>`;
-                          }}
+                        <PartnerLogo 
+                          logo={partner.logo} 
+                          name={partner.name} 
+                          color={sector.color} 
+                          maxHeight="55px" 
+                          maxWidth="180px" 
                         />
                       </div>
                       <div>
@@ -324,15 +420,12 @@ export default function SectorPage({ onOpenProposal }) {
                   }}
                 >
                   <div style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <img 
-                      src={partner.logo} 
-                      alt={partner.name} 
-                      style={{ maxHeight: '48px', maxWidth: '160px', objectFit: 'contain' }}
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.style.display = 'none';
-                        e.target.parentNode.innerHTML = `<span style="font-size:1.4rem;font-weight:700;color:${sector.color}">${partner.name}</span>`;
-                      }}
+                    <PartnerLogo 
+                      logo={partner.logo} 
+                      name={partner.name} 
+                      color={sector.color} 
+                      maxHeight="48px" 
+                      maxWidth="160px" 
                     />
                   </div>
                   <div>

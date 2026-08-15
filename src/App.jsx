@@ -1,17 +1,21 @@
 import { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import SectorPage from './pages/SectorPage';
 import About from './pages/About';
 import Contact from './pages/Contact';
+import Admin from './pages/Admin';
 import ScrollProgress from './components/ScrollProgress';
 import ScrollToTop from './components/ScrollToTop';
 import InteractiveInquiryModal from './components/InteractiveInquiryModal';
 import { LanguageProvider } from './context/LanguageContext';
+import { ContentProvider } from './context/ContentContext';
 
-function App() {
+function AppLayout() {
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith('/admin');
   const [isProposalOpen, setIsProposalOpen] = useState(false);
   const [proposalSectorId, setProposalSectorId] = useState('');
 
@@ -24,63 +28,79 @@ function App() {
     setIsProposalOpen(false);
   };
 
+  if (isAdmin) {
+    return (
+      <Routes>
+        <Route path="/admin" element={<Admin />} />
+      </Routes>
+    );
+  }
+
   return (
-    <LanguageProvider>
-      <Router>
-        <ScrollToTop />
-        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', position: 'relative' }}>
-          {/* Top Reading Progress & Floating Buttons */}
-          <ScrollProgress onOpenProposal={() => handleOpenProposal()} />
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', position: 'relative' }}>
+      {/* Top Reading Progress & Floating Buttons */}
+      <ScrollProgress onOpenProposal={() => handleOpenProposal()} />
 
-          {/* Global Navigation Header */}
-          <Navbar onOpenProposal={() => handleOpenProposal()} />
+      {/* Global Navigation Header */}
+      <Navbar onOpenProposal={() => handleOpenProposal()} />
 
-          {/* Main Content Pages */}
-          <div style={{ flexGrow: 1 }}>
-            <Routes>
-              <Route 
-                path="/" 
-                element={
-                  <Home 
-                    onOpenProposal={handleOpenProposal} 
-                  />
-                } 
+      {/* Main Content Pages */}
+      <div style={{ flexGrow: 1 }}>
+        <Routes>
+          <Route 
+            path="/" 
+            element={
+              <Home 
+                onOpenProposal={handleOpenProposal} 
               />
-              <Route 
-                path="/hakkimizda" 
-                element={
-                  <About 
-                    onOpenProposal={handleOpenProposal} 
-                  />
-                } 
-              />
-              <Route 
-                path="/iletisim" 
-                element={<Contact />} 
-              />
-              <Route 
-                path="/:sectorId" 
-                element={
-                  <SectorPage 
-                    onOpenProposal={handleOpenProposal} 
-                  />
-                } 
-              />
-            </Routes>
-          </div>
-
-          {/* Global Footer */}
-          <Footer />
-
-          {/* Interactive Proposal Modal */}
-          <InteractiveInquiryModal 
-            isOpen={isProposalOpen} 
-            onClose={handleCloseProposal}
-            defaultSectorId={proposalSectorId}
+            } 
           />
-        </div>
-      </Router>
-    </LanguageProvider>
+          <Route 
+            path="/hakkimizda" 
+            element={
+              <About 
+                onOpenProposal={handleOpenProposal} 
+              />
+            } 
+          />
+          <Route 
+            path="/iletisim" 
+            element={<Contact />} 
+          />
+          <Route 
+            path="/:sectorId" 
+            element={
+              <SectorPage 
+                onOpenProposal={handleOpenProposal} 
+              />
+            } 
+          />
+        </Routes>
+      </div>
+
+      {/* Global Footer */}
+      <Footer />
+
+      {/* Interactive Proposal Modal */}
+      <InteractiveInquiryModal 
+        isOpen={isProposalOpen} 
+        onClose={handleCloseProposal}
+        defaultSectorId={proposalSectorId}
+      />
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <ContentProvider>
+      <LanguageProvider>
+        <Router>
+          <ScrollToTop />
+          <AppLayout />
+        </Router>
+      </LanguageProvider>
+    </ContentProvider>
   );
 }
 
