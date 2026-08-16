@@ -36,7 +36,11 @@ export const adminTranslations = {
     show: "Göster",
     hide: "Gizle",
 
-    // Tabs
+    // Tabs & Categories
+    cat_all: "Tüm Modüller",
+    cat_home: "🏠 Ana Sayfa & Vitrin",
+    cat_corporate: "🏢 Kurumsal & Sektörler",
+    cat_system: "⚙️ Sistem & Ayarlar",
     tab_nav: "Menü & Navigasyon",
     tab_hero: "Hero Bölümü",
     tab_about: "Hakkımızda & Journey",
@@ -176,7 +180,11 @@ export const adminTranslations = {
     show: "Show",
     hide: "Hide",
 
-    // Tabs
+    // Tabs & Categories
+    cat_all: "All Modules",
+    cat_home: "🏠 Home & Showcase",
+    cat_corporate: "🏢 Corporate & Sectors",
+    cat_system: "⚙️ System & Settings",
     tab_nav: "Menu & Navigation",
     tab_hero: "Hero Section",
     tab_about: "About Us & Journey",

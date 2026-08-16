@@ -441,6 +441,7 @@ function AdminMain() {
   });
 
   const [activeTab, setActiveTab] = useState('nav');
+  const [tabCategory, setTabCategory] = useState('all');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [localMessage, setLocalMessage] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -836,103 +837,75 @@ function AdminMain() {
           </div>
         </div>
 
-        {/* Tabs Bar with Count Badges */}
-        <nav className="admin-tabs-bar">
-          <button 
-            type="button"
-            className={`admin-tab-btn ${activeTab === 'nav' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('nav'); setSearchQuery(''); }}
-          >
-            <Compass size={17} /> {tUi('tab_nav')}
-            <span className="admin-tab-badge">{(activeContent.navigation?.items || []).length}</span>
-          </button>
+        {/* Modern Categorized Tabs Navigation (No ugly scrollbar, perfectly wrapped) */}
+        <div className="admin-tabs-nav-wrapper">
+          {/* Quick Category Filter Pills */}
+          <div className="admin-tab-categories">
+            <button 
+              type="button" 
+              className={`admin-cat-pill ${tabCategory === 'all' ? 'active' : ''}`}
+              onClick={() => setTabCategory('all')}
+            >
+              {tUi('cat_all')} (11)
+            </button>
+            <button 
+              type="button" 
+              className={`admin-cat-pill ${tabCategory === 'home' ? 'active' : ''}`}
+              onClick={() => setTabCategory('home')}
+            >
+              {tUi('cat_home')}
+            </button>
+            <button 
+              type="button" 
+              className={`admin-cat-pill ${tabCategory === 'corporate' ? 'active' : ''}`}
+              onClick={() => setTabCategory('corporate')}
+            >
+              {tUi('cat_corporate')}
+            </button>
+            <button 
+              type="button" 
+              className={`admin-cat-pill ${tabCategory === 'system' ? 'active' : ''}`}
+              onClick={() => setTabCategory('system')}
+            >
+              {tUi('cat_system')}
+            </button>
+          </div>
 
-          <button 
-            type="button"
-            className={`admin-tab-btn ${activeTab === 'hero' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('hero'); setSearchQuery(''); }}
-          >
-            <Sparkles size={17} /> {tUi('tab_hero')}
-            <span className="admin-tab-badge">{(activeContent.hero?.slides || []).length}</span>
-          </button>
-
-          <button 
-            type="button"
-            className={`admin-tab-btn ${activeTab === 'about' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('about'); setSearchQuery(''); }}
-          >
-            <LayoutTemplate size={17} /> {tUi('tab_about')}
-            <span className="admin-tab-badge">{(activeContent.journey?.items || []).length}</span>
-          </button>
-
-          <button 
-            type="button"
-            className={`admin-tab-btn ${activeTab === 'services' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('services'); setSearchQuery(''); }}
-          >
-            <Layers size={17} /> {tUi('tab_services')}
-            <span className="admin-tab-badge">{(activeContent.services?.items || []).length}</span>
-          </button>
-
-          <button 
-            type="button"
-            className={`admin-tab-btn ${activeTab === 'portfolio' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('portfolio'); setSearchQuery(''); }}
-          >
-            <FolderKanban size={17} /> {tUi('tab_portfolio')}
-            <span className="admin-tab-badge">{(activeContent.portfolio?.items || []).length}</span>
-          </button>
-
-          <button 
-            type="button"
-            className={`admin-tab-btn ${activeTab === 'homeSections' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('homeSections'); setSearchQuery(''); }}
-          >
-            <Sparkles size={17} /> {tUi('tab_home_sections')}
-          </button>
-
-          <button 
-            type="button"
-            className={`admin-tab-btn ${activeTab === 'testimonials' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('testimonials'); setSearchQuery(''); }}
-          >
-            <MessageSquareQuote size={17} /> {tUi('tab_testimonials')}
-            <span className="admin-tab-badge">{(activeContent.testimonials?.items || []).length + (activeContent.testimonials?.brands || []).length}</span>
-          </button>
-
-          <button 
-            type="button"
-            className={`admin-tab-btn ${activeTab === 'contact' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('contact'); setSearchQuery(''); }}
-          >
-            <Phone size={17} /> {tUi('tab_contact')}
-            <span className="admin-tab-badge">{(activeContent.globalOffices?.items || []).length}</span>
-          </button>
-
-          <button 
-            type="button"
-            className={`admin-tab-btn ${activeTab === 'translations' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('translations'); setSearchQuery(''); }}
-          >
-            <Globe size={17} /> {tUi('tab_translations')}
-          </button>
-
-          <button 
-            type="button"
-            className={`admin-tab-btn ${activeTab === 'media' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('media'); setSearchQuery(''); }}
-          >
-            <ImageIcon size={17} /> {tUi('tab_media')}
-          </button>
-
-          <button 
-            type="button"
-            className={`admin-tab-btn ${activeTab === 'advanced' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('advanced'); setSearchQuery(''); }}
-          >
-            <FileJson size={17} /> {tUi('tab_advanced')}
-          </button>
-        </nav>
+          {/* Tabs Bar with Flex-Wrap (Clean & Fully Visible) */}
+          <nav className="admin-tabs-bar">
+            {[
+              { id: 'nav', group: 'home', icon: Compass, label: tUi('tab_nav'), count: (activeContent.navigation?.items || []).length },
+              { id: 'hero', group: 'home', icon: Sparkles, label: tUi('tab_hero'), count: (activeContent.hero?.slides || []).length },
+              { id: 'portfolio', group: 'home', icon: FolderKanban, label: tUi('tab_portfolio'), count: (activeContent.portfolio?.items || []).length },
+              { id: 'homeSections', group: 'home', icon: Zap, label: tUi('tab_home_sections') },
+              { id: 'testimonials', group: 'home', icon: MessageSquareQuote, label: tUi('tab_testimonials'), count: (activeContent.testimonials?.items || []).length + (activeContent.testimonials?.brands || []).length },
+              { id: 'about', group: 'corporate', icon: LayoutTemplate, label: tUi('tab_about'), count: (activeContent.journey?.items || []).length },
+              { id: 'services', group: 'corporate', icon: Layers, label: tUi('tab_services'), count: (activeContent.services?.items || []).length },
+              { id: 'contact', group: 'corporate', icon: Phone, label: tUi('tab_contact'), count: (activeContent.globalOffices?.items || []).length },
+              { id: 'translations', group: 'system', icon: Globe, label: tUi('tab_translations') },
+              { id: 'media', group: 'system', icon: ImageIcon, label: tUi('tab_media') },
+              { id: 'advanced', group: 'system', icon: FileJson, label: tUi('tab_advanced') }
+            ]
+              .filter(t => tabCategory === 'all' || t.group === tabCategory)
+              .map(tab => {
+                const IconComp = tab.icon;
+                return (
+                  <button 
+                    key={tab.id}
+                    type="button"
+                    className={`admin-tab-btn ${activeTab === tab.id ? 'active' : ''}`}
+                    onClick={() => { setActiveTab(tab.id); setSearchQuery(''); }}
+                  >
+                    <IconComp size={16} />
+                    <span>{tab.label}</span>
+                    {tab.count !== undefined && tab.count > 0 && (
+                      <span className="admin-tab-badge">{tab.count}</span>
+                    )}
+                  </button>
+                );
+              })}
+          </nav>
+        </div>
 
         {/* 1. TAB: Menü ve Navigasyon */}
         {activeTab === 'nav' && (

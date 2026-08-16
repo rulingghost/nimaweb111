@@ -408,57 +408,103 @@
   padding: 0 24px;
 }
 
-/* Tab Navigation */
-.admin-tabs-bar {
+/* Tab Navigation Wrapper & Category Filters */
+.admin-tabs-nav-wrapper {
+  margin-bottom: 24px;
+}
+
+.admin-tab-categories {
   display: flex;
   gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.admin-cat-pill {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--admin-text-dim);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.admin-cat-pill:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.admin-cat-pill.active {
+  background: rgba(209, 47, 14, 0.16);
+  border-color: rgba(209, 47, 14, 0.5);
+  color: #ff6b4a;
+  box-shadow: 0 2px 10px rgba(209, 47, 14, 0.25);
+}
+
+.admin-tabs-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   border-bottom: 1px solid var(--admin-card-border);
-  padding-bottom: 12px;
-  margin-bottom: 24px;
-  overflow-x: auto;
-  scrollbar-width: thin;
+  padding-bottom: 16px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .admin-tabs-bar::-webkit-scrollbar {
-  height: 4px;
-}
-
-.admin-tabs-bar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
+  display: none;
 }
 
 .admin-tab-btn {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 18px;
-  font-size: 0.9rem;
+  gap: 8px;
+  padding: 9px 15px;
+  font-size: 0.88rem;
   font-weight: 600;
   color: var(--admin-text-muted);
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 9px;
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.2s ease;
+  transition: all 0.18s ease;
 }
 
 .admin-tab-btn:hover {
   color: #fff;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.14);
 }
 
 .admin-tab-btn.active {
   color: #fff;
-  background: var(--admin-card-bg);
-  border-color: var(--admin-card-border);
-  border-bottom-color: var(--admin-primary);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  background: #141926;
+  border-color: rgba(209, 47, 14, 0.55);
+  box-shadow: 0 4px 16px rgba(209, 47, 14, 0.25);
 }
 
 .admin-tab-btn.active svg {
-  color: var(--admin-primary);
+  color: #ff6b4a;
+}
+
+.admin-tab-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--admin-text-muted);
+}
+
+.admin-tab-btn.active .admin-tab-badge {
+  background: rgba(209, 47, 14, 0.3);
+  color: #ff8566;
 }
 
 /* Tab Content Cards */
