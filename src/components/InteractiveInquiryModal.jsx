@@ -2,14 +2,29 @@ import { useState } from 'react';
 import { X, Check, ArrowRight, ArrowLeft, Sparkles, Send } from 'lucide-react';
 import { getSectors } from '../data/sectors';
 import { useLanguage } from '../context/LanguageContext';
+import { useContent } from '../context/ContentContext';
 import './InteractiveInquiryModal.css';
 
 export default function InteractiveInquiryModal({ isOpen, onClose, defaultSectorId = '' }) {
   const { language, t } = useLanguage();
-  const localizedSectors = getSectors(language);
+  const { content } = useContent();
+  const defaultSectors = getSectors(language);
+  const adminServices = content?.services?.items || [];
+
+  const localizedSectors = defaultSectors.map(def => {
+    const matched = adminServices.find(s => s.id === def.id || s.path === def.path);
+    if (!matched) return def;
+    return {
+      ...def,
+      name: matched.title || def.name,
+      shortName: matched.shortName || matched.title || def.shortName,
+      badge: matched.badge || def.badge,
+      color: matched.color || def.color
+    };
+  });
 
   const [step, setStep] = useState(1);
-  const [selectedSector, setSelectedSector] = useState(defaultSectorId || localizedSectors[0].id);
+  const [selectedSector, setSelectedSector] = useState(defaultSectorId || localizedSectors[0]?.id || 'telekomunikasyon');
   const [budget, setBudget] = useState('50.000 - 150.000 TL');
   const [formData, setFormData] = useState({
     name: '',
