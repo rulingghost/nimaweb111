@@ -4,6 +4,7 @@ import {
   MapPin, Phone, Mail, ExternalLink, Clock, Send, Check, Sparkles 
 } from 'lucide-react';
 import PageHero from '../components/PageHero';
+import GlobalOfficesMap from '../components/GlobalOfficesMap';
 import { getCompanyInfo, getSectors, aboutHeroImg } from '../data/sectors';
 import { useLanguage } from '../context/LanguageContext';
 import { useContent } from '../context/ContentContext';
@@ -369,6 +370,9 @@ export default function Contact() {
 
         </div>
       </section>
+
+      {/* Global Offices Section */}
+      <GlobalOfficesMap />
     </main>
   );
 }

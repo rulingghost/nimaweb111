@@ -801,6 +801,56 @@ function AdminMain() {
               />
             </div>
 
+            {/* Announcement Top Bar */}
+            <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '20px', marginBottom: '24px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '1rem', color: '#ff6b4a', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Sparkles size={16} /> Üst Duyuru Çubuğu (Announcement Bar)
+                </h3>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.85rem', color: '#fff' }}>
+                  <input 
+                    type="checkbox" 
+                    checked={!!content.announcement?.enabled}
+                    onChange={(e) => setField('announcement', 'enabled', e.target.checked)}
+                    style={{ width: '16px', height: '16px', accentColor: '#D12F0E' }}
+                  />
+                  <span>Duyuru Çubuğunu Göster</span>
+                </label>
+              </div>
+
+              {content.announcement?.enabled && (
+                <div className="admin-grid-3">
+                  <div className="admin-form-group" style={{ gridColumn: 'span 2' }}>
+                    <label className="admin-form-label">Duyuru Metni</label>
+                    <input 
+                      type="text" 
+                      className="admin-input" 
+                      placeholder="Örn: 🚀 2026 Kurumsal Raporumuz Yayınlandı!"
+                      value={content.announcement?.text || ''} 
+                      onChange={(e) => setField('announcement', 'text', e.target.value)}
+                    />
+                  </div>
+                  <div className="admin-form-group">
+                    <label className="admin-form-label">Buton Metni</label>
+                    <input 
+                      type="text" 
+                      className="admin-input" 
+                      placeholder="Örn: Hemen İnceleyin"
+                      value={content.announcement?.btnText || ''} 
+                      onChange={(e) => setField('announcement', 'btnText', e.target.value)}
+                    />
+                  </div>
+                  <div className="admin-form-group" style={{ gridColumn: 'span 3' }}>
+                    <PathInputField 
+                      label="Buton Yönlendirme Linki"
+                      value={content.announcement?.btnLink || '/'}
+                      onChange={(val) => setField('announcement', 'btnLink', val)}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
             <h3 style={{ fontSize: '1rem', color: '#fff', margin: '20px 0 12px 0' }}>Menü Bağlantıları</h3>
 
             {content.navigation?.items?.map((item, index) => (
@@ -3165,6 +3215,210 @@ function AdminMain() {
                 </button>
               </div>
             ))}
+
+            {/* Global Offices & Representations */}
+            <div className="admin-section-header" style={{ marginTop: '36px' }}>
+              <div>
+                <h2><Globe size={20} /> Küresel Ofisler ve Temsilcilikler</h2>
+                <p>İletişim sayfasında sergilenen ulusal ve uluslararası ofis lokasyonlarını yönetin.</p>
+              </div>
+              <button 
+                type="button" 
+                className="admin-btn admin-btn-outline admin-btn-sm"
+                onClick={() => {
+                  const newOffice = {
+                    id: `off_${Date.now()}`,
+                    city: 'Yeni Şehir',
+                    badge: 'Şube',
+                    name: 'Yeni Ofis Adı',
+                    role: 'Departman / Hizmet Alanı',
+                    address: 'Açık Adres...',
+                    phone: '+90 (212) ...'
+                  };
+                  setField('globalOffices', 'items', [...(content.globalOffices?.items || []), newOffice]);
+                }}
+              >
+                <Plus size={13} /> Ofis Ekle
+              </button>
+            </div>
+
+            <div className="admin-grid-2" style={{ marginBottom: '20px' }}>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Bölüm Üst Rozeti</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.globalOffices?.badge || ''} 
+                  onChange={(e) => setField('globalOffices', 'badge', e.target.value)}
+                />
+              </div>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Bölüm Ana Başlığı</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.globalOffices?.title || ''} 
+                  onChange={(e) => setField('globalOffices', 'title', e.target.value)}
+                />
+              </div>
+              <div className="admin-form-group full-width">
+                <label className="admin-form-label">Bölüm Alt Açıklaması</label>
+                <textarea 
+                  className="admin-textarea" 
+                  value={content.globalOffices?.subtitle || ''} 
+                  onChange={(e) => setField('globalOffices', 'subtitle', e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="admin-grid-2">
+              {(content.globalOffices?.items || []).map((off, oIdx) => (
+                <div key={off.id || oIdx} className="admin-item-card">
+                  <div className="admin-item-card-header">
+                    <span className="admin-item-card-title">{off.city || 'Şehir'} — {off.name || 'Ofis'}</span>
+                    <button 
+                      type="button" 
+                      className="admin-btn-icon delete"
+                      onClick={() => {
+                        const updated = (content.globalOffices?.items || []).filter((_, idx) => idx !== oIdx);
+                        setField('globalOffices', 'items', updated);
+                      }}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                  <div className="admin-grid-2">
+                    <div className="admin-form-group">
+                      <label className="admin-form-label">Şehir / Ülke</label>
+                      <input 
+                        type="text" 
+                        className="admin-input" 
+                        value={off.city || ''} 
+                        onChange={(e) => {
+                          const updated = [...(content.globalOffices?.items || [])];
+                          updated[oIdx] = { ...updated[oIdx], city: e.target.value };
+                          setField('globalOffices', 'items', updated);
+                        }}
+                      />
+                    </div>
+                    <div className="admin-form-group">
+                      <label className="admin-form-label">Rozet (örn: Genel Merkez)</label>
+                      <input 
+                        type="text" 
+                        className="admin-input" 
+                        value={off.badge || ''} 
+                        onChange={(e) => {
+                          const updated = [...(content.globalOffices?.items || [])];
+                          updated[oIdx] = { ...updated[oIdx], badge: e.target.value };
+                          setField('globalOffices', 'items', updated);
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="admin-grid-2">
+                    <div className="admin-form-group">
+                      <label className="admin-form-label">Ofis / Bina Adı</label>
+                      <input 
+                        type="text" 
+                        className="admin-input" 
+                        value={off.name || ''} 
+                        onChange={(e) => {
+                          const updated = [...(content.globalOffices?.items || [])];
+                          updated[oIdx] = { ...updated[oIdx], name: e.target.value };
+                          setField('globalOffices', 'items', updated);
+                        }}
+                      />
+                    </div>
+                    <div className="admin-form-group">
+                      <label className="admin-form-label">Telefon Numarası</label>
+                      <input 
+                        type="text" 
+                        className="admin-input" 
+                        value={off.phone || ''} 
+                        onChange={(e) => {
+                          const updated = [...(content.globalOffices?.items || [])];
+                          updated[oIdx] = { ...updated[oIdx], phone: e.target.value };
+                          setField('globalOffices', 'items', updated);
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="admin-form-group full-width">
+                    <label className="admin-form-label">Departman / Rol Tanımı</label>
+                    <input 
+                      type="text" 
+                      className="admin-input" 
+                      value={off.role || ''} 
+                      onChange={(e) => {
+                        const updated = [...(content.globalOffices?.items || [])];
+                        updated[oIdx] = { ...updated[oIdx], role: e.target.value };
+                        setField('globalOffices', 'items', updated);
+                      }}
+                    />
+                  </div>
+                  <div className="admin-form-group full-width">
+                    <label className="admin-form-label">Açık Adres</label>
+                    <textarea 
+                      className="admin-textarea" 
+                      style={{ minHeight: '50px' }}
+                      value={off.address || ''} 
+                      onChange={(e) => {
+                        const updated = [...(content.globalOffices?.items || [])];
+                        updated[oIdx] = { ...updated[oIdx], address: e.target.value };
+                        setField('globalOffices', 'items', updated);
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Inquiry Modal Settings */}
+            <div className="admin-section-header" style={{ marginTop: '36px' }}>
+              <div>
+                <h2><MessageSquarePlus size={20} /> "Teklif Al" Modalı Metinleri</h2>
+                <p>Ziyaretçiler "Teklif Al" butonuna bastığında açılan penceredeki metinleri düzenleyin.</p>
+              </div>
+            </div>
+
+            <div className="admin-grid-2">
+              <div className="admin-form-group">
+                <label className="admin-form-label">Modal Üst Rozeti</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.inquiryModal?.badge || ''} 
+                  onChange={(e) => setField('inquiryModal', 'badge', e.target.value)}
+                />
+              </div>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Modal Ana Başlığı</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.inquiryModal?.title || ''} 
+                  onChange={(e) => setField('inquiryModal', 'title', e.target.value)}
+                />
+              </div>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Başarılı Gönderim Başlığı</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.inquiryModal?.successTitle || ''} 
+                  onChange={(e) => setField('inquiryModal', 'successTitle', e.target.value)}
+                />
+              </div>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Başarılı Gönderim Açıklaması</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.inquiryModal?.successDesc || ''} 
+                  onChange={(e) => setField('inquiryModal', 'successDesc', e.target.value)}
+                />
+              </div>
+            </div>
           </section>
         )}
 

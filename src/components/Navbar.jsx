@@ -106,6 +106,40 @@ export default function Navbar({ onOpenProposal }) {
 
   return (
     <>
+      {content?.announcement?.enabled && content?.announcement?.text && (
+        <div style={{
+          background: 'linear-gradient(90deg, #D12F0E, #E97B1A)',
+          color: '#ffffff',
+          padding: '0.45rem 1rem',
+          fontSize: '0.85rem',
+          fontWeight: '600',
+          textAlign: 'center',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '0.75rem',
+          position: 'relative',
+          zIndex: 1100
+        }}>
+          <span>{content.announcement.text}</span>
+          {content.announcement.btnText && (
+            <Link 
+              to={content.announcement.btnLink || '/'}
+              style={{
+                background: 'rgba(255,255,255,0.2)',
+                color: '#ffffff',
+                padding: '0.15rem 0.6rem',
+                borderRadius: '4px',
+                textDecoration: 'none',
+                fontSize: '0.8rem',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              {content.announcement.btnText} →
+            </Link>
+          )}
+        </div>
+      )}
       <header className={`navbar-wrapper ${scrolled ? 'scrolled' : ''}`}>
         <div className="navbar-inner">
           <Link to="/" className="navbar-brand" onClick={() => setIsOpen(false)}>

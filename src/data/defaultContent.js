@@ -24,6 +24,32 @@ export const defaultContent = {
       { id: 'contact', title: 'İletişim', path: '/iletisim', badge: '', hasChildren: false, children: [] }
     ]
   },
+
+  announcement: {
+    enabled: false,
+    text: '🚀 2026 Kurumsal İnovasyon ve Teknoloji Raporumuz Yayınlandı!',
+    btnText: 'Hemen İnceleyin',
+    btnLink: '/yazilim'
+  },
+
+  inquiryModal: {
+    badge: 'HIZLI VE ÜCRETSİZ TEKLİF',
+    title: 'Projeniz İçin 24 Saatte Fiyat Teklifi Alın',
+    successTitle: 'Teklif Talebiniz Başarıyla Alındı!',
+    successDesc: 'Uzman mühendis ve danışman ekibimiz en geç 24 saat içinde sizinle iletişime geçecektir.'
+  },
+
+  globalOffices: {
+    badge: 'GLOBAL AĞ & TEMSİLCİLİKLER',
+    title: 'Küresel Hizmet ve İletişim Ağımız',
+    subtitle: "Türkiye'den Avrupa ve Orta Doğu'ya uzanan küresel lokasyonlarımız ile kesintisiz operasyon sağlıyoruz.",
+    items: [
+      { id: '1', city: 'İstanbul (HQ)', badge: 'Genel Merkez', name: 'Nima Grup Plaza', role: 'Yönetim & Operasyon Merkezi', address: 'Büyükdere Cad. No:195 Levent / İstanbul', phone: '+90 (212) 555 01 23' },
+      { id: '2', city: 'Ankara', badge: 'Bölge Müdürlüğü', name: 'İç Anadolu Temsilciliği', role: 'Kamu & Altyapı Çözümleri', address: 'Çankaya Cad. No:45 Çankaya / Ankara', phone: '+90 (312) 555 01 24' },
+      { id: '3', city: 'İzmir', badge: 'Ege Şubesi', name: 'Ege Operasyon Merkezi', role: 'Lojistik & Tanıtım Hizmetleri', address: 'Atatürk Org. San. Bölgesi Çiğli / İzmir', phone: '+90 (232) 555 01 25' },
+      { id: '4', city: 'Londra (UK)', badge: 'Global İrtibat', name: 'Nima International Ltd.', role: 'Avrupa Teknoloji & Danışmanlık', address: '124 City Road, London EC1V 2NX', phone: '+44 20 7946 0912' }
+    ]
+  },
   
   hero: {
     badge: 'NİMA GRUP DİJİTAL VE STRATEJİK EKOSİSTEMİ',
