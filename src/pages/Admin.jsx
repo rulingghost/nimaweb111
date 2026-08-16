@@ -410,6 +410,7 @@ function ImageField({ label, value, onChange, placeholder = 'https://...' }) {
 function AdminMain() {
   const { 
     content, 
+    getContent,
     updateContent, 
     saveContent, 
     uploadImage, 
@@ -433,11 +434,8 @@ function AdminMain() {
   const [showJsonInspector, setShowJsonInspector] = useState(false);
   const [jsonCopied, setJsonCopied] = useState(false);
 
-  const [adminUiLang, setAdminUiLang] = useState(() => {
-    return localStorage.getItem('nima_admin_ui_lang') || 'tr';
-  });
-  const [contentLang, setContentLang] = useState(() => {
-    return localStorage.getItem('nima_admin_content_lang') || 'tr';
+  const [activeLang, setActiveLang] = useState(() => {
+    return localStorage.getItem('nima_admin_lang') || 'tr';
   });
 
   const [activeTab, setActiveTab] = useState('nav');
@@ -451,22 +449,17 @@ function AdminMain() {
   const [previewPath, setPreviewPath] = useState('/');
   const fileImportRef = useRef(null);
 
-  const changeUiLang = (lang) => {
-    setAdminUiLang(lang);
-    localStorage.setItem('nima_admin_ui_lang', lang);
-  };
-
-  const changeContentLang = (lang) => {
-    setContentLang(lang);
-    localStorage.setItem('nima_admin_content_lang', lang);
+  const changeLang = (lang) => {
+    setActiveLang(lang);
+    localStorage.setItem('nima_admin_lang', lang);
   };
 
   const tUi = (key, fallback = '') => {
-    return adminTranslations[adminUiLang]?.[key] || adminTranslations['tr']?.[key] || fallback || key;
+    return adminTranslations[activeLang]?.[key] || adminTranslations['tr']?.[key] || fallback || key;
   };
 
   // The active content model being edited (Turkish or English)
-  const activeContent = contentLang === 'en' ? (content?.en || defaultContentEn) : content;
+  const activeContent = (getContent ? getContent(activeLang) : (activeLang === 'en' ? (content?.en || defaultContentEn) : content)) || defaultContent;
 
   const handleLogin = (enteredPassword) => {
     const validPassword = content.security?.adminPassword || 'nima2026!';
@@ -525,9 +518,9 @@ function AdminMain() {
   const setField = (section, key, value) => {
     setHasUnsavedChanges(true);
     updateContent(section, (prevSec) => ({
-      ...(prevSec || (contentLang === 'en' ? (defaultContentEn[section] || {}) : (defaultContent[section] || {}))),
+      ...(prevSec || (activeLang === 'en' ? (defaultContentEn[section] || {}) : (defaultContent[section] || {}))),
       [key]: value
-    }), contentLang);
+    }), activeLang);
   };
 
   const toggleCollapse = (id) => {
@@ -539,7 +532,7 @@ function AdminMain() {
     setHasUnsavedChanges(true);
     const newItem = {
       id: `link_${Date.now()}`,
-      title: contentLang === 'en' ? 'New Menu Item' : 'Yeni Menü Öğesi',
+      title: activeLang === 'en' ? 'New Menu Item' : 'Yeni Menü Öğesi',
       path: '/new-page',
       badge: '',
       hasChildren: false,
@@ -548,7 +541,7 @@ function AdminMain() {
     updateContent('navigation', prev => ({
       ...(prev || {}),
       items: [...(prev?.items || activeContent.navigation?.items || []), newItem]
-    }), contentLang);
+    }), activeLang);
   };
 
   const handleRemoveNavItem = (index) => {
@@ -556,7 +549,7 @@ function AdminMain() {
     updateContent('navigation', prev => ({
       ...(prev || {}),
       items: (prev?.items || activeContent.navigation?.items || []).filter((_, idx) => idx !== index)
-    }), contentLang);
+    }), activeLang);
   };
 
   const handleMoveNavItem = (index, direction) => {
@@ -569,7 +562,7 @@ function AdminMain() {
       items[index] = items[targetIndex];
       items[targetIndex] = temp;
       return { ...(prev || {}), items };
-    }, contentLang);
+    }, activeLang);
   };
 
   const handleUpdateNavItem = (index, field, value) => {
@@ -578,7 +571,7 @@ function AdminMain() {
       const items = [...(prev?.items || activeContent.navigation?.items || [])];
       items[index] = { ...items[index], [field]: value };
       return { ...(prev || {}), items };
-    }, contentLang);
+    }, activeLang);
   };
 
   const handleAddSubItem = (navIndex) => {
@@ -588,7 +581,7 @@ function AdminMain() {
       const parent = items[navIndex];
       const newChild = {
         id: `sub_${Date.now()}`,
-        title: contentLang === 'en' ? 'New Sub Item' : 'Yeni Alt Menü',
+        title: activeLang === 'en' ? 'New Sub Item' : 'Yeni Alt Menü',
         path: '/new-service',
         badge: '',
         icon: 'Sparkles',
@@ -600,7 +593,7 @@ function AdminMain() {
         children: [...(parent?.children || []), newChild]
       };
       return { ...(prev || {}), items };
-    }, contentLang);
+    }, activeLang);
   };
 
   const handleRemoveSubItem = (navIndex, subIndex) => {
@@ -615,7 +608,7 @@ function AdminMain() {
         hasChildren: newChildren.length > 0
       };
       return { ...(prev || {}), items };
-    }, contentLang);
+    }, activeLang);
   };
 
   const handleUpdateSubItem = (navIndex, subIndex, field, value) => {
@@ -626,7 +619,7 @@ function AdminMain() {
       children[subIndex] = { ...children[subIndex], [field]: value };
       items[navIndex] = { ...items[navIndex], children };
       return { ...(prev || {}), items };
-    }, contentLang);
+    }, activeLang);
   };
 
   // Export / Import
@@ -668,8 +661,8 @@ function AdminMain() {
         onLogin={handleLogin} 
         error={loginError} 
         brandName={activeContent.navigation?.brandName} 
-        uiLang={adminUiLang}
-        onToggleUiLang={changeUiLang}
+        uiLang={activeLang}
+        onToggleUiLang={changeLang}
       />
     );
   }
@@ -702,28 +695,27 @@ function AdminMain() {
 
           <div className="admin-header-actions">
             {/* UI Language Switcher */}
-            <div className="admin-lang-group" title={tUi('ui_lang')}>
-              <span className="admin-lang-label"><Globe size={13} /> {tUi('ui_lang')}:</span>
+            <div className="admin-lang-group" title={activeLang === 'tr' ? '🇹🇷 Türkçe İçerik Düzenleniyor' : '🇬🇧 English Content is being edited'}>
               <button 
                 type="button" 
-                className={`admin-lang-pill-btn ${adminUiLang === 'tr' ? 'active' : ''}`}
-                onClick={() => changeUiLang('tr')}
+                className={`admin-lang-pill-btn ${activeLang === 'tr' ? 'active' : ''}`}
+                onClick={() => changeLang('tr')}
               >
-                TR
+                🇹🇷 TR (Türkçe)
               </button>
               <button 
                 type="button" 
-                className={`admin-lang-pill-btn ${adminUiLang === 'en' ? 'active' : ''}`}
-                onClick={() => changeUiLang('en')}
+                className={`admin-lang-pill-btn en ${activeLang === 'en' ? 'active' : ''}`}
+                onClick={() => changeLang('en')}
               >
-                EN
+                🇬🇧 EN (English)
               </button>
             </div>
 
             {lastSavedAt && (
               <div className="admin-save-indicator">
                 <span className={`indicator-dot ${isSaving ? 'saving' : hasUnsavedChanges ? 'dirty' : ''}`} />
-                <span>{hasUnsavedChanges ? tUi('save_changes_exist') : `${tUi('last_saved')}: ${new Date(lastSavedAt).toLocaleTimeString(adminUiLang === 'en' ? 'en-US' : 'tr-TR')}`}</span>
+                <span>{hasUnsavedChanges ? tUi('save_changes_exist') : `${tUi('last_saved')}: ${new Date(lastSavedAt).toLocaleTimeString(activeLang === 'en' ? 'en-US' : 'tr-TR')}`}</span>
               </div>
             )}
 
@@ -772,70 +764,7 @@ function AdminMain() {
 
       {/* Main Admin Container */}
       <main className="admin-container">
-        {/* Content Language Selector Bar */}
-        <div className="admin-content-lang-bar">
-          <div className="admin-content-lang-left">
-            <div className="admin-content-lang-tabs">
-              <button 
-                type="button" 
-                className={`admin-content-lang-btn ${contentLang === 'tr' ? 'active' : ''}`}
-                onClick={() => changeContentLang('tr')}
-              >
-                {tUi('editing_tr')}
-              </button>
-              <button 
-                type="button" 
-                className={`admin-content-lang-btn en ${contentLang === 'en' ? 'active' : ''}`}
-                onClick={() => changeContentLang('en')}
-              >
-                {tUi('editing_en')}
-              </button>
-            </div>
-            <span style={{ fontSize: '0.82rem', color: 'var(--admin-text-muted)' }}>
-              {contentLang === 'en' 
-                ? '🇬🇧 English content is active for editing. Changes apply to the English version of the site.' 
-                : '🇹🇷 Türkçe içerik düzenleniyor. Değişiklikler sitenin Türkçe versiyonuna uygulanır.'}
-            </span>
-          </div>
-
-          <div className="admin-content-lang-actions">
-            {contentLang === 'en' && (
-              <>
-                <button
-                  type="button"
-                  className="admin-btn admin-btn-outline admin-btn-sm"
-                  onClick={() => {
-                    setHasUnsavedChanges(true);
-                    updateContent((prev) => ({
-                      ...prev,
-                      en: defaultContentEn
-                    }));
-                    showToast(tUi('load_en_success'), 'info');
-                  }}
-                  title="Varsayılan İngilizce metinleri yükle"
-                >
-                  <RotateCcw size={13} /> {tUi('load_default_en')}
-                </button>
-                <button
-                  type="button"
-                  className="admin-btn admin-btn-outline admin-btn-sm"
-                  onClick={() => {
-                    setHasUnsavedChanges(true);
-                    const { en, ...trContent } = content;
-                    updateContent((prev) => ({
-                      ...prev,
-                      en: JSON.parse(JSON.stringify(trContent))
-                    }));
-                    showToast(tUi('copy_success'), 'success');
-                  }}
-                  title="Türkçe içeriği İngilizce taslağına kopyala"
-                >
-                  <CopyPlus size={13} /> {tUi('copy_from_tr')}
-                </button>
-              </>
-            )}
-          </div>
-        </div>
+        
 
         {/* Modern Categorized Tabs Navigation (No ugly scrollbar, perfectly wrapped) */}
         <div className="admin-tabs-nav-wrapper">
@@ -926,7 +855,7 @@ function AdminMain() {
                 <input 
                   type="text" 
                   className="admin-input" 
-                  value={content.navigation?.brandName || ''} 
+                  value={activeContent.navigation?.brandName || ''} 
                   onChange={(e) => setField('navigation', 'brandName', e.target.value)}
                 />
               </div>
@@ -935,13 +864,13 @@ function AdminMain() {
                 <input 
                   type="text" 
                   className="admin-input" 
-                  value={content.navigation?.brandLogoMark || ''} 
+                  value={activeContent.navigation?.brandLogoMark || ''} 
                   onChange={(e) => setField('navigation', 'brandLogoMark', e.target.value)}
                 />
               </div>
               <ImageField 
                 label="Özel Logo Görseli (Opsiyonel)"
-                value={content.navigation?.logoUrl || ''}
+                value={activeContent.navigation?.logoUrl || ''}
                 onChange={(url) => setField('navigation', 'logoUrl', url)}
               />
             </div>
@@ -955,7 +884,7 @@ function AdminMain() {
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.85rem', color: '#fff' }}>
                   <input 
                     type="checkbox" 
-                    checked={!!content.announcement?.enabled}
+                    checked={!!activeContent.announcement?.enabled}
                     onChange={(e) => setField('announcement', 'enabled', e.target.checked)}
                     style={{ width: '16px', height: '16px', accentColor: '#D12F0E' }}
                   />
@@ -963,7 +892,7 @@ function AdminMain() {
                 </label>
               </div>
 
-              {content.announcement?.enabled && (
+              {activeContent.announcement?.enabled && (
                 <div className="admin-grid-3">
                   <div className="admin-form-group" style={{ gridColumn: 'span 2' }}>
                     <label className="admin-form-label">Duyuru Metni</label>
@@ -971,7 +900,7 @@ function AdminMain() {
                       type="text" 
                       className="admin-input" 
                       placeholder="Örn: 🚀 2026 Kurumsal Raporumuz Yayınlandı!"
-                      value={content.announcement?.text || ''} 
+                      value={activeContent.announcement?.text || ''} 
                       onChange={(e) => setField('announcement', 'text', e.target.value)}
                     />
                   </div>
@@ -981,14 +910,14 @@ function AdminMain() {
                       type="text" 
                       className="admin-input" 
                       placeholder="Örn: Hemen İnceleyin"
-                      value={content.announcement?.btnText || ''} 
+                      value={activeContent.announcement?.btnText || ''} 
                       onChange={(e) => setField('announcement', 'btnText', e.target.value)}
                     />
                   </div>
                   <div className="admin-form-group" style={{ gridColumn: 'span 3' }}>
                     <PathInputField 
                       label="Buton Yönlendirme Linki"
-                      value={content.announcement?.btnLink || '/'}
+                      value={activeContent.announcement?.btnLink || '/'}
                       onChange={(val) => setField('announcement', 'btnLink', val)}
                     />
                   </div>
@@ -998,7 +927,7 @@ function AdminMain() {
 
             <h3 style={{ fontSize: '1rem', color: '#fff', margin: '20px 0 12px 0' }}>Menü Bağlantıları</h3>
 
-            {content.navigation?.items?.map((item, index) => (
+            {activeContent.navigation?.items?.map((item, index) => (
               <div key={item.id || index} className="admin-item-card">
                 <div className="admin-item-card-header" onClick={() => toggleCollapse(`nav_${index}`)}>
                   <div className="admin-item-card-title">
@@ -1024,7 +953,7 @@ function AdminMain() {
                     <button 
                       type="button" 
                       className="admin-btn-icon" 
-                      disabled={index === (content.navigation?.items?.length || 0) - 1}
+                      disabled={index === (activeContent.navigation?.items?.length || 0) - 1}
                       onClick={() => handleMoveNavItem(index, 'down')}
                       title="Aşağı Taşı"
                     >
@@ -1165,7 +1094,7 @@ function AdminMain() {
                 <input 
                   type="text" 
                   className="admin-input" 
-                  value={content.hero?.badge || ''} 
+                  value={activeContent.hero?.badge || ''} 
                   onChange={(e) => setField('hero', 'badge', e.target.value)}
                 />
               </div>
@@ -1175,7 +1104,7 @@ function AdminMain() {
                 <input 
                   type="text" 
                   className="admin-input" 
-                  value={content.hero?.title || ''} 
+                  value={activeContent.hero?.title || ''} 
                   onChange={(e) => setField('hero', 'title', e.target.value)}
                 />
               </div>
@@ -1184,7 +1113,7 @@ function AdminMain() {
                 <label className="admin-form-label">Alt Açıklama (Hero Subtitle)</label>
                 <textarea 
                   className="admin-textarea" 
-                  value={content.hero?.subtitle || ''} 
+                  value={activeContent.hero?.subtitle || ''} 
                   onChange={(e) => setField('hero', 'subtitle', e.target.value)}
                 />
               </div>
@@ -1194,14 +1123,14 @@ function AdminMain() {
                 <input 
                   type="text" 
                   className="admin-input" 
-                  value={content.hero?.primaryBtnText || ''} 
+                  value={activeContent.hero?.primaryBtnText || ''} 
                   onChange={(e) => setField('hero', 'primaryBtnText', e.target.value)}
                 />
               </div>
 
               <PathInputField 
                 label="Birincil Buton Linki"
-                value={content.hero?.primaryBtnLink || ''}
+                value={activeContent.hero?.primaryBtnLink || ''}
                 onChange={(p) => setField('hero', 'primaryBtnLink', p)}
               />
 
@@ -1210,20 +1139,20 @@ function AdminMain() {
                 <input 
                   type="text" 
                   className="admin-input" 
-                  value={content.hero?.secondaryBtnText || ''} 
+                  value={activeContent.hero?.secondaryBtnText || ''} 
                   onChange={(e) => setField('hero', 'secondaryBtnText', e.target.value)}
                 />
               </div>
 
               <PathInputField 
                 label="İkincil Buton Linki"
-                value={content.hero?.secondaryBtnLink || ''}
+                value={activeContent.hero?.secondaryBtnLink || ''}
                 onChange={(p) => setField('hero', 'secondaryBtnLink', p)}
               />
 
               <ImageField 
                 label="Hero Arka Plan Görseli"
-                value={content.hero?.bgImage || ''}
+                value={activeContent.hero?.bgImage || ''}
                 onChange={(url) => setField('hero', 'bgImage', url)}
               />
             </div>
@@ -1231,7 +1160,7 @@ function AdminMain() {
             {/* Quick Hero Stats */}
             <h3 style={{ fontSize: '1rem', color: '#fff', margin: '28px 0 12px 0' }}>Manşet İstatistik Sayaçları</h3>
             <div className="admin-grid-2">
-              {(content.hero?.stats || []).map((st, sIdx) => (
+              {(activeContent.hero?.stats || []).map((st, sIdx) => (
                 <div key={st.id || sIdx} className="admin-item-card" style={{ padding: '12px' }}>
                   <div className="admin-grid-2">
                     <input 
@@ -1240,7 +1169,7 @@ function AdminMain() {
                       placeholder="Sayı (örn: 150+)"
                       value={st.num || ''} 
                       onChange={(e) => {
-                        const newStats = [...(content.hero?.stats || [])];
+                        const newStats = [...(activeContent.hero?.stats || [])];
                         newStats[sIdx] = { ...newStats[sIdx], num: e.target.value };
                         setField('hero', 'stats', newStats);
                       }}
@@ -1251,7 +1180,7 @@ function AdminMain() {
                       placeholder="Etiket (örn: Tamamlanan Proje)"
                       value={st.label || ''} 
                       onChange={(e) => {
-                        const newStats = [...(content.hero?.stats || [])];
+                        const newStats = [...(activeContent.hero?.stats || [])];
                         newStats[sIdx] = { ...newStats[sIdx], label: e.target.value };
                         setField('hero', 'stats', newStats);
                       }}
@@ -1281,14 +1210,14 @@ function AdminMain() {
                     statNum: '100+',
                     statTxt: 'Referans'
                   };
-                  setField('hero', 'slides', [...(content.hero?.slides || []), newSlide]);
+                  setField('hero', 'slides', [...(activeContent.hero?.slides || []), newSlide]);
                 }}
               >
                 <Plus size={14} /> Yeni Slayt Ekle
               </button>
             </div>
 
-            {(content.hero?.slides || []).map((slide, slIdx) => (
+            {(activeContent.hero?.slides || []).map((slide, slIdx) => (
               <div key={slide.id || slIdx} className="admin-item-card">
                 <div className="admin-item-card-header" onClick={() => toggleCollapse(`slide_${slIdx}`)}>
                   <div className="admin-item-card-title">
@@ -1301,7 +1230,7 @@ function AdminMain() {
                       type="button" 
                       className="admin-btn-icon delete"
                       onClick={() => {
-                        const updated = (content.hero?.slides || []).filter((_, idx) => idx !== slIdx);
+                        const updated = (activeContent.hero?.slides || []).filter((_, idx) => idx !== slIdx);
                         setField('hero', 'slides', updated);
                       }}
                     >
@@ -1327,7 +1256,7 @@ function AdminMain() {
                           className="admin-input" 
                           value={slide.badge || ''} 
                           onChange={(e) => {
-                            const updated = [...(content.hero?.slides || [])];
+                            const updated = [...(activeContent.hero?.slides || [])];
                             updated[slIdx] = { ...updated[slIdx], badge: e.target.value };
                             setField('hero', 'slides', updated);
                           }}
@@ -1337,7 +1266,7 @@ function AdminMain() {
                         label="Slayt Vurgu Rengi"
                         value={slide.color || '#D12F0E'}
                         onChange={(col) => {
-                          const updated = [...(content.hero?.slides || [])];
+                          const updated = [...(activeContent.hero?.slides || [])];
                           updated[slIdx] = { ...updated[slIdx], color: col };
                           setField('hero', 'slides', updated);
                         }}
@@ -1349,7 +1278,7 @@ function AdminMain() {
                           className="admin-input" 
                           value={slide.title || ''} 
                           onChange={(e) => {
-                            const updated = [...(content.hero?.slides || [])];
+                            const updated = [...(activeContent.hero?.slides || [])];
                             updated[slIdx] = { ...updated[slIdx], title: e.target.value };
                             setField('hero', 'slides', updated);
                           }}
@@ -1361,7 +1290,7 @@ function AdminMain() {
                           className="admin-textarea" 
                           value={slide.subtitle || ''} 
                           onChange={(e) => {
-                            const updated = [...(content.hero?.slides || [])];
+                            const updated = [...(activeContent.hero?.slides || [])];
                             updated[slIdx] = { ...updated[slIdx], subtitle: e.target.value };
                             setField('hero', 'slides', updated);
                           }}
@@ -1371,7 +1300,7 @@ function AdminMain() {
                         label="Slayt Görseli"
                         value={slide.image || ''}
                         onChange={(url) => {
-                          const updated = [...(content.hero?.slides || [])];
+                          const updated = [...(activeContent.hero?.slides || [])];
                           updated[slIdx] = { ...updated[slIdx], image: url };
                           setField('hero', 'slides', updated);
                         }}
@@ -1400,7 +1329,7 @@ function AdminMain() {
                 <input 
                   type="text" 
                   className="admin-input" 
-                  value={content.about?.badge || ''} 
+                  value={activeContent.about?.badge || ''} 
                   onChange={(e) => setField('about', 'badge', e.target.value)}
                 />
               </div>
@@ -1409,7 +1338,7 @@ function AdminMain() {
                 <input 
                   type="text" 
                   className="admin-input" 
-                  value={content.about?.experienceYears || ''} 
+                  value={activeContent.about?.experienceYears || ''} 
                   onChange={(e) => setField('about', 'experienceYears', e.target.value)}
                 />
               </div>
@@ -1419,7 +1348,7 @@ function AdminMain() {
                 <input 
                   type="text" 
                   className="admin-input" 
-                  value={content.about?.title || ''} 
+                  value={activeContent.about?.title || ''} 
                   onChange={(e) => setField('about', 'title', e.target.value)}
                 />
               </div>
@@ -1428,7 +1357,7 @@ function AdminMain() {
                 <label className="admin-form-label">Alt Başlık</label>
                 <textarea 
                   className="admin-textarea" 
-                  value={content.about?.subtitle || ''} 
+                  value={activeContent.about?.subtitle || ''} 
                   onChange={(e) => setField('about', 'subtitle', e.target.value)}
                 />
               </div>
@@ -1441,7 +1370,7 @@ function AdminMain() {
                 type="button" 
                 className="admin-btn admin-btn-outline admin-btn-sm"
                 onClick={() => {
-                  const paras = [...(content.about?.paragraphs || []), 'Yeni açıklama paragrafı...'];
+                  const paras = [...(activeContent.about?.paragraphs || []), 'Yeni açıklama paragrafı...'];
                   setField('about', 'paragraphs', paras);
                 }}
               >
@@ -1449,13 +1378,13 @@ function AdminMain() {
               </button>
             </div>
 
-            {(content.about?.paragraphs || []).map((p, pIdx) => (
+            {(activeContent.about?.paragraphs || []).map((p, pIdx) => (
               <div key={pIdx} style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
                 <textarea 
                   className="admin-textarea" 
                   value={p} 
                   onChange={(e) => {
-                    const paras = [...(content.about?.paragraphs || [])];
+                    const paras = [...(activeContent.about?.paragraphs || [])];
                     paras[pIdx] = e.target.value;
                     setField('about', 'paragraphs', paras);
                   }}
@@ -1464,7 +1393,7 @@ function AdminMain() {
                   type="button" 
                   className="admin-btn-icon delete"
                   onClick={() => {
-                    const paras = (content.about?.paragraphs || []).filter((_, idx) => idx !== pIdx);
+                    const paras = (activeContent.about?.paragraphs || []).filter((_, idx) => idx !== pIdx);
                     setField('about', 'paragraphs', paras);
                   }}
                 >
@@ -1486,7 +1415,7 @@ function AdminMain() {
                     desc: 'Açıklama metni...',
                     icon: 'Cpu'
                   };
-                  setField('about', 'features', [...(content.about?.features || []), newFeature]);
+                  setField('about', 'features', [...(activeContent.about?.features || []), newFeature]);
                 }}
               >
                 <Plus size={13} /> Özellik Kartı Ekle
@@ -1494,7 +1423,7 @@ function AdminMain() {
             </div>
 
             <div className="admin-grid-3">
-              {(content.about?.features || []).map((feat, fIdx) => (
+              {(activeContent.about?.features || []).map((feat, fIdx) => (
                 <div key={feat.id || fIdx} className="admin-item-card">
                   <div className="admin-item-card-header">
                     <span className="admin-item-card-title">{feat.title || 'Özellik'}</span>
@@ -1502,7 +1431,7 @@ function AdminMain() {
                       type="button" 
                       className="admin-btn-icon delete"
                       onClick={() => {
-                        const updated = (content.about?.features || []).filter((_, idx) => idx !== fIdx);
+                        const updated = (activeContent.about?.features || []).filter((_, idx) => idx !== fIdx);
                         setField('about', 'features', updated);
                       }}
                     >
@@ -1516,7 +1445,7 @@ function AdminMain() {
                       className="admin-input" 
                       value={feat.title || ''} 
                       onChange={(e) => {
-                        const updated = [...(content.about?.features || [])];
+                        const updated = [...(activeContent.about?.features || [])];
                         updated[fIdx] = { ...updated[fIdx], title: e.target.value };
                         setField('about', 'features', updated);
                       }}
@@ -1529,7 +1458,7 @@ function AdminMain() {
                       style={{ minHeight: '60px' }}
                       value={feat.desc || ''} 
                       onChange={(e) => {
-                        const updated = [...(content.about?.features || [])];
+                        const updated = [...(activeContent.about?.features || [])];
                         updated[fIdx] = { ...updated[fIdx], desc: e.target.value };
                         setField('about', 'features', updated);
                       }}
@@ -1539,7 +1468,7 @@ function AdminMain() {
                     label="İkon"
                     value={feat.icon || 'Cpu'}
                     onChange={(ic) => {
-                      const updated = [...(content.about?.features || [])];
+                      const updated = [...(activeContent.about?.features || [])];
                       updated[fIdx] = { ...updated[fIdx], icon: ic };
                       setField('about', 'features', updated);
                     }}
@@ -1565,14 +1494,14 @@ function AdminMain() {
                     desc: 'Açıklama metni...',
                     badge: 'Gelişme'
                   };
-                  setField('journey', 'items', [...(content.journey?.items || []), newMilestone]);
+                  setField('journey', 'items', [...(activeContent.journey?.items || []), newMilestone]);
                 }}
               >
                 <Plus size={13} /> Kilometre Taşı Ekle
               </button>
             </div>
 
-            {(content.journey?.items || []).map((mile, mIdx) => (
+            {(activeContent.journey?.items || []).map((mile, mIdx) => (
               <div key={mile.id || mIdx} className="admin-item-card">
                 <div className="admin-item-card-header">
                   <span className="admin-item-card-title">
@@ -1585,7 +1514,7 @@ function AdminMain() {
                     type="button" 
                     className="admin-btn-icon delete"
                     onClick={() => {
-                      const updated = (content.journey?.items || []).filter((_, idx) => idx !== mIdx);
+                      const updated = (activeContent.journey?.items || []).filter((_, idx) => idx !== mIdx);
                       setField('journey', 'items', updated);
                     }}
                   >
@@ -1600,7 +1529,7 @@ function AdminMain() {
                       className="admin-input" 
                       value={mile.year || ''} 
                       onChange={(e) => {
-                        const updated = [...(content.journey?.items || [])];
+                        const updated = [...(activeContent.journey?.items || [])];
                         updated[mIdx] = { ...updated[mIdx], year: e.target.value };
                         setField('journey', 'items', updated);
                       }}
@@ -1613,7 +1542,7 @@ function AdminMain() {
                       className="admin-input" 
                       value={mile.title || ''} 
                       onChange={(e) => {
-                        const updated = [...(content.journey?.items || [])];
+                        const updated = [...(activeContent.journey?.items || [])];
                         updated[mIdx] = { ...updated[mIdx], title: e.target.value };
                         setField('journey', 'items', updated);
                       }}
@@ -1626,7 +1555,7 @@ function AdminMain() {
                       className="admin-input" 
                       value={mile.badge || ''} 
                       onChange={(e) => {
-                        const updated = [...(content.journey?.items || [])];
+                        const updated = [...(activeContent.journey?.items || [])];
                         updated[mIdx] = { ...updated[mIdx], badge: e.target.value };
                         setField('journey', 'items', updated);
                       }}
@@ -1639,7 +1568,7 @@ function AdminMain() {
                       style={{ minHeight: '60px' }}
                       value={mile.desc || ''} 
                       onChange={(e) => {
-                        const updated = [...(content.journey?.items || [])];
+                        const updated = [...(activeContent.journey?.items || [])];
                         updated[mIdx] = { ...updated[mIdx], desc: e.target.value };
                         setField('journey', 'items', updated);
                       }}
@@ -1667,7 +1596,7 @@ function AdminMain() {
                   <input 
                     type="text" 
                     className="admin-input" 
-                    value={content.visionMission?.visionTitle || 'Vizyonumuz'} 
+                    value={activeContent.visionMission?.visionTitle || 'Vizyonumuz'} 
                     onChange={(e) => setField('visionMission', 'visionTitle', e.target.value)}
                   />
                 </div>
@@ -1676,7 +1605,7 @@ function AdminMain() {
                   <textarea 
                     className="admin-textarea" 
                     style={{ minHeight: '90px' }}
-                    value={content.visionMission?.visionDesc || ''} 
+                    value={activeContent.visionMission?.visionDesc || ''} 
                     onChange={(e) => setField('visionMission', 'visionDesc', e.target.value)}
                   />
                 </div>
@@ -1691,7 +1620,7 @@ function AdminMain() {
                   <input 
                     type="text" 
                     className="admin-input" 
-                    value={content.visionMission?.missionTitle || 'Misyonumuz'} 
+                    value={activeContent.visionMission?.missionTitle || 'Misyonumuz'} 
                     onChange={(e) => setField('visionMission', 'missionTitle', e.target.value)}
                   />
                 </div>
@@ -1700,7 +1629,7 @@ function AdminMain() {
                   <textarea 
                     className="admin-textarea" 
                     style={{ minHeight: '90px' }}
-                    value={content.visionMission?.missionDesc || ''} 
+                    value={activeContent.visionMission?.missionDesc || ''} 
                     onChange={(e) => setField('visionMission', 'missionDesc', e.target.value)}
                   />
                 </div>
@@ -1721,7 +1650,7 @@ function AdminMain() {
                 <input 
                   type="text" 
                   className="admin-input" 
-                  value={content.about?.standardsTitle || 'Küresel Standartlarda Yönetim ve Güvenilirlik'} 
+                  value={activeContent.about?.standardsTitle || 'Küresel Standartlarda Yönetim ve Güvenilirlik'} 
                   onChange={(e) => setField('about', 'standardsTitle', e.target.value)}
                 />
               </div>
@@ -1730,14 +1659,14 @@ function AdminMain() {
                 <input 
                   type="text" 
                   className="admin-input" 
-                  value={content.about?.standardsSubtitle || 'Uluslararası kalite, çevre ve bilgi güvenliği standartlarımızla sektörde çıtayı belirliyoruz.'} 
+                  value={activeContent.about?.standardsSubtitle || 'Uluslararası kalite, çevre ve bilgi güvenliği standartlarımızla sektörde çıtayı belirliyoruz.'} 
                   onChange={(e) => setField('about', 'standardsSubtitle', e.target.value)}
                 />
               </div>
               <div className="admin-form-group full-width">
                 <label className="admin-form-label">4 Standart Maddesi</label>
                 <div className="admin-grid-2">
-                  {(content.about?.standardsList || [
+                  {(activeContent.about?.standardsList || [
                     'ISO 9001: Kalite Yönetim Sistemi',
                     'ISO 27001: Bilgi Güvenliği Standardı',
                     'ISO 45001: İş Sağlığı ve Güvenliği',
@@ -1749,7 +1678,7 @@ function AdminMain() {
                       className="admin-input" 
                       value={std} 
                       onChange={(e) => {
-                        const updated = [...(content.about?.standardsList || [
+                        const updated = [...(activeContent.about?.standardsList || [
                           'ISO 9001: Kalite Yönetim Sistemi',
                           'ISO 27001: Bilgi Güvenliği Standardı',
                           'ISO 45001: İş Sağlığı ve Güvenliği',
@@ -1802,7 +1731,7 @@ function AdminMain() {
                       path: '/yeni-sektor',
                       points: ['Hizmet Maddesi 1', 'Hizmet Maddesi 2']
                     };
-                    setField('services', 'items', [...(content.services?.items || []), newSec]);
+                    setField('services', 'items', [...(activeContent.services?.items || []), newSec]);
                   }}
                 >
                   <Plus size={15} /> Yeni Sektör Ekle
@@ -1816,7 +1745,7 @@ function AdminMain() {
                 <input 
                   type="text" 
                   className="admin-input" 
-                  value={content.services?.title || ''} 
+                  value={activeContent.services?.title || ''} 
                   onChange={(e) => setField('services', 'title', e.target.value)}
                 />
               </div>
@@ -1825,14 +1754,14 @@ function AdminMain() {
                 <input 
                   type="text" 
                   className="admin-input" 
-                  value={content.services?.subtitle || ''} 
+                  value={activeContent.services?.subtitle || ''} 
                   onChange={(e) => setField('services', 'subtitle', e.target.value)}
                 />
               </div>
             </div>
 
             {/* Filtered Sector Cards */}
-            {(content.services?.items || [])
+            {(activeContent.services?.items || [])
               .filter(sec => !searchQuery.trim() || 
                 sec.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
                 sec.shortName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -1852,7 +1781,7 @@ function AdminMain() {
                         type="button" 
                         className="admin-btn-icon delete"
                         onClick={() => {
-                          const updated = (content.services?.items || []).filter((_, idx) => idx !== sIdx);
+                          const updated = (activeContent.services?.items || []).filter((_, idx) => idx !== sIdx);
                           setField('services', 'items', updated);
                         }}
                       >
@@ -1878,7 +1807,7 @@ function AdminMain() {
                             className="admin-input" 
                             value={sec.title || ''} 
                             onChange={(e) => {
-                              const updated = [...(content.services?.items || [])];
+                              const updated = [...(activeContent.services?.items || [])];
                               updated[sIdx] = { ...updated[sIdx], title: e.target.value };
                               setField('services', 'items', updated);
                             }}
@@ -1891,7 +1820,7 @@ function AdminMain() {
                             className="admin-input" 
                             value={sec.shortName || ''} 
                             onChange={(e) => {
-                              const updated = [...(content.services?.items || [])];
+                              const updated = [...(activeContent.services?.items || [])];
                               updated[sIdx] = { ...updated[sIdx], shortName: e.target.value };
                               setField('services', 'items', updated);
                             }}
@@ -1901,7 +1830,7 @@ function AdminMain() {
                           label="Sayfa Yolu (Path)"
                           value={sec.path || ''} 
                           onChange={(p) => {
-                            const updated = [...(content.services?.items || [])];
+                            const updated = [...(activeContent.services?.items || [])];
                             updated[sIdx] = { ...updated[sIdx], path: p };
                             setField('services', 'items', updated);
                           }}
@@ -1913,7 +1842,7 @@ function AdminMain() {
                             className="admin-input" 
                             value={sec.badge || ''} 
                             onChange={(e) => {
-                              const updated = [...(content.services?.items || [])];
+                              const updated = [...(activeContent.services?.items || [])];
                               updated[sIdx] = { ...updated[sIdx], badge: e.target.value };
                               setField('services', 'items', updated);
                             }}
@@ -1923,7 +1852,7 @@ function AdminMain() {
                           label="Vurgu Rengi"
                           value={sec.color || '#D12F0E'}
                           onChange={(col) => {
-                            const updated = [...(content.services?.items || [])];
+                            const updated = [...(activeContent.services?.items || [])];
                             updated[sIdx] = { ...updated[sIdx], color: col };
                             setField('services', 'items', updated);
                           }}
@@ -1932,7 +1861,7 @@ function AdminMain() {
                           label="İkon"
                           value={sec.icon || 'Layers'}
                           onChange={(ic) => {
-                            const updated = [...(content.services?.items || [])];
+                            const updated = [...(activeContent.services?.items || [])];
                             updated[sIdx] = { ...updated[sIdx], icon: ic };
                             setField('services', 'items', updated);
                           }}
@@ -1943,7 +1872,7 @@ function AdminMain() {
                             className="admin-textarea" 
                             value={sec.description || ''} 
                             onChange={(e) => {
-                              const updated = [...(content.services?.items || [])];
+                              const updated = [...(activeContent.services?.items || [])];
                               updated[sIdx] = { ...updated[sIdx], description: e.target.value };
                               setField('services', 'items', updated);
                             }}
@@ -1954,7 +1883,7 @@ function AdminMain() {
                           label="Sektör Görseli (Vercel Blob)"
                           value={sec.image || ''}
                           onChange={(url) => {
-                            const updated = [...(content.services?.items || [])];
+                            const updated = [...(activeContent.services?.items || [])];
                             updated[sIdx] = { ...updated[sIdx], image: url };
                             setField('services', 'items', updated);
                           }}
@@ -1969,7 +1898,7 @@ function AdminMain() {
                               type="button" 
                               className="admin-btn admin-btn-outline admin-btn-sm"
                               onClick={() => {
-                                const updated = [...(content.services?.items || [])];
+                                const updated = [...(activeContent.services?.items || [])];
                                 const points = [...(updated[sIdx].points || []), 'Yeni Hizmet Maddesi'];
                                 updated[sIdx] = { ...updated[sIdx], points };
                                 setField('services', 'items', updated);
@@ -1985,7 +1914,7 @@ function AdminMain() {
                                 className="admin-input" 
                                 value={pt} 
                                 onChange={(e) => {
-                                  const updated = [...(content.services?.items || [])];
+                                  const updated = [...(activeContent.services?.items || [])];
                                   const points = [...(updated[sIdx].points || [])];
                                   points[ptIdx] = e.target.value;
                                   updated[sIdx] = { ...updated[sIdx], points };
@@ -1996,7 +1925,7 @@ function AdminMain() {
                                 type="button" 
                                 className="admin-btn-icon delete"
                                 onClick={() => {
-                                  const updated = [...(content.services?.items || [])];
+                                  const updated = [...(activeContent.services?.items || [])];
                                   const points = (updated[sIdx].points || []).filter((_, idx) => idx !== ptIdx);
                                   updated[sIdx] = { ...updated[sIdx], points };
                                   setField('services', 'items', updated);
@@ -2019,7 +1948,7 @@ function AdminMain() {
                               type="button" 
                               className="admin-btn admin-btn-outline admin-btn-sm"
                               onClick={() => {
-                                const updated = [...(content.services?.items || [])];
+                                const updated = [...(activeContent.services?.items || [])];
                                 const faqs = [...(updated[sIdx].faqs || []), { q: 'Yeni Sıkça Sorulan Soru?', a: 'Detaylı yanıt metni...' }];
                                 updated[sIdx] = { ...updated[sIdx], faqs };
                                 setField('services', 'items', updated);
@@ -2042,7 +1971,7 @@ function AdminMain() {
                                     type="button" 
                                     className="admin-btn-icon delete"
                                     onClick={() => {
-                                      const updated = [...(content.services?.items || [])];
+                                      const updated = [...(activeContent.services?.items || [])];
                                       const faqs = (updated[sIdx].faqs || []).filter((_, idx) => idx !== fIdx);
                                       updated[sIdx] = { ...updated[sIdx], faqs };
                                       setField('services', 'items', updated);
@@ -2059,7 +1988,7 @@ function AdminMain() {
                                     placeholder="Örn: Proje teslim süresi ne kadardır?"
                                     value={faq.q || faq.question || ''} 
                                     onChange={(e) => {
-                                      const updated = [...(content.services?.items || [])];
+                                      const updated = [...(activeContent.services?.items || [])];
                                       const faqs = [...(updated[sIdx].faqs || [])];
                                       faqs[fIdx] = { ...faqs[fIdx], q: e.target.value };
                                       updated[sIdx] = { ...updated[sIdx], faqs };
@@ -2075,7 +2004,7 @@ function AdminMain() {
                                     placeholder="Detaylı yanıt metni..."
                                     value={faq.a || faq.answer || ''} 
                                     onChange={(e) => {
-                                      const updated = [...(content.services?.items || [])];
+                                      const updated = [...(activeContent.services?.items || [])];
                                       const faqs = [...(updated[sIdx].faqs || [])];
                                       faqs[fIdx] = { ...faqs[fIdx], a: e.target.value };
                                       updated[sIdx] = { ...updated[sIdx], faqs };
@@ -2099,7 +2028,7 @@ function AdminMain() {
                               type="button" 
                               className="admin-btn admin-btn-outline admin-btn-sm"
                               onClick={() => {
-                                const updated = [...(content.services?.items || [])];
+                                const updated = [...(activeContent.services?.items || [])];
                                 const stats = [...(updated[sIdx].stats || []), { label: 'Yeni Metrik', value: '100+' }];
                                 updated[sIdx] = { ...updated[sIdx], stats };
                                 setField('services', 'items', updated);
@@ -2123,7 +2052,7 @@ function AdminMain() {
                                   placeholder="Değer (örn: 100+)"
                                   value={st.value || ''} 
                                   onChange={(e) => {
-                                    const updated = [...(content.services?.items || [])];
+                                    const updated = [...(activeContent.services?.items || [])];
                                     const stats = [...(updated[sIdx].stats || [
                                       { label: 'Başarılı Proje', value: '100+' },
                                       { label: 'Müşteri Memnuniyeti', value: '%99' },
@@ -2141,7 +2070,7 @@ function AdminMain() {
                                   placeholder="Etiket (örn: Başarılı Proje)"
                                   value={st.label || ''} 
                                   onChange={(e) => {
-                                    const updated = [...(content.services?.items || [])];
+                                    const updated = [...(activeContent.services?.items || [])];
                                     const stats = [...(updated[sIdx].stats || [
                                       { label: 'Başarılı Proje', value: '100+' },
                                       { label: 'Müşteri Memnuniyeti', value: '%99' },
@@ -2157,7 +2086,7 @@ function AdminMain() {
                                   type="button" 
                                   className="admin-btn-icon delete"
                                   onClick={() => {
-                                    const updated = [...(content.services?.items || [])];
+                                    const updated = [...(activeContent.services?.items || [])];
                                     const stats = (updated[sIdx].stats || []).filter((_, idx) => idx !== stIdx);
                                     updated[sIdx] = { ...updated[sIdx], stats };
                                     setField('services', 'items', updated);
@@ -2181,7 +2110,7 @@ function AdminMain() {
                               type="button" 
                               className="admin-btn admin-btn-outline admin-btn-sm"
                               onClick={() => {
-                                const updated = [...(content.services?.items || [])];
+                                const updated = [...(activeContent.services?.items || [])];
                                 const process = [...(updated[sIdx].process || []), { title: 'Yeni Süreç Adımı', desc: 'Açıklama...' }];
                                 updated[sIdx] = { ...updated[sIdx], process };
                                 setField('services', 'items', updated);
@@ -2203,7 +2132,7 @@ function AdminMain() {
                                   type="button" 
                                   className="admin-btn-icon delete"
                                   onClick={() => {
-                                    const updated = [...(content.services?.items || [])];
+                                    const updated = [...(activeContent.services?.items || [])];
                                     const process = (updated[sIdx].process || []).filter((_, idx) => idx !== prIdx);
                                     updated[sIdx] = { ...updated[sIdx], process };
                                     setField('services', 'items', updated);
@@ -2219,7 +2148,7 @@ function AdminMain() {
                                   className="admin-input" 
                                   value={pr.title || ''} 
                                   onChange={(e) => {
-                                    const updated = [...(content.services?.items || [])];
+                                    const updated = [...(activeContent.services?.items || [])];
                                     const process = [...(updated[sIdx].process || [
                                       { title: 'İhtiyaç & Saha Analizi', desc: 'Sektörünüze özel gereksinimleri tespit edip fizibilite raporu oluşturuyoruz.' },
                                       { title: 'Mühendislik & Projelendirme', desc: 'Uzman kadromuzla uluslararası standartlarda uygulama planı hazırlıyoruz.' },
@@ -2238,7 +2167,7 @@ function AdminMain() {
                                   style={{ minHeight: '50px' }}
                                   value={pr.desc || ''} 
                                   onChange={(e) => {
-                                    const updated = [...(content.services?.items || [])];
+                                    const updated = [...(activeContent.services?.items || [])];
                                     const process = [...(updated[sIdx].process || [
                                       { title: 'İhtiyaç & Saha Analizi', desc: 'Sektörünüze özel gereksinimleri tespit edip fizibilite raporu oluşturuyoruz.' },
                                       { title: 'Mühendislik & Projelendirme', desc: 'Uzman kadromuzla uluslararası standartlarda uygulama planı hazırlıyoruz.' },
@@ -2265,7 +2194,7 @@ function AdminMain() {
                               type="button" 
                               className="admin-btn admin-btn-outline admin-btn-sm"
                               onClick={() => {
-                                const updated = [...(content.services?.items || [])];
+                                const updated = [...(activeContent.services?.items || [])];
                                 const partners = [...(updated[sIdx].partners || []), {
                                   id: `part_${Date.now()}`,
                                   name: 'Yeni Çözüm Ortağı',
@@ -2288,7 +2217,7 @@ function AdminMain() {
                                   type="button" 
                                   className="admin-btn-icon delete"
                                   onClick={() => {
-                                    const updated = [...(content.services?.items || [])];
+                                    const updated = [...(activeContent.services?.items || [])];
                                     const partners = (updated[sIdx].partners || []).filter((_, idx) => idx !== partIdx);
                                     updated[sIdx] = { ...updated[sIdx], partners };
                                     setField('services', 'items', updated);
@@ -2305,7 +2234,7 @@ function AdminMain() {
                                     className="admin-input" 
                                     value={part.name || ''} 
                                     onChange={(e) => {
-                                      const updated = [...(content.services?.items || [])];
+                                      const updated = [...(activeContent.services?.items || [])];
                                       const partners = [...(updated[sIdx].partners || [])];
                                       partners[partIdx] = { ...partners[partIdx], name: e.target.value };
                                       updated[sIdx] = { ...updated[sIdx], partners };
@@ -2321,7 +2250,7 @@ function AdminMain() {
                                     placeholder="https://sarfea.com.tr"
                                     value={part.link || 'https://sarfea.com.tr'} 
                                     onChange={(e) => {
-                                      const updated = [...(content.services?.items || [])];
+                                      const updated = [...(activeContent.services?.items || [])];
                                       const partners = [...(updated[sIdx].partners || [])];
                                       partners[partIdx] = { ...partners[partIdx], link: e.target.value };
                                       updated[sIdx] = { ...updated[sIdx], partners };
@@ -2334,7 +2263,7 @@ function AdminMain() {
                                 label="Logo Görseli"
                                 value={part.logo || ''}
                                 onChange={(url) => {
-                                  const updated = [...(content.services?.items || [])];
+                                  const updated = [...(activeContent.services?.items || [])];
                                   const partners = [...(updated[sIdx].partners || [])];
                                   partners[partIdx] = { ...partners[partIdx], logo: url };
                                   updated[sIdx] = { ...updated[sIdx], partners };
@@ -2356,7 +2285,7 @@ function AdminMain() {
                               type="button" 
                               className="admin-btn admin-btn-outline admin-btn-sm"
                               onClick={() => {
-                                const updated = [...(content.services?.items || [])];
+                                const updated = [...(activeContent.services?.items || [])];
                                 const references = [...(updated[sIdx].references || []), {
                                   id: `sref_${Date.now()}`,
                                   name: 'Yeni Sektörel Proje',
@@ -2381,7 +2310,7 @@ function AdminMain() {
                                   type="button" 
                                   className="admin-btn-icon delete"
                                   onClick={() => {
-                                    const updated = [...(content.services?.items || [])];
+                                    const updated = [...(activeContent.services?.items || [])];
                                     const references = (updated[sIdx].references || []).filter((_, idx) => idx !== sRefIdx);
                                     updated[sIdx] = { ...updated[sIdx], references };
                                     setField('services', 'items', updated);
@@ -2398,7 +2327,7 @@ function AdminMain() {
                                     className="admin-input" 
                                     value={sRef.name || ''} 
                                     onChange={(e) => {
-                                      const updated = [...(content.services?.items || [])];
+                                      const updated = [...(activeContent.services?.items || [])];
                                       const references = [...(updated[sIdx].references || [])];
                                       references[sRefIdx] = { ...references[sRefIdx], name: e.target.value };
                                       updated[sIdx] = { ...updated[sIdx], references };
@@ -2413,7 +2342,7 @@ function AdminMain() {
                                     className="admin-input" 
                                     value={sRef.metric || ''} 
                                     onChange={(e) => {
-                                      const updated = [...(content.services?.items || [])];
+                                      const updated = [...(activeContent.services?.items || [])];
                                       const references = [...(updated[sIdx].references || [])];
                                       references[sRefIdx] = { ...references[sRefIdx], metric: e.target.value };
                                       updated[sIdx] = { ...updated[sIdx], references };
@@ -2430,7 +2359,7 @@ function AdminMain() {
                                     className="admin-input" 
                                     value={sRef.status || 'Tamamlandı'} 
                                     onChange={(e) => {
-                                      const updated = [...(content.services?.items || [])];
+                                      const updated = [...(activeContent.services?.items || [])];
                                       const references = [...(updated[sIdx].references || [])];
                                       references[sRefIdx] = { ...references[sRefIdx], status: e.target.value };
                                       updated[sIdx] = { ...updated[sIdx], references };
@@ -2446,7 +2375,7 @@ function AdminMain() {
                                     placeholder="https://sarfea.com.tr"
                                     value={sRef.link || 'https://sarfea.com.tr'} 
                                     onChange={(e) => {
-                                      const updated = [...(content.services?.items || [])];
+                                      const updated = [...(activeContent.services?.items || [])];
                                       const references = [...(updated[sIdx].references || [])];
                                       references[sRefIdx] = { ...references[sRefIdx], link: e.target.value };
                                       updated[sIdx] = { ...updated[sIdx], references };
@@ -2462,7 +2391,7 @@ function AdminMain() {
                                   style={{ minHeight: '50px' }}
                                   value={sRef.description || ''} 
                                   onChange={(e) => {
-                                    const updated = [...(content.services?.items || [])];
+                                    const updated = [...(activeContent.services?.items || [])];
                                     const references = [...(updated[sIdx].references || [])];
                                     references[sRefIdx] = { ...references[sRefIdx], description: e.target.value };
                                     updated[sIdx] = { ...updated[sIdx], references };
@@ -2503,7 +2432,7 @@ function AdminMain() {
                     color: '#F6C310',
                     link: '/yazilim'
                   };
-                  setField('portfolio', 'items', [...(content.portfolio?.items || []), newProj]);
+                  setField('portfolio', 'items', [...(activeContent.portfolio?.items || []), newProj]);
                 }}
               >
                 <Plus size={15} /> Yeni Proje Ekle
@@ -2517,7 +2446,7 @@ function AdminMain() {
                 <input 
                   type="text" 
                   className="admin-input" 
-                  value={content.portfolio?.badge || ''} 
+                  value={activeContent.portfolio?.badge || ''} 
                   onChange={(e) => setField('portfolio', 'badge', e.target.value)}
                 />
               </div>
@@ -2526,7 +2455,7 @@ function AdminMain() {
                 <input 
                   type="text" 
                   className="admin-input" 
-                  value={content.portfolio?.title || ''} 
+                  value={activeContent.portfolio?.title || ''} 
                   onChange={(e) => setField('portfolio', 'title', e.target.value)}
                 />
               </div>
@@ -2534,16 +2463,16 @@ function AdminMain() {
                 <label className="admin-form-label">Bölüm Alt Açıklaması</label>
                 <textarea 
                   className="admin-textarea" 
-                  value={content.portfolio?.subtitle || ''} 
+                  value={activeContent.portfolio?.subtitle || ''} 
                   onChange={(e) => setField('portfolio', 'subtitle', e.target.value)}
                 />
               </div>
             </div>
 
-            <h3 style={{ fontSize: '1rem', color: '#fff', margin: '24px 0 12px 0' }}>Proje Kartları Listesi ({(content.portfolio?.items || []).length})</h3>
+            <h3 style={{ fontSize: '1rem', color: '#fff', margin: '24px 0 12px 0' }}>Proje Kartları Listesi ({(activeContent.portfolio?.items || []).length})</h3>
 
             <div className="admin-grid-2">
-              {(content.portfolio?.items || []).map((proj, pIdx) => (
+              {(activeContent.portfolio?.items || []).map((proj, pIdx) => (
                 <div key={proj.id || pIdx} className="admin-item-card">
                   <div className="admin-item-card-header">
                     <div className="admin-item-card-title">
@@ -2559,7 +2488,7 @@ function AdminMain() {
                         className="admin-btn-icon" 
                         disabled={pIdx === 0}
                         onClick={() => {
-                          const items = [...(content.portfolio?.items || [])];
+                          const items = [...(activeContent.portfolio?.items || [])];
                           const temp = items[pIdx];
                           items[pIdx] = items[pIdx - 1];
                           items[pIdx - 1] = temp;
@@ -2572,9 +2501,9 @@ function AdminMain() {
                       <button 
                         type="button" 
                         className="admin-btn-icon" 
-                        disabled={pIdx === (content.portfolio?.items?.length || 0) - 1}
+                        disabled={pIdx === (activeContent.portfolio?.items?.length || 0) - 1}
                         onClick={() => {
-                          const items = [...(content.portfolio?.items || [])];
+                          const items = [...(activeContent.portfolio?.items || [])];
                           const temp = items[pIdx];
                           items[pIdx] = items[pIdx + 1];
                           items[pIdx + 1] = temp;
@@ -2588,7 +2517,7 @@ function AdminMain() {
                         type="button" 
                         className="admin-btn-icon delete" 
                         onClick={() => {
-                          const updated = (content.portfolio?.items || []).filter((_, idx) => idx !== pIdx);
+                          const updated = (activeContent.portfolio?.items || []).filter((_, idx) => idx !== pIdx);
                           setField('portfolio', 'items', updated);
                         }}
                         title="Sil"
@@ -2605,7 +2534,7 @@ function AdminMain() {
                       className="admin-input" 
                       value={proj.title || ''} 
                       onChange={(e) => {
-                        const updated = [...(content.portfolio?.items || [])];
+                        const updated = [...(activeContent.portfolio?.items || [])];
                         updated[pIdx] = { ...updated[pIdx], title: e.target.value };
                         setField('portfolio', 'items', updated);
                       }}
@@ -2621,7 +2550,7 @@ function AdminMain() {
                         placeholder="Örn: Telekomünikasyon"
                         value={proj.sectorName || ''} 
                         onChange={(e) => {
-                          const updated = [...(content.portfolio?.items || [])];
+                          const updated = [...(activeContent.portfolio?.items || [])];
                           updated[pIdx] = { ...updated[pIdx], sectorName: e.target.value };
                           setField('portfolio', 'items', updated);
                         }}
@@ -2633,7 +2562,7 @@ function AdminMain() {
                         className="admin-select"
                         value={proj.sectorId || 'telekomunikasyon'}
                         onChange={(e) => {
-                          const updated = [...(content.portfolio?.items || [])];
+                          const updated = [...(activeContent.portfolio?.items || [])];
                           updated[pIdx] = { ...updated[pIdx], sectorId: e.target.value };
                           setField('portfolio', 'items', updated);
                         }}
@@ -2656,7 +2585,7 @@ function AdminMain() {
                       placeholder="Örn: 400 km Hat, %40 Verimlilik, 50.000 Kutulama"
                       value={proj.metric || ''} 
                       onChange={(e) => {
-                        const updated = [...(content.portfolio?.items || [])];
+                        const updated = [...(activeContent.portfolio?.items || [])];
                         updated[pIdx] = { ...updated[pIdx], metric: e.target.value };
                         setField('portfolio', 'items', updated);
                       }}
@@ -2667,7 +2596,7 @@ function AdminMain() {
                     label="Rozet & Vurgu Rengi"
                     value={proj.color || '#D12F0E'}
                     onChange={(col) => {
-                      const updated = [...(content.portfolio?.items || [])];
+                      const updated = [...(activeContent.portfolio?.items || [])];
                       updated[pIdx] = { ...updated[pIdx], color: col };
                       setField('portfolio', 'items', updated);
                     }}
@@ -2677,7 +2606,7 @@ function AdminMain() {
                     label="Yönlendirme Linki (Tıklanınca Gidilecek Sayfa/URL)"
                     value={proj.link || '/'}
                     onChange={(val) => {
-                      const updated = [...(content.portfolio?.items || [])];
+                      const updated = [...(activeContent.portfolio?.items || [])];
                       updated[pIdx] = { ...updated[pIdx], link: val };
                       setField('portfolio', 'items', updated);
                     }}
@@ -2687,7 +2616,7 @@ function AdminMain() {
                     label="Proje Görseli (Vercel Blob / URL)"
                     value={proj.image || ''}
                     onChange={(url) => {
-                      const updated = [...(content.portfolio?.items || [])];
+                      const updated = [...(activeContent.portfolio?.items || [])];
                       updated[pIdx] = { ...updated[pIdx], image: url };
                       setField('portfolio', 'items', updated);
                     }}
@@ -2700,7 +2629,7 @@ function AdminMain() {
                       style={{ minHeight: '70px' }}
                       value={proj.description || ''} 
                       onChange={(e) => {
-                        const updated = [...(content.portfolio?.items || [])];
+                        const updated = [...(activeContent.portfolio?.items || [])];
                         updated[pIdx] = { ...updated[pIdx], description: e.target.value };
                         setField('portfolio', 'items', updated);
                       }}
@@ -2734,7 +2663,7 @@ function AdminMain() {
                   <input 
                     type="text" 
                     className="admin-input" 
-                    value={content.kisacaBiz?.badge || ''} 
+                    value={activeContent.kisacaBiz?.badge || ''} 
                     onChange={(e) => setField('kisacaBiz', 'badge', e.target.value)}
                   />
                 </div>
@@ -2743,7 +2672,7 @@ function AdminMain() {
                   <input 
                     type="text" 
                     className="admin-input" 
-                    value={content.kisacaBiz?.title || ''} 
+                    value={activeContent.kisacaBiz?.title || ''} 
                     onChange={(e) => setField('kisacaBiz', 'title', e.target.value)}
                   />
                 </div>
@@ -2751,7 +2680,7 @@ function AdminMain() {
                   <label className="admin-form-label">Alt Açıklama</label>
                   <textarea 
                     className="admin-textarea" 
-                    value={content.kisacaBiz?.subtitle || ''} 
+                    value={activeContent.kisacaBiz?.subtitle || ''} 
                     onChange={(e) => setField('kisacaBiz', 'subtitle', e.target.value)}
                   />
                 </div>
@@ -2760,20 +2689,20 @@ function AdminMain() {
                   <input 
                     type="text" 
                     className="admin-input" 
-                    value={content.kisacaBiz?.btnText || ''} 
+                    value={activeContent.kisacaBiz?.btnText || ''} 
                     onChange={(e) => setField('kisacaBiz', 'btnText', e.target.value)}
                   />
                 </div>
                 <PathInputField 
                   label="Buton Yönlendirme Linki"
-                  value={content.kisacaBiz?.btnLink || '/hakkimizda'}
+                  value={activeContent.kisacaBiz?.btnLink || '/hakkimizda'}
                   onChange={(p) => setField('kisacaBiz', 'btnLink', p)}
                 />
               </div>
 
               <h4 style={{ fontSize: '0.95rem', color: '#fff', margin: '20px 0 12px 0' }}>3 Özellik Kartı</h4>
               <div className="admin-grid-3">
-                {(content.kisacaBiz?.cards || []).map((card, cIdx) => (
+                {(activeContent.kisacaBiz?.cards || []).map((card, cIdx) => (
                   <div key={card.id || cIdx} className="admin-item-card">
                     <div className="admin-form-group">
                       <label className="admin-form-label">Kart #{cIdx + 1} Başlık</label>
@@ -2782,7 +2711,7 @@ function AdminMain() {
                         className="admin-input" 
                         value={card.title || ''} 
                         onChange={(e) => {
-                          const updated = [...(content.kisacaBiz?.cards || [])];
+                          const updated = [...(activeContent.kisacaBiz?.cards || [])];
                           updated[cIdx] = { ...updated[cIdx], title: e.target.value };
                           setField('kisacaBiz', 'cards', updated);
                         }}
@@ -2795,7 +2724,7 @@ function AdminMain() {
                         style={{ minHeight: '60px' }}
                         value={card.desc || ''} 
                         onChange={(e) => {
-                          const updated = [...(content.kisacaBiz?.cards || [])];
+                          const updated = [...(activeContent.kisacaBiz?.cards || [])];
                           updated[cIdx] = { ...updated[cIdx], desc: e.target.value };
                           setField('kisacaBiz', 'cards', updated);
                         }}
@@ -2805,7 +2734,7 @@ function AdminMain() {
                       label="İkon"
                       value={card.icon || 'Cpu'}
                       onChange={(ic) => {
-                        const updated = [...(content.kisacaBiz?.cards || [])];
+                        const updated = [...(activeContent.kisacaBiz?.cards || [])];
                         updated[cIdx] = { ...updated[cIdx], icon: ic };
                         setField('kisacaBiz', 'cards', updated);
                       }}
@@ -2827,7 +2756,7 @@ function AdminMain() {
                   <input 
                     type="text" 
                     className="admin-input" 
-                    value={content.whyUs?.badge || ''} 
+                    value={activeContent.whyUs?.badge || ''} 
                     onChange={(e) => setField('whyUs', 'badge', e.target.value)}
                   />
                 </div>
@@ -2836,7 +2765,7 @@ function AdminMain() {
                   <input 
                     type="text" 
                     className="admin-input" 
-                    value={content.whyUs?.title || ''} 
+                    value={activeContent.whyUs?.title || ''} 
                     onChange={(e) => setField('whyUs', 'title', e.target.value)}
                   />
                 </div>
@@ -2844,7 +2773,7 @@ function AdminMain() {
                   <label className="admin-form-label">Alt Açıklama</label>
                   <textarea 
                     className="admin-textarea" 
-                    value={content.whyUs?.subtitle || ''} 
+                    value={activeContent.whyUs?.subtitle || ''} 
                     onChange={(e) => setField('whyUs', 'subtitle', e.target.value)}
                   />
                 </div>
@@ -2853,7 +2782,7 @@ function AdminMain() {
                   <input 
                     type="text" 
                     className="admin-input" 
-                    value={content.whyUs?.quoteTitle || ''} 
+                    value={activeContent.whyUs?.quoteTitle || ''} 
                     onChange={(e) => setField('whyUs', 'quoteTitle', e.target.value)}
                   />
                 </div>
@@ -2862,7 +2791,7 @@ function AdminMain() {
                   <input 
                     type="text" 
                     className="admin-input" 
-                    value={content.whyUs?.quoteSubtitle || ''} 
+                    value={activeContent.whyUs?.quoteSubtitle || ''} 
                     onChange={(e) => setField('whyUs', 'quoteSubtitle', e.target.value)}
                   />
                 </div>
@@ -2870,7 +2799,7 @@ function AdminMain() {
 
               <h4 style={{ fontSize: '0.95rem', color: '#fff', margin: '20px 0 12px 0' }}>3 Temel İlke / Fark Maddesi</h4>
               <div className="admin-grid-3">
-                {(content.whyUs?.items || []).map((item, iIdx) => (
+                {(activeContent.whyUs?.items || []).map((item, iIdx) => (
                   <div key={item.id || iIdx} className="admin-item-card">
                     <div className="admin-form-group">
                       <label className="admin-form-label">Madde #{iIdx + 1} Başlık</label>
@@ -2879,7 +2808,7 @@ function AdminMain() {
                         className="admin-input" 
                         value={item.title || ''} 
                         onChange={(e) => {
-                          const updated = [...(content.whyUs?.items || [])];
+                          const updated = [...(activeContent.whyUs?.items || [])];
                           updated[iIdx] = { ...updated[iIdx], title: e.target.value };
                           setField('whyUs', 'items', updated);
                         }}
@@ -2892,7 +2821,7 @@ function AdminMain() {
                         style={{ minHeight: '60px' }}
                         value={item.desc || ''} 
                         onChange={(e) => {
-                          const updated = [...(content.whyUs?.items || [])];
+                          const updated = [...(activeContent.whyUs?.items || [])];
                           updated[iIdx] = { ...updated[iIdx], desc: e.target.value };
                           setField('whyUs', 'items', updated);
                         }}
@@ -2915,7 +2844,7 @@ function AdminMain() {
                   <input 
                     type="text" 
                     className="admin-input" 
-                    value={content.cta?.title || ''} 
+                    value={activeContent.cta?.title || ''} 
                     onChange={(e) => setField('cta', 'title', e.target.value)}
                   />
                 </div>
@@ -2923,7 +2852,7 @@ function AdminMain() {
                   <label className="admin-form-label">CTA Açıklaması</label>
                   <textarea 
                     className="admin-textarea" 
-                    value={content.cta?.subtitle || ''} 
+                    value={activeContent.cta?.subtitle || ''} 
                     onChange={(e) => setField('cta', 'subtitle', e.target.value)}
                   />
                 </div>
@@ -2932,7 +2861,7 @@ function AdminMain() {
                   <input 
                     type="text" 
                     className="admin-input" 
-                    value={content.cta?.primaryBtnText || ''} 
+                    value={activeContent.cta?.primaryBtnText || ''} 
                     onChange={(e) => setField('cta', 'primaryBtnText', e.target.value)}
                   />
                 </div>
@@ -2941,7 +2870,7 @@ function AdminMain() {
                   <input 
                     type="text" 
                     className="admin-input" 
-                    value={content.cta?.secondaryBtnText || ''} 
+                    value={activeContent.cta?.secondaryBtnText || ''} 
                     onChange={(e) => setField('cta', 'secondaryBtnText', e.target.value)}
                   />
                 </div>
@@ -2970,7 +2899,7 @@ function AdminMain() {
                       logoUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=300&q=80',
                       link: 'https://sarfea.com.tr'
                     };
-                    setField('references', 'items', [...(content.references?.items || []), newRef]);
+                    setField('references', 'items', [...(activeContent.references?.items || []), newRef]);
                   }}
                 >
                   <Plus size={13} /> Referans Ekle
@@ -2978,7 +2907,7 @@ function AdminMain() {
               </div>
 
               <div className="admin-grid-2">
-                {(content.references?.items || []).map((refItem, rIdx) => (
+                {(activeContent.references?.items || []).map((refItem, rIdx) => (
                   <div key={refItem.id || rIdx} className="admin-item-card">
                     <div className="admin-item-card-header">
                       <span className="admin-item-card-title">{refItem.name || 'Referans'}</span>
@@ -2986,7 +2915,7 @@ function AdminMain() {
                         type="button" 
                         className="admin-btn-icon delete"
                         onClick={() => {
-                          const updated = (content.references?.items || []).filter((_, idx) => idx !== rIdx);
+                          const updated = (activeContent.references?.items || []).filter((_, idx) => idx !== rIdx);
                           setField('references', 'items', updated);
                         }}
                       >
@@ -3000,7 +2929,7 @@ function AdminMain() {
                         className="admin-input" 
                         value={refItem.name || ''} 
                         onChange={(e) => {
-                          const updated = [...(content.references?.items || [])];
+                          const updated = [...(activeContent.references?.items || [])];
                           updated[rIdx] = { ...updated[rIdx], name: e.target.value };
                           setField('references', 'items', updated);
                         }}
@@ -3013,7 +2942,7 @@ function AdminMain() {
                         className="admin-input" 
                         value={refItem.category || ''} 
                         onChange={(e) => {
-                          const updated = [...(content.references?.items || [])];
+                          const updated = [...(activeContent.references?.items || [])];
                           updated[rIdx] = { ...updated[rIdx], category: e.target.value };
                           setField('references', 'items', updated);
                         }}
@@ -3033,7 +2962,7 @@ function AdminMain() {
                           placeholder="https://sarfea.com.tr"
                           value={refItem.link || 'https://sarfea.com.tr'} 
                           onChange={(e) => {
-                            const updated = [...(content.references?.items || [])];
+                            const updated = [...(activeContent.references?.items || [])];
                             updated[rIdx] = { ...updated[rIdx], link: e.target.value };
                             setField('references', 'items', updated);
                           }}
@@ -3043,7 +2972,7 @@ function AdminMain() {
                           className="admin-btn admin-btn-outline admin-btn-sm"
                           style={{ whiteSpace: 'nowrap', fontSize: '0.75rem' }}
                           onClick={() => {
-                            const updated = [...(content.references?.items || [])];
+                            const updated = [...(activeContent.references?.items || [])];
                             updated[rIdx] = { ...updated[rIdx], link: 'https://sarfea.com.tr' };
                             setField('references', 'items', updated);
                           }}
@@ -3058,7 +2987,7 @@ function AdminMain() {
                       label="Referans Logosu"
                       value={refItem.logoUrl || ''}
                       onChange={(url) => {
-                        const updated = [...(content.references?.items || [])];
+                        const updated = [...(activeContent.references?.items || [])];
                         updated[rIdx] = { ...updated[rIdx], logoUrl: url };
                         setField('references', 'items', updated);
                       }}
@@ -3086,14 +3015,14 @@ function AdminMain() {
                     text: 'İş ortaklığımızdan son derece memnunuz.',
                     rating: 5
                   };
-                  setField('testimonials', 'items', [...(content.testimonials?.items || []), newTestimonial]);
+                  setField('testimonials', 'items', [...(activeContent.testimonials?.items || []), newTestimonial]);
                 }}
               >
                 <Plus size={13} /> Yorum Ekle
               </button>
             </div>
 
-            {(content.testimonials?.items || []).map((tItem, tIdx) => (
+            {(activeContent.testimonials?.items || []).map((tItem, tIdx) => (
               <div key={tItem.id || tIdx} className="admin-item-card">
                 <div className="admin-item-card-header">
                   <span className="admin-item-card-title">{tItem.name} — {tItem.company}</span>
@@ -3101,7 +3030,7 @@ function AdminMain() {
                     type="button" 
                     className="admin-btn-icon delete"
                     onClick={() => {
-                      const updated = (content.testimonials?.items || []).filter((_, idx) => idx !== tIdx);
+                      const updated = (activeContent.testimonials?.items || []).filter((_, idx) => idx !== tIdx);
                       setField('testimonials', 'items', updated);
                     }}
                   >
@@ -3116,7 +3045,7 @@ function AdminMain() {
                       className="admin-input" 
                       value={tItem.name || ''} 
                       onChange={(e) => {
-                        const updated = [...(content.testimonials?.items || [])];
+                        const updated = [...(activeContent.testimonials?.items || [])];
                         updated[tIdx] = { ...updated[tIdx], name: e.target.value };
                         setField('testimonials', 'items', updated);
                       }}
@@ -3129,7 +3058,7 @@ function AdminMain() {
                       className="admin-input" 
                       value={tItem.role || ''} 
                       onChange={(e) => {
-                        const updated = [...(content.testimonials?.items || [])];
+                        const updated = [...(activeContent.testimonials?.items || [])];
                         updated[tIdx] = { ...updated[tIdx], role: e.target.value };
                         setField('testimonials', 'items', updated);
                       }}
@@ -3142,7 +3071,7 @@ function AdminMain() {
                       className="admin-input" 
                       value={tItem.company || ''} 
                       onChange={(e) => {
-                        const updated = [...(content.testimonials?.items || [])];
+                        const updated = [...(activeContent.testimonials?.items || [])];
                         updated[tIdx] = { ...updated[tIdx], company: e.target.value };
                         setField('testimonials', 'items', updated);
                       }}
@@ -3154,7 +3083,7 @@ function AdminMain() {
                       className="admin-textarea" 
                       value={tItem.text || ''} 
                       onChange={(e) => {
-                        const updated = [...(content.testimonials?.items || [])];
+                        const updated = [...(activeContent.testimonials?.items || [])];
                         updated[tIdx] = { ...updated[tIdx], text: e.target.value };
                         setField('testimonials', 'items', updated);
                       }}
@@ -3164,7 +3093,7 @@ function AdminMain() {
                     label="Avatar Görseli"
                     value={tItem.avatar || ''}
                     onChange={(url) => {
-                      const updated = [...(content.testimonials?.items || [])];
+                      const updated = [...(activeContent.testimonials?.items || [])];
                       updated[tIdx] = { ...updated[tIdx], avatar: url };
                       setField('testimonials', 'items', updated);
                     }}
@@ -3191,7 +3120,7 @@ function AdminMain() {
                 <input 
                   type="text" 
                   className="admin-input" 
-                  value={content.contact?.phone || ''} 
+                  value={activeContent.contact?.phone || ''} 
                   onChange={(e) => setField('contact', 'phone', e.target.value)}
                 />
               </div>
@@ -3201,7 +3130,7 @@ function AdminMain() {
                 <input 
                   type="text" 
                   className="admin-input" 
-                  value={content.contact?.phoneSecondary || ''} 
+                  value={activeContent.contact?.phoneSecondary || ''} 
                   onChange={(e) => setField('contact', 'phoneSecondary', e.target.value)}
                 />
               </div>
@@ -3211,7 +3140,7 @@ function AdminMain() {
                 <input 
                   type="text" 
                   className="admin-input" 
-                  value={content.contact?.email || ''} 
+                  value={activeContent.contact?.email || ''} 
                   onChange={(e) => setField('contact', 'email', e.target.value)}
                 />
               </div>
@@ -3221,7 +3150,7 @@ function AdminMain() {
                 <input 
                   type="text" 
                   className="admin-input" 
-                  value={content.contact?.emailSupport || ''} 
+                  value={activeContent.contact?.emailSupport || ''} 
                   onChange={(e) => setField('contact', 'emailSupport', e.target.value)}
                 />
               </div>
@@ -3231,7 +3160,7 @@ function AdminMain() {
                 <textarea 
                   className="admin-textarea" 
                   style={{ minHeight: '60px' }}
-                  value={content.contact?.address || ''} 
+                  value={activeContent.contact?.address || ''} 
                   onChange={(e) => setField('contact', 'address', e.target.value)}
                 />
               </div>
@@ -3241,7 +3170,7 @@ function AdminMain() {
                 <input 
                   type="text" 
                   className="admin-input" 
-                  value={content.contact?.workingHours || ''} 
+                  value={activeContent.contact?.workingHours || ''} 
                   onChange={(e) => setField('contact', 'workingHours', e.target.value)}
                 />
               </div>
@@ -3251,7 +3180,7 @@ function AdminMain() {
                 <input 
                   type="text" 
                   className="admin-input" 
-                  value={content.contact?.mapEmbedUrl || ''} 
+                  value={activeContent.contact?.mapEmbedUrl || ''} 
                   onChange={(e) => setField('contact', 'mapEmbedUrl', e.target.value)}
                 />
               </div>
@@ -3267,7 +3196,7 @@ function AdminMain() {
                 <label className="admin-form-label">Footer Şirket Tanıtım Metni</label>
                 <textarea 
                   className="admin-textarea" 
-                  value={content.footer?.description || ''} 
+                  value={activeContent.footer?.description || ''} 
                   onChange={(e) => setField('footer', 'description', e.target.value)}
                 />
               </div>
@@ -3277,7 +3206,7 @@ function AdminMain() {
                 <input 
                   type="text" 
                   className="admin-input" 
-                  value={content.footer?.copyright || ''} 
+                  value={activeContent.footer?.copyright || ''} 
                   onChange={(e) => setField('footer', 'copyright', e.target.value)}
                 />
               </div>
@@ -3287,7 +3216,7 @@ function AdminMain() {
                 <input 
                   type="text" 
                   className="admin-input" 
-                  value={content.footer?.newsletterTitle || ''} 
+                  value={activeContent.footer?.newsletterTitle || ''} 
                   onChange={(e) => setField('footer', 'newsletterTitle', e.target.value)}
                 />
               </div>
@@ -3306,14 +3235,14 @@ function AdminMain() {
                     url: 'https://...',
                     icon: 'Globe'
                   };
-                  setField('footer', 'socials', [...(content.footer?.socials || []), newSocial]);
+                  setField('footer', 'socials', [...(activeContent.footer?.socials || []), newSocial]);
                 }}
               >
                 <Plus size={13} /> Sosyal Medya Ekle
               </button>
             </div>
 
-            {(content.footer?.socials || []).map((soc, sIdx) => (
+            {(activeContent.footer?.socials || []).map((soc, sIdx) => (
               <div key={soc.id || sIdx} className="admin-nested-item" style={{ gridTemplateColumns: '150px 1fr 120px auto' }}>
                 <input 
                   type="text" 
@@ -3321,7 +3250,7 @@ function AdminMain() {
                   placeholder="Platform Adı"
                   value={soc.name || ''} 
                   onChange={(e) => {
-                    const updated = [...(content.footer?.socials || [])];
+                    const updated = [...(activeContent.footer?.socials || [])];
                     updated[sIdx] = { ...updated[sIdx], name: e.target.value };
                     setField('footer', 'socials', updated);
                   }}
@@ -3332,7 +3261,7 @@ function AdminMain() {
                   placeholder="Profil URL"
                   value={soc.url || ''} 
                   onChange={(e) => {
-                    const updated = [...(content.footer?.socials || [])];
+                    const updated = [...(activeContent.footer?.socials || [])];
                     updated[sIdx] = { ...updated[sIdx], url: e.target.value };
                     setField('footer', 'socials', updated);
                   }}
@@ -3343,7 +3272,7 @@ function AdminMain() {
                   placeholder="İkon Adı"
                   value={soc.icon || ''} 
                   onChange={(e) => {
-                    const updated = [...(content.footer?.socials || [])];
+                    const updated = [...(activeContent.footer?.socials || [])];
                     updated[sIdx] = { ...updated[sIdx], icon: e.target.value };
                     setField('footer', 'socials', updated);
                   }}
@@ -3352,7 +3281,7 @@ function AdminMain() {
                   type="button" 
                   className="admin-btn-icon delete"
                   onClick={() => {
-                    const updated = (content.footer?.socials || []).filter((_, idx) => idx !== sIdx);
+                    const updated = (activeContent.footer?.socials || []).filter((_, idx) => idx !== sIdx);
                     setField('footer', 'socials', updated);
                   }}
                 >
@@ -3380,7 +3309,7 @@ function AdminMain() {
                     address: 'Açık Adres...',
                     phone: '+90 (212) ...'
                   };
-                  setField('globalOffices', 'items', [...(content.globalOffices?.items || []), newOffice]);
+                  setField('globalOffices', 'items', [...(activeContent.globalOffices?.items || []), newOffice]);
                 }}
               >
                 <Plus size={13} /> Ofis Ekle
@@ -3393,7 +3322,7 @@ function AdminMain() {
                 <input 
                   type="text" 
                   className="admin-input" 
-                  value={content.globalOffices?.badge || ''} 
+                  value={activeContent.globalOffices?.badge || ''} 
                   onChange={(e) => setField('globalOffices', 'badge', e.target.value)}
                 />
               </div>
@@ -3402,7 +3331,7 @@ function AdminMain() {
                 <input 
                   type="text" 
                   className="admin-input" 
-                  value={content.globalOffices?.title || ''} 
+                  value={activeContent.globalOffices?.title || ''} 
                   onChange={(e) => setField('globalOffices', 'title', e.target.value)}
                 />
               </div>
@@ -3410,14 +3339,14 @@ function AdminMain() {
                 <label className="admin-form-label">Bölüm Alt Açıklaması</label>
                 <textarea 
                   className="admin-textarea" 
-                  value={content.globalOffices?.subtitle || ''} 
+                  value={activeContent.globalOffices?.subtitle || ''} 
                   onChange={(e) => setField('globalOffices', 'subtitle', e.target.value)}
                 />
               </div>
             </div>
 
             <div className="admin-grid-2">
-              {(content.globalOffices?.items || []).map((off, oIdx) => (
+              {(activeContent.globalOffices?.items || []).map((off, oIdx) => (
                 <div key={off.id || oIdx} className="admin-item-card">
                   <div className="admin-item-card-header">
                     <span className="admin-item-card-title">{off.city || 'Şehir'} — {off.name || 'Ofis'}</span>
@@ -3425,7 +3354,7 @@ function AdminMain() {
                       type="button" 
                       className="admin-btn-icon delete"
                       onClick={() => {
-                        const updated = (content.globalOffices?.items || []).filter((_, idx) => idx !== oIdx);
+                        const updated = (activeContent.globalOffices?.items || []).filter((_, idx) => idx !== oIdx);
                         setField('globalOffices', 'items', updated);
                       }}
                     >
@@ -3440,7 +3369,7 @@ function AdminMain() {
                         className="admin-input" 
                         value={off.city || ''} 
                         onChange={(e) => {
-                          const updated = [...(content.globalOffices?.items || [])];
+                          const updated = [...(activeContent.globalOffices?.items || [])];
                           updated[oIdx] = { ...updated[oIdx], city: e.target.value };
                           setField('globalOffices', 'items', updated);
                         }}
@@ -3453,7 +3382,7 @@ function AdminMain() {
                         className="admin-input" 
                         value={off.badge || ''} 
                         onChange={(e) => {
-                          const updated = [...(content.globalOffices?.items || [])];
+                          const updated = [...(activeContent.globalOffices?.items || [])];
                           updated[oIdx] = { ...updated[oIdx], badge: e.target.value };
                           setField('globalOffices', 'items', updated);
                         }}
@@ -3468,7 +3397,7 @@ function AdminMain() {
                         className="admin-input" 
                         value={off.name || ''} 
                         onChange={(e) => {
-                          const updated = [...(content.globalOffices?.items || [])];
+                          const updated = [...(activeContent.globalOffices?.items || [])];
                           updated[oIdx] = { ...updated[oIdx], name: e.target.value };
                           setField('globalOffices', 'items', updated);
                         }}
@@ -3481,7 +3410,7 @@ function AdminMain() {
                         className="admin-input" 
                         value={off.phone || ''} 
                         onChange={(e) => {
-                          const updated = [...(content.globalOffices?.items || [])];
+                          const updated = [...(activeContent.globalOffices?.items || [])];
                           updated[oIdx] = { ...updated[oIdx], phone: e.target.value };
                           setField('globalOffices', 'items', updated);
                         }}
@@ -3495,7 +3424,7 @@ function AdminMain() {
                       className="admin-input" 
                       value={off.role || ''} 
                       onChange={(e) => {
-                        const updated = [...(content.globalOffices?.items || [])];
+                        const updated = [...(activeContent.globalOffices?.items || [])];
                         updated[oIdx] = { ...updated[oIdx], role: e.target.value };
                         setField('globalOffices', 'items', updated);
                       }}
@@ -3508,7 +3437,7 @@ function AdminMain() {
                       style={{ minHeight: '50px' }}
                       value={off.address || ''} 
                       onChange={(e) => {
-                        const updated = [...(content.globalOffices?.items || [])];
+                        const updated = [...(activeContent.globalOffices?.items || [])];
                         updated[oIdx] = { ...updated[oIdx], address: e.target.value };
                         setField('globalOffices', 'items', updated);
                       }}
@@ -3532,7 +3461,7 @@ function AdminMain() {
                 <input 
                   type="text" 
                   className="admin-input" 
-                  value={content.inquiryModal?.badge || ''} 
+                  value={activeContent.inquiryModal?.badge || ''} 
                   onChange={(e) => setField('inquiryModal', 'badge', e.target.value)}
                 />
               </div>
@@ -3541,7 +3470,7 @@ function AdminMain() {
                 <input 
                   type="text" 
                   className="admin-input" 
-                  value={content.inquiryModal?.title || ''} 
+                  value={activeContent.inquiryModal?.title || ''} 
                   onChange={(e) => setField('inquiryModal', 'title', e.target.value)}
                 />
               </div>
@@ -3550,7 +3479,7 @@ function AdminMain() {
                 <input 
                   type="text" 
                   className="admin-input" 
-                  value={content.inquiryModal?.successTitle || ''} 
+                  value={activeContent.inquiryModal?.successTitle || ''} 
                   onChange={(e) => setField('inquiryModal', 'successTitle', e.target.value)}
                 />
               </div>
@@ -3559,7 +3488,7 @@ function AdminMain() {
                 <input 
                   type="text" 
                   className="admin-input" 
-                  value={content.inquiryModal?.successDesc || ''} 
+                  value={activeContent.inquiryModal?.successDesc || ''} 
                   onChange={(e) => setField('inquiryModal', 'successDesc', e.target.value)}
                 />
               </div>
@@ -3654,22 +3583,22 @@ function AdminMain() {
             <div className="admin-grid-2">
               <ImageField 
                 label="Genel Logo & Marka Varlığı"
-                value={content.images?.logoUrl || ''}
+                value={activeContent.images?.logoUrl || ''}
                 onChange={(url) => setField('images', 'logoUrl', url)}
               />
               <ImageField 
                 label="Hero Ana Arka Plan Görseli"
-                value={content.images?.heroBg || ''}
+                value={activeContent.images?.heroBg || ''}
                 onChange={(url) => setField('images', 'heroBg', url)}
               />
               <ImageField 
                 label="Hakkımızda Banner Görseli"
-                value={content.images?.aboutImg || ''}
+                value={activeContent.images?.aboutImg || ''}
                 onChange={(url) => setField('images', 'aboutImg', url)}
               />
               <ImageField 
                 label="İletişim Banner Görseli"
-                value={content.images?.contactImg || ''}
+                value={activeContent.images?.contactImg || ''}
                 onChange={(url) => setField('images', 'contactImg', url)}
               />
             </div>
