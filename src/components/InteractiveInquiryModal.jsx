@@ -70,17 +70,17 @@ export default function InteractiveInquiryModal({ isOpen, onClose, defaultSector
             <div className="success-icon-wrapper">
               <Check size={40} />
             </div>
-            <h2>{content?.inquiryModal?.successTitle || t('modal_success_title')}</h2>
-            <p>{content?.inquiryModal?.successDesc || t('modal_success_desc')}</p>
+            <h2>{activeContent?.inquiryModal?.successTitle || t('modal_success_title')}</h2>
+            <p>{activeContent?.inquiryModal?.successDesc || t('modal_success_desc')}</p>
           </div>
         ) : (
           <>
             {/* Header & Steps */}
             <div className="modal-header">
               <div className="badge-pill">
-                <Sparkles size={14} /> {content?.inquiryModal?.badge || t('modal_badge')}
+                <Sparkles size={14} /> {activeContent?.inquiryModal?.badge || t('modal_badge')}
               </div>
-              <h2>{content?.inquiryModal?.title || t('modal_header')}</h2>
+              <h2>{activeContent?.inquiryModal?.title || t('modal_header')}</h2>
               
               <div className="modal-steps-indicator">
                 <div className={`step-dot ${step >= 1 ? 'active' : ''}`}>1</div>

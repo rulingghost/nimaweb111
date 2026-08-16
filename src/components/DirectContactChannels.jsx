@@ -1,24 +1,33 @@
 import React from 'react';
 import { Phone, Mail, MapPin, ExternalLink } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { useContent } from '../context/ContentContext';
 import './DirectContactChannels.css';
 
 export default function DirectContactChannels({ 
   title,
   subtitle,
-  whatsappNumber = "+90 (555) 012 34 56",
-  phoneNumber = "+90 (212) 555 01 23",
-  address = "Levent, Büyükdere Cd. No:195, Şişli / İstanbul",
-  email = "info@alx.com.tr",
+  whatsappNumber,
+  phoneNumber,
+  address,
+  email,
   className = ""
 }) {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
+  const { content, getContent } = useContent();
+  const activeContent = getContent ? getContent(language) : content;
+
+  const contactData = activeContent?.contact || {};
+  const currentPhone = phoneNumber || contactData.phone || "+90 (212) 555 01 23";
+  const currentWhatsapp = whatsappNumber || contactData.whatsapp || "+90 (555) 012 34 56";
+  const currentEmail = email || contactData.email || "info@nimagrup.com";
+  const currentAddress = address || contactData.address || "Büyükdere Cad. No:195 Levent / İstanbul";
 
   const displayTitle = title || t('direct_title');
   const displaySubtitle = subtitle || t('direct_subtitle');
 
-  const cleanPhone = phoneNumber.replace(/[^0-9+]/g, '');
-  const cleanWhatsapp = whatsappNumber.replace(/[^0-9+]/g, '');
+  const cleanPhone = currentPhone.replace(/[^0-9+]/g, '');
+  const cleanWhatsapp = currentWhatsapp.replace(/[^0-9+]/g, '');
 
   return (
     <div className={`direct-contact-wrapper ${className}`}>
