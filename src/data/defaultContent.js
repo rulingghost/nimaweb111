@@ -118,7 +118,12 @@ export const defaultContent = {
         badge: 'Kritik Altyapı',
         image: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80',
         path: '/telekomunikasyon',
-        points: ['Fiber Optik Hat Kurulumu', 'Baz İstasyonu Entegrasyonu', 'Veri Merkezi Ağ Yönetimi', '7/24 Saha Bakım Destek']
+        points: ['Fiber Optik Hat Kurulumu', 'Baz İstasyonu Entegrasyonu', 'Veri Merkezi Ağ Yönetimi', '7/24 Saha Bakım Destek'],
+        faqs: [
+          { q: 'Altyapı tespitinde hangi teknolojileri kullanıyorsunuz?', a: 'Yer altı radarları (GPR), yüksek çözünürlüklü lazer tarayıcılar (LiDAR) ve GIS tabanlı dijital haritalama sistemleri kullanıyoruz.' },
+          { q: 'Projelerin teslim süresi ortalama ne kadardır?', a: 'Proje ölçeğine bağlı olarak küçük ve orta ölçekli saha tespitleri 1-3 hafta, büyükşehir altyapı projeleri 1-3 ay sürmektedir.' },
+          { q: 'Çevre ve iş güvenliği sertifikalarınız var mı?', a: 'Evet, ISO 9001, ISO 45001 ve ISO 27001 sertifikalarına tam uyumlu çalışmaktayız.' }
+        ]
       },
       {
         id: 'software',
@@ -130,7 +135,12 @@ export const defaultContent = {
         badge: 'Yapay Zeka & Bulut',
         image: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=80',
         path: '/yazilim',
-        points: ['Özel Web & Mobil Yazılım', 'AI ve Makine Öğrenimi', 'Bulut Veri Mimarisi', 'Siber Güvenlik & Entegrasyon']
+        points: ['Özel Web & Mobil Yazılım', 'AI ve Makine Öğrenimi', 'Bulut Veri Mimarisi', 'Siber Güvenlik & Entegrasyon'],
+        faqs: [
+          { q: 'Hangi yazılım dilleri ve teknolojileri tercih ediyorsunuz?', a: 'React, Node.js, Python, Go, Java, Flutter ve bulut teknolojilerinde (AWS/GCP/Azure) uzmanız.' },
+          { q: 'Var olan eski sistemlerimizle entegrasyon sağlayabilir misiniz?', a: 'Evet, Legacy sistemlerinize özel REST/SOAP API adaptörleri yazarak veri kaybı olmadan dönüşüm sağlıyoruz.' },
+          { q: 'Geliştirilen yazılımların bakım ve SLA desteği nasıl işliyor?', a: 'Canlıya alma sonrasında 7/24 SLA garantisi, düzenli güvenlik yamaları ve performans optimizasyonu sağlıyoruz.' }
+        ]
       },
       {
         id: 'promotion',
@@ -142,7 +152,12 @@ export const defaultContent = {
         badge: 'Kurumsal Kimlik',
         image: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=800&q=80',
         path: '/promosyon',
-        points: ['Özel Tasarım VIP Hediyeler', 'Teknolojik Promosyon Ürünleri', 'Eko-Dostu Sürdürülebilir Setler', 'Hızlı ve Kaliteli Üretim']
+        points: ['Özel Tasarım VIP Hediyeler', 'Teknolojik Promosyon Ürünleri', 'Eko-Dostu Sürdürülebilir Setler', 'Hızlı ve Kaliteli Üretim'],
+        faqs: [
+          { q: 'Minimum sipariş adediniz (MOQ) ne kadardır?', a: 'Ürün tipine bağlı olarak standart ürünlerde 50 adet, tamamen özel üretimlerde 100 adetten başlamaktadır.' },
+          { q: 'Çevre dostu sertifikalı ürünleriniz var mı?', a: 'Evet, FSC sertifikalı kağıt, bambu, dönüştürülmüş plastik ve organik pamuk ürün portföyümüz mevcuttur.' },
+          { q: 'Numune gönderimi yapıyor musunuz?', a: 'Evet, seri üretim öncesinde markanıza özel logolu dijital 3D model ve fiziksel numune onayı sunuyoruz.' }
+        ]
       },
       {
         id: 'advertising',
@@ -154,7 +169,11 @@ export const defaultContent = {
         badge: 'Medya & Reklam',
         image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=800&q=80',
         path: '/reklam',
-        points: ['Dijital LED Billboardlar', 'Şehir İçi Megalight Ağları', 'Bina & Cephe Giydirme', 'Hedef Kitle Odaklı Planlama']
+        points: ['Dijital LED Billboardlar', 'Şehir İçi Megalight Ağları', 'Bina & Cephe Giydirme', 'Hedef Kitle Odaklı Planlama'],
+        faqs: [
+          { q: 'Reklam kampanyalarımızın gösterim ve erişim raporlaması nasıl yapılıyor?', a: 'Dijital LED ekranlarımızda anlık izleyici yoğunluğu, görüntülenme sayısı ve kampanya süresi detaylı analitik raporlarla sunulur.' },
+          { q: 'Kreatif tasarım ve prodüksiyon desteği sağlıyor musunuz?', a: 'Evet, bünyemizdeki tasarım ekibi 3D animasyon, video kurgu ve açık hava formatlarına uygun kreatifler üretmektedir.' }
+        ]
       },
       {
         id: 'education',
@@ -166,7 +185,11 @@ export const defaultContent = {
         badge: 'Yetenek Gelişimi',
         image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80',
         path: '/egitim',
-        points: ['Kurumsal Liderlik Akademisi', 'Teknoloji & Veri Eğitimleri', 'Kariyer ve Yetenek Yönetimi', 'Sertifikalı Uzmanlık Kampları']
+        points: ['Kurumsal Liderlik Akademisi', 'Teknoloji & Veri Eğitimleri', 'Kariyer ve Yetenek Yönetimi', 'Sertifikalı Uzmanlık Kampları'],
+        faqs: [
+          { q: 'Eğitimler yüz yüze mi yoksa online mı gerçekleşiyor?', a: 'İsteğe bağlı olarak yüz yüze hibrit sınıf ortamında veya etkileşimli dijital platformumuz üzerinden sunulmaktadır.' },
+          { q: 'Eğitim sonunda katılımcılara sertifika veriliyor mu?', a: 'Evet, uluslararası geçerliliği olan kurumsal katılım ve başarı sertifikaları verilmektedir.' }
+        ]
       },
       {
         id: 'consulting',
@@ -178,7 +201,11 @@ export const defaultContent = {
         badge: 'Strateji',
         image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80',
         path: '/danismanlik',
-        points: ['Dijital Dönüşüm Stratejisi', 'Operasyonel Süreç İyileştirme', 'Mali ve Risk Danışmanlığı', 'Büyüme & Pazar Giriş Analizleri']
+        points: ['Dijital Dönüşüm Stratejisi', 'Operasyonel Süreç İyileştirme', 'Mali ve Risk Danışmanlığı', 'Büyüme & Pazar Giriş Analizleri'],
+        faqs: [
+          { q: 'Danışmanlık sürecinde ne kadar süre şirkette bulunuyorsunuz?', a: 'Projelerin ihtiyacına göre tam zamanlı yerinde refakat veya haftalık stratejik koordinasyon toplantıları düzenliyoruz.' },
+          { q: 'Yatırım ve maliyet dönüşüm (ROI) garantisi var mı?', a: 'Süreç analizinde belirlediğimiz KPI ve tasarruf hedeflerine ulaşılmasını şeffaf metriklerle takip ediyoruz.' }
+        ]
       }
     ]
   },
@@ -228,28 +255,28 @@ export const defaultContent = {
         name: 'Turkcell Altyapı İş Ortaklığı',
         category: 'Telekomünikasyon',
         logoUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=300&q=80',
-        link: '#'
+        link: 'https://sarfea.com.tr'
       },
       {
         id: '2',
         name: 'FinansBank SaaS Entegrasyonu',
         category: 'Yazılım & Finans',
         logoUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=300&q=80',
-        link: '#'
+        link: 'https://sarfea.com.tr'
       },
       {
         id: '3',
         name: 'Ege Yapı Açık Hava Kampanyası',
         category: 'Reklam & Medya',
         logoUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80',
-        link: '#'
+        link: 'https://sarfea.com.tr'
       },
       {
         id: '4',
         name: 'Borusan Strateji & Akademi',
         category: 'Eğitim & Danışmanlık',
         logoUrl: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=300&q=80',
-        link: '#'
+        link: 'https://sarfea.com.tr'
       }
     ]
   },

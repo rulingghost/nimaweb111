@@ -487,21 +487,26 @@ export const sectors = [
 
 export function getSectors(lang = 'tr') {
   return sectors.map(sec => {
-    if (lang === 'en') {
-      return {
-        ...sec,
-        name: sec.name_en || sec.name,
-        shortName: sec.shortName_en || sec.shortName,
-        badge: sec.badge_en || sec.badge,
-        description: sec.description_en || sec.description,
-        stats: sec.stats_en || sec.stats,
-        features: sec.features_en || sec.features,
-        process: sec.process_en || sec.process,
-        references: sec.references_en || sec.references,
-        faqs: sec.faqs_en || sec.faqs,
-      };
-    }
-    return sec;
+    const isEn = lang === 'en';
+    return {
+      ...sec,
+      name: (isEn ? sec.name_en : null) || sec.name,
+      shortName: (isEn ? sec.shortName_en : null) || sec.shortName,
+      badge: (isEn ? sec.badge_en : null) || sec.badge,
+      description: (isEn ? sec.description_en : null) || sec.description,
+      stats: (isEn ? sec.stats_en : null) || sec.stats,
+      features: (isEn ? sec.features_en : null) || sec.features,
+      process: (isEn ? sec.process_en : null) || sec.process,
+      partners: (sec.partners || []).map(p => ({
+        ...p,
+        link: p.link || 'https://sarfea.com.tr'
+      })),
+      references: ((isEn ? sec.references_en : null) || sec.references || []).map(r => ({
+        ...r,
+        link: r.link || 'https://sarfea.com.tr'
+      })),
+      faqs: (isEn ? sec.faqs_en : null) || sec.faqs || []
+    };
   });
 }
 

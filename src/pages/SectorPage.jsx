@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { 
   CheckCircle2, ArrowRight, Sparkles, MessageSquarePlus, 
   ChevronDown, Award, TrendingUp, Layers, HelpCircle, Handshake, Briefcase,
-  Radio, Cpu, Gift, GraduationCap, Megaphone
+  Radio, Cpu, Gift, GraduationCap, Megaphone, ExternalLink
 } from 'lucide-react';
 import PageHero from '../components/PageHero';
 import DirectContactChannels from '../components/DirectContactChannels';
@@ -58,11 +58,13 @@ function PartnerLogo({ logo, name, color, maxHeight = '55px', maxWidth = '180px'
 export default function SectorPage({ onOpenProposal }) {
   const { sectorId } = useParams();
   const [activeTab, setActiveTab] = useState('overview');
+  const [openFaqIndex, setOpenFaqIndex] = useState(0);
   const { language, t } = useLanguage();
   const { content } = useContent();
 
   useEffect(() => {
     setActiveTab('overview');
+    setOpenFaqIndex(0);
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }, [sectorId]);
   
@@ -116,9 +118,22 @@ export default function SectorPage({ onOpenProposal }) {
         ],
         partners: [],
         references: [],
-        faqs: [
+        faqs: dynSector.faqs || [
           { q: 'Hizmet süreci nasıl işlemektedir?', a: 'Talebiniz doğrultusunda uzman ekibimiz en geç 24 saat içinde sizinle iletişime geçer.' }
         ]
+      };
+    }
+  }
+
+  // 3. If dynamic content has custom FAQs or overrides, merge them
+  if (sector && content?.services?.items) {
+    const dynMatch = content.services.items.find(
+      s => s.path === `/${cleanId}` || s.path === `/${canonicalId}` || s.id === cleanId || s.id === canonicalId
+    );
+    if (dynMatch?.faqs && dynMatch.faqs.length > 0) {
+      sector = {
+        ...sector,
+        faqs: dynMatch.faqs
       };
     }
   }
@@ -163,6 +178,7 @@ export default function SectorPage({ onOpenProposal }) {
               { id: 'process', label: t('sector_tab_process') },
               { id: 'partners', label: t('sector_tab_partners') },
               { id: 'references', label: t('sector_tab_references') },
+              { id: 'faqs', label: 'SSS (FAQ)' },
               { id: 'contact', label: t('sector_tab_contact') }
             ].map(tab => (
               <button
@@ -257,7 +273,7 @@ export default function SectorPage({ onOpenProposal }) {
             </motion.div>
           )}
 
-          {/* Tab 3: Partners */}
+          {/* Tab 3: Partners (Clickable sarfea.com.tr Links) */}
           {activeTab === 'partners' && (
             <motion.div 
               initial={{ opacity: 0, y: 15 }}
@@ -277,46 +293,62 @@ export default function SectorPage({ onOpenProposal }) {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
                 {sector.partners && sector.partners.length > 0 ? (
                   sector.partners.map((partner) => (
-                    <div 
+                    <a 
                       key={partner.id} 
-                      style={{ 
-                        background: 'var(--bg-card)', 
-                        borderRadius: 'var(--radius-xl)', 
-                        border: '1px solid var(--border-light)', 
-                        padding: '2.5rem 2rem',
-                        textAlign: 'center',
-                        boxShadow: 'var(--shadow-bento)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '1.25rem'
+                      href={partner.link || 'https://sarfea.com.tr'} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      title={`${partner.name} - İncelemek için tıklayın`}
+                      style={{
+                        textDecoration: 'none',
+                        color: 'inherit',
+                        display: 'block'
                       }}
                     >
-                      <div style={{ height: '70px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <PartnerLogo 
-                          logo={partner.logo} 
-                          name={partner.name} 
-                          color={sector.color} 
-                          maxHeight="55px" 
-                          maxWidth="180px" 
-                        />
+                      <div 
+                        style={{ 
+                          background: 'var(--bg-card)', 
+                          borderRadius: 'var(--radius-xl)', 
+                          border: '1px solid var(--border-light)', 
+                          padding: '2.5rem 2rem',
+                          textAlign: 'center',
+                          boxShadow: 'var(--shadow-bento)',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '1.25rem',
+                          cursor: 'pointer',
+                          transition: 'all 0.25s ease'
+                        }}
+                      >
+                        <div style={{ height: '70px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <PartnerLogo 
+                            logo={partner.logo} 
+                            name={partner.name} 
+                            color={sector.color} 
+                            maxHeight="55px" 
+                            maxWidth="180px" 
+                          />
+                        </div>
+                        <div>
+                          <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                            {partner.name} <ExternalLink size={14} color="var(--text-muted)" />
+                          </h3>
+                          <span style={{ 
+                            fontSize: '0.78rem', 
+                            fontWeight: '700', 
+                            color: sector.color, 
+                            background: sector.lightColor, 
+                            padding: '0.25rem 0.75rem', 
+                            borderRadius: '100px',
+                            display: 'inline-block' 
+                          }}>
+                            {t('sector_partner_tag')}
+                          </span>
+                        </div>
                       </div>
-                      <div>
-                        <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '0.35rem' }}>{partner.name}</h3>
-                        <span style={{ 
-                          fontSize: '0.78rem', 
-                          fontWeight: '700', 
-                          color: sector.color, 
-                          background: sector.lightColor, 
-                          padding: '0.25rem 0.75rem', 
-                          borderRadius: '100px',
-                          display: 'inline-block' 
-                        }}>
-                          {t('sector_partner_tag')}
-                        </span>
-                      </div>
-                    </div>
+                    </a>
                   ))
                 ) : (
                   <p style={{ textAlign: 'center', color: 'var(--text-muted)', gridColumn: '1 / -1' }}>Bu sektör için çözüm ortakları güncellenmektedir.</p>
@@ -325,7 +357,7 @@ export default function SectorPage({ onOpenProposal }) {
             </motion.div>
           )}
 
-          {/* Tab 4: References & Completed Projects */}
+          {/* Tab 4: References & Completed Projects (Clickable sarfea.com.tr Links) */}
           {activeTab === 'references' && (
             <motion.div 
               initial={{ opacity: 0, y: 15 }}
@@ -342,31 +374,117 @@ export default function SectorPage({ onOpenProposal }) {
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
                 {sector.references.map((ref) => (
-                  <div key={ref.id} style={{ background: 'var(--bg-card)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border-light)', overflow: 'hidden', boxShadow: 'var(--shadow-bento)' }}>
-                    <div style={{ position: 'relative', height: '220px', overflow: 'hidden' }}>
-                      <img src={sector.heroImage} alt={ref.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      {ref.metric && (
-                        <span style={{ position: 'absolute', top: '1rem', right: '1rem', background: sector.color, color: '#ffffff', padding: '0.25rem 0.75rem', borderRadius: '100px', fontSize: '0.75rem', fontWeight: '700' }}>
-                          {ref.metric}
-                        </span>
-                      )}
-                      {ref.status && (
-                        <span style={{ position: 'absolute', bottom: '1rem', left: '1rem', background: 'rgba(9,9,11,0.85)', backdropFilter: 'blur(8px)', color: '#ffffff', padding: '0.25rem 0.75rem', borderRadius: '100px', fontSize: '0.75rem', fontWeight: '600' }}>
-                          ✓ {ref.status}
-                        </span>
-                      )}
+                  <a 
+                    key={ref.id} 
+                    href={ref.link || 'https://sarfea.com.tr'} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    title={`${ref.name} - Detayları İnceleyin`}
+                    style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
+                  >
+                    <div style={{ background: 'var(--bg-card)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border-light)', overflow: 'hidden', boxShadow: 'var(--shadow-bento)', cursor: 'pointer', transition: 'all 0.25s ease' }}>
+                      <div style={{ position: 'relative', height: '220px', overflow: 'hidden' }}>
+                        <img src={sector.heroImage} alt={ref.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        {ref.metric && (
+                          <span style={{ position: 'absolute', top: '1rem', right: '1rem', background: sector.color, color: '#ffffff', padding: '0.25rem 0.75rem', borderRadius: '100px', fontSize: '0.75rem', fontWeight: '700' }}>
+                            {ref.metric}
+                          </span>
+                        )}
+                        {ref.status && (
+                          <span style={{ position: 'absolute', bottom: '1rem', left: '1rem', background: 'rgba(9,9,11,0.85)', backdropFilter: 'blur(8px)', color: '#ffffff', padding: '0.25rem 0.75rem', borderRadius: '100px', fontSize: '0.75rem', fontWeight: '600' }}>
+                            ✓ {ref.status}
+                          </span>
+                        )}
+                      </div>
+                      <div style={{ padding: '2rem' }}>
+                        <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <span>{ref.name}</span>
+                          <ExternalLink size={16} color="var(--text-muted)" />
+                        </h3>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6' }}>{ref.description}</p>
+                      </div>
                     </div>
-                    <div style={{ padding: '2rem' }}>
-                      <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '0.5rem' }}>{ref.name}</h3>
-                      <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6' }}>{ref.description}</p>
-                    </div>
-                  </div>
+                  </a>
                 ))}
               </div>
             </motion.div>
           )}
 
-          {/* Tab 5: Direct Contact */}
+          {/* Tab 5: SSS / FAQ Accordion */}
+          {activeTab === 'faqs' && sector.faqs && (
+            <motion.div 
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              style={{ maxWidth: '850px', margin: '0 auto' }}
+            >
+              <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+                <div className="badge-pill" style={{ background: sector.lightColor, color: sector.color, display: 'inline-flex', margin: '0 auto 1rem' }}>
+                  <HelpCircle size={16} /> SSS / FAQ
+                </div>
+                <h2 className="display-title" style={{ fontSize: '2.5rem' }}>{sector.shortName} Sıkça Sorulan Sorular</h2>
+                <p className="display-subtitle" style={{ margin: '0 auto' }}>
+                  Hizmetimiz hakkında en çok merak edilen konular ve uzman yanıtları
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {sector.faqs.map((faq, fIdx) => {
+                  const isOpen = openFaqIndex === fIdx;
+                  return (
+                    <div 
+                      key={fIdx}
+                      style={{
+                        background: 'var(--bg-card)',
+                        borderRadius: 'var(--radius-lg)',
+                        border: '1px solid var(--border-light)',
+                        overflow: 'hidden',
+                        boxShadow: 'var(--shadow-bento)'
+                      }}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setOpenFaqIndex(isOpen ? null : fIdx)}
+                        style={{
+                          width: '100%',
+                          padding: '1.5rem',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: '1rem',
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          textAlign: 'left',
+                          color: 'var(--text-main)',
+                          fontWeight: '700',
+                          fontSize: '1.05rem'
+                        }}
+                      >
+                        <span>{faq.q || faq.question}</span>
+                        <ChevronDown 
+                          size={20} 
+                          style={{ 
+                            color: sector.color, 
+                            transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                            transition: 'transform 0.25s ease',
+                            flexShrink: 0
+                          }} 
+                        />
+                      </button>
+                      {isOpen && (
+                        <div style={{ padding: '0 1.5rem 1.5rem 1.5rem', color: 'var(--text-muted)', lineHeight: '1.7', fontSize: '0.96rem', borderTop: '1px solid var(--border-light)', paddingTop: '1rem' }}>
+                          {faq.a || faq.answer}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Tab 6: Direct Contact */}
           {activeTab === 'contact' && (
             <motion.div 
               initial={{ opacity: 0, y: 15 }}
@@ -385,7 +503,7 @@ export default function SectorPage({ onOpenProposal }) {
         </div>
       </section>
 
-      {/* Sector Solution Partners Section */}
+      {/* Sector Solution Partners Section (Always visible with clickable links) */}
       {sector.partners && sector.partners.length > 0 && (
         <section className="section bg-main" style={{ padding: '5rem 0 3rem' }}>
           <div className="container">
@@ -403,43 +521,55 @@ export default function SectorPage({ onOpenProposal }) {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.75rem' }}>
               {sector.partners.map((partner) => (
-                <div 
-                  key={partner.id}
-                  style={{
-                    background: 'var(--bg-secondary)',
-                    border: '1px solid var(--border-light)',
-                    borderRadius: 'var(--radius-xl)',
-                    padding: '2rem 1.5rem',
-                    textAlign: 'center',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '1rem',
-                    boxShadow: 'var(--shadow-bento)'
-                  }}
+                <a 
+                  key={partner.id} 
+                  href={partner.link || 'https://sarfea.com.tr'}
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  title={`${partner.name} - sarfea.com.tr`}
+                  style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
                 >
-                  <div style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <PartnerLogo 
-                      logo={partner.logo} 
-                      name={partner.name} 
-                      color={sector.color} 
-                      maxHeight="48px" 
-                      maxWidth="160px" 
-                    />
+                  <div 
+                    style={{
+                      background: 'var(--bg-secondary)',
+                      border: '1px solid var(--border-light)',
+                      borderRadius: 'var(--radius-xl)',
+                      padding: '2rem 1.5rem',
+                      textAlign: 'center',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '1rem',
+                      boxShadow: 'var(--shadow-bento)',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <div style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <PartnerLogo 
+                        logo={partner.logo} 
+                        name={partner.name} 
+                        color={sector.color} 
+                        maxHeight="48px" 
+                        maxWidth="160px" 
+                      />
+                    </div>
+                    <div>
+                      <h4 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}>
+                        {partner.name} <ExternalLink size={14} color="var(--text-muted)" />
+                      </h4>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: '600' }}>{t('sector_partner_tag')}</span>
+                    </div>
                   </div>
-                  <div>
-                    <h4 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '0.25rem' }}>{partner.name}</h4>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: '600' }}>{t('sector_partner_tag')}</span>
-                  </div>
-                </div>
+                </a>
               ))}
             </div>
           </div>
         </section>
       )}
 
-      {/* Sector References Showcase Section */}
+      {/* Sector References Showcase Section (Always visible with clickable links) */}
       {sector.references && sector.references.length > 0 && (
         <section className="section bg-secondary" style={{ padding: '5rem 0 4rem' }}>
           <div className="container">
@@ -457,28 +587,113 @@ export default function SectorPage({ onOpenProposal }) {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
               {sector.references.map((ref) => (
-                <div key={ref.id} style={{ background: 'var(--bg-card)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border-light)', overflow: 'hidden', boxShadow: 'var(--shadow-bento)' }}>
-                  <div style={{ position: 'relative', height: '200px', overflow: 'hidden' }}>
-                    <img src={sector.heroImage} alt={ref.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    {ref.metric && (
-                      <span style={{ position: 'absolute', top: '1rem', right: '1rem', background: sector.color, color: '#ffffff', padding: '0.25rem 0.75rem', borderRadius: '100px', fontSize: '0.75rem', fontWeight: '700' }}>
-                        {ref.metric}
-                      </span>
-                    )}
+                <a 
+                  key={ref.id} 
+                  href={ref.link || 'https://sarfea.com.tr'} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  title={`${ref.name} - sarfea.com.tr`}
+                  style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
+                >
+                  <div style={{ background: 'var(--bg-card)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border-light)', overflow: 'hidden', boxShadow: 'var(--shadow-bento)', cursor: 'pointer', transition: 'all 0.25s ease' }}>
+                    <div style={{ position: 'relative', height: '200px', overflow: 'hidden' }}>
+                      <img src={sector.heroImage} alt={ref.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      {ref.metric && (
+                        <span style={{ position: 'absolute', top: '1rem', right: '1rem', background: sector.color, color: '#ffffff', padding: '0.25rem 0.75rem', borderRadius: '100px', fontSize: '0.75rem', fontWeight: '700' }}>
+                          {ref.metric}
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ padding: '1.75rem' }}>
+                      <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span>{ref.name}</span>
+                        <ExternalLink size={16} color="var(--text-muted)" />
+                      </h3>
+                      <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', lineHeight: '1.6' }}>{ref.description}</p>
+                    </div>
                   </div>
-                  <div style={{ padding: '1.75rem' }}>
-                    <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '0.5rem' }}>{ref.name}</h3>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', lineHeight: '1.6' }}>{ref.description}</p>
-                  </div>
-                </div>
+                </a>
               ))}
             </div>
           </div>
         </section>
       )}
 
+      {/* Sector Dedicated FAQ Section */}
+      {sector.faqs && sector.faqs.length > 0 && (
+        <section className="section bg-main" style={{ padding: '5rem 0' }}>
+          <div className="container" style={{ maxWidth: '850px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+              <div className="badge-pill" style={{ background: sector.lightColor, color: sector.color, display: 'inline-flex', margin: '0 auto 0.75rem' }}>
+                <HelpCircle size={14} /> SSS / FAQ
+              </div>
+              <h2 className="display-title" style={{ fontSize: 'clamp(2rem, 3.5vw, 2.75rem)' }}>
+                {sector.shortName} Sıkça Sorulan Sorular
+              </h2>
+              <p className="display-subtitle" style={{ margin: '0 auto' }}>
+                {sector.name} hizmetimiz hakkında en çok merak edilen konular ve yanıtları
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {sector.faqs.map((faq, fIdx) => {
+                const isOpen = openFaqIndex === fIdx;
+                return (
+                  <div 
+                    key={fIdx}
+                    style={{
+                      background: 'var(--bg-card)',
+                      borderRadius: 'var(--radius-lg)',
+                      border: '1px solid var(--border-light)',
+                      overflow: 'hidden',
+                      boxShadow: 'var(--shadow-bento)'
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setOpenFaqIndex(isOpen ? null : fIdx)}
+                      style={{
+                        width: '100%',
+                        padding: '1.5rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '1rem',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        color: 'var(--text-main)',
+                        fontWeight: '700',
+                        fontSize: '1.05rem'
+                      }}
+                    >
+                      <span>{faq.q || faq.question}</span>
+                      <ChevronDown 
+                        size={20} 
+                        style={{ 
+                          color: sector.color, 
+                          transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                          transition: 'transform 0.25s ease',
+                          flexShrink: 0
+                        }} 
+                      />
+                    </button>
+                    {isOpen && (
+                      <div style={{ padding: '0 1.5rem 1.5rem 1.5rem', color: 'var(--text-muted)', lineHeight: '1.7', fontSize: '0.96rem', borderTop: '1px solid var(--border-light)', paddingTop: '1rem' }}>
+                        {faq.a || faq.answer}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Sector Direct Contact Section */}
-      <section className="section bg-main" style={{ padding: '5rem 0 3rem' }}>
+      <section className="section bg-secondary" style={{ padding: '5rem 0 3rem' }}>
         <div className="container" style={{ display: 'flex', justifyContent: 'center' }}>
           <div style={{ maxWidth: '580px', width: '100%' }}>
             <DirectContactChannels 
@@ -492,7 +707,7 @@ export default function SectorPage({ onOpenProposal }) {
       </section>
 
       {/* Bottom CTA Card */}
-      <section className="section bg-secondary" style={{ paddingTop: '3rem' }}>
+      <section className="section bg-main" style={{ paddingTop: '3rem' }}>
         <div className="container" style={{ textAlign: 'center', maxWidth: '800px' }}>
           <h2 className="display-title" style={{ fontSize: 'clamp(2rem, 4vw, 3.25rem)' }}>{sector.shortName} {t('sector_cta_title')}</h2>
           <p className="display-subtitle" style={{ margin: '0 auto 2.5rem' }}>

@@ -1635,140 +1635,255 @@ function AdminMain() {
                         />
                       </div>
 
-                      {/* Bullet points */}
-                      <div className="admin-nested-container">
-                        <div className="admin-nested-header">
-                          <h4>Hizmet Maddeleri (Bullet Points)</h4>
-                          <button 
-                            type="button" 
-                            className="admin-btn admin-btn-outline admin-btn-sm"
-                            onClick={() => {
-                              const updated = [...(content.services?.items || [])];
-                              const points = [...(updated[sIdx].points || []), 'Yeni Hizmet Maddesi'];
-                              updated[sIdx] = { ...updated[sIdx], points };
-                              setField('services', 'items', updated);
-                            }}
-                          >
-                            <Plus size={12} /> Madde Ekle
-                          </button>
-                        </div>
-                        {(sec.points || []).map((pt, ptIdx) => (
-                          <div key={ptIdx} style={{ display: 'flex', gap: '8px', marginBottom: '6px' }}>
-                            <input 
-                              type="text" 
-                              className="admin-input" 
-                              value={pt} 
-                              onChange={(e) => {
-                                const updated = [...(content.services?.items || [])];
-                                const points = [...(updated[sIdx].points || [])];
-                                points[ptIdx] = e.target.value;
-                                updated[sIdx] = { ...updated[sIdx], points };
-                                setField('services', 'items', updated);
-                              }}
-                            />
+                        {/* Bullet points */}
+                        <div className="admin-nested-container">
+                          <div className="admin-nested-header">
+                            <h4>Hizmet Maddeleri (Bullet Points)</h4>
                             <button 
                               type="button" 
-                              className="admin-btn-icon delete"
+                              className="admin-btn admin-btn-outline admin-btn-sm"
                               onClick={() => {
                                 const updated = [...(content.services?.items || [])];
-                                const points = (updated[sIdx].points || []).filter((_, idx) => idx !== ptIdx);
+                                const points = [...(updated[sIdx].points || []), 'Yeni Hizmet Maddesi'];
                                 updated[sIdx] = { ...updated[sIdx], points };
                                 setField('services', 'items', updated);
                               }}
                             >
-                              <Trash2 size={13} />
+                              <Plus size={12} /> Madde Ekle
                             </button>
                           </div>
-                        ))}
+                          {(sec.points || []).map((pt, ptIdx) => (
+                            <div key={ptIdx} style={{ display: 'flex', gap: '8px', marginBottom: '6px' }}>
+                              <input 
+                                type="text" 
+                                className="admin-input" 
+                                value={pt} 
+                                onChange={(e) => {
+                                  const updated = [...(content.services?.items || [])];
+                                  const points = [...(updated[sIdx].points || [])];
+                                  points[ptIdx] = e.target.value;
+                                  updated[sIdx] = { ...updated[sIdx], points };
+                                  setField('services', 'items', updated);
+                                }}
+                              />
+                              <button 
+                                type="button" 
+                                className="admin-btn-icon delete"
+                                onClick={() => {
+                                  const updated = [...(content.services?.items || [])];
+                                  const points = (updated[sIdx].points || []).filter((_, idx) => idx !== ptIdx);
+                                  updated[sIdx] = { ...updated[sIdx], points };
+                                  setField('services', 'items', updated);
+                                }}
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Sıkça Sorulan Sorular (SSS / FAQ) Accordion Editor */}
+                        <div className="admin-nested-container" style={{ marginTop: '16px' }}>
+                          <div className="admin-nested-header">
+                            <h4 style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <HelpCircle size={15} color="#38bdf8" />
+                              Sıkça Sorulan Sorular (SSS / FAQ) — {sec.shortName || sec.title}
+                            </h4>
+                            <button 
+                              type="button" 
+                              className="admin-btn admin-btn-outline admin-btn-sm"
+                              onClick={() => {
+                                const updated = [...(content.services?.items || [])];
+                                const faqs = [...(updated[sIdx].faqs || []), { q: 'Yeni Sıkça Sorulan Soru?', a: 'Detaylı yanıt metni...' }];
+                                updated[sIdx] = { ...updated[sIdx], faqs };
+                                setField('services', 'items', updated);
+                              }}
+                            >
+                              <Plus size={12} /> SSS Ekle
+                            </button>
+                          </div>
+
+                          {(!sec.faqs || sec.faqs.length === 0) ? (
+                            <div style={{ fontSize: '0.8rem', color: 'var(--admin-text-dim)' }}>
+                              Bu sektöre özel SSS bulunmuyor. Eklemek için "SSS Ekle" butonuna tıklayın.
+                            </div>
+                          ) : (
+                            sec.faqs.map((faq, fIdx) => (
+                              <div key={fIdx} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '12px', marginBottom: '10px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                  <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#38bdf8' }}>Soru #{fIdx + 1}</span>
+                                  <button 
+                                    type="button" 
+                                    className="admin-btn-icon delete"
+                                    onClick={() => {
+                                      const updated = [...(content.services?.items || [])];
+                                      const faqs = (updated[sIdx].faqs || []).filter((_, idx) => idx !== fIdx);
+                                      updated[sIdx] = { ...updated[sIdx], faqs };
+                                      setField('services', 'items', updated);
+                                    }}
+                                  >
+                                    <Trash2 size={13} />
+                                  </button>
+                                </div>
+                                <div className="admin-form-group">
+                                  <label className="admin-form-label">Soru</label>
+                                  <input 
+                                    type="text" 
+                                    className="admin-input" 
+                                    placeholder="Örn: Proje teslim süresi ne kadardır?"
+                                    value={faq.q || faq.question || ''} 
+                                    onChange={(e) => {
+                                      const updated = [...(content.services?.items || [])];
+                                      const faqs = [...(updated[sIdx].faqs || [])];
+                                      faqs[fIdx] = { ...faqs[fIdx], q: e.target.value };
+                                      updated[sIdx] = { ...updated[sIdx], faqs };
+                                      setField('services', 'items', updated);
+                                    }}
+                                  />
+                                </div>
+                                <div className="admin-form-group">
+                                  <label className="admin-form-label">Cevap</label>
+                                  <textarea 
+                                    className="admin-textarea" 
+                                    style={{ minHeight: '60px' }}
+                                    placeholder="Detaylı yanıt metni..."
+                                    value={faq.a || faq.answer || ''} 
+                                    onChange={(e) => {
+                                      const updated = [...(content.services?.items || [])];
+                                      const faqs = [...(updated[sIdx].faqs || [])];
+                                      faqs[fIdx] = { ...faqs[fIdx], a: e.target.value };
+                                      updated[sIdx] = { ...updated[sIdx], faqs };
+                                      setField('services', 'items', updated);
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+            </section>
+          )}
+
+          {/* 5. TAB: Referanslar & Yorumlar */}
+          {activeTab === 'testimonials' && (
+            <section className="admin-section-card">
+              {/* References */}
+              <div className="admin-section-header">
+                <div>
+                  <h2><Award size={20} /> Referanslar ve Güvenen Markalar</h2>
+                  <p>Referans logoları, şirket adları ve tıklandığında gidilecek bağımsız web linklerini (URL) yönetin.</p>
+                </div>
+                <button 
+                  type="button" 
+                  className="admin-btn admin-btn-outline admin-btn-sm"
+                  onClick={() => {
+                    const newRef = {
+                      id: `ref_${Date.now()}`,
+                      name: 'Yeni Referans Şirketi',
+                      category: 'Sektör',
+                      logoUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=300&q=80',
+                      link: 'https://sarfea.com.tr'
+                    };
+                    setField('references', 'items', [...(content.references?.items || []), newRef]);
+                  }}
+                >
+                  <Plus size={13} /> Referans Ekle
+                </button>
+              </div>
+
+              <div className="admin-grid-2">
+                {(content.references?.items || []).map((refItem, rIdx) => (
+                  <div key={refItem.id || rIdx} className="admin-item-card">
+                    <div className="admin-item-card-header">
+                      <span className="admin-item-card-title">{refItem.name || 'Referans'}</span>
+                      <button 
+                        type="button" 
+                        className="admin-btn-icon delete"
+                        onClick={() => {
+                          const updated = (content.references?.items || []).filter((_, idx) => idx !== rIdx);
+                          setField('references', 'items', updated);
+                        }}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                    <div className="admin-form-group">
+                      <label className="admin-form-label">Kurum / Marka Adı</label>
+                      <input 
+                        type="text" 
+                        className="admin-input" 
+                        value={refItem.name || ''} 
+                        onChange={(e) => {
+                          const updated = [...(content.references?.items || [])];
+                          updated[rIdx] = { ...updated[rIdx], name: e.target.value };
+                          setField('references', 'items', updated);
+                        }}
+                      />
+                    </div>
+                    <div className="admin-form-group">
+                      <label className="admin-form-label">Kategori / Sektör</label>
+                      <input 
+                        type="text" 
+                        className="admin-input" 
+                        value={refItem.category || ''} 
+                        onChange={(e) => {
+                          const updated = [...(content.references?.items || [])];
+                          updated[rIdx] = { ...updated[rIdx], category: e.target.value };
+                          setField('references', 'items', updated);
+                        }}
+                      />
+                    </div>
+
+                    {/* Independent Target URL Field */}
+                    <div className="admin-form-group">
+                      <label className="admin-form-label">
+                        <span>Yönlendirme Linki (URL)</span>
+                        <span className="optional" style={{ color: '#10b981' }}>Tıklanınca Açılacak Link</span>
+                      </label>
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        <input 
+                          type="text" 
+                          className="admin-input" 
+                          placeholder="https://sarfea.com.tr"
+                          value={refItem.link || 'https://sarfea.com.tr'} 
+                          onChange={(e) => {
+                            const updated = [...(content.references?.items || [])];
+                            updated[rIdx] = { ...updated[rIdx], link: e.target.value };
+                            setField('references', 'items', updated);
+                          }}
+                        />
+                        <button 
+                          type="button" 
+                          className="admin-btn admin-btn-outline admin-btn-sm"
+                          style={{ whiteSpace: 'nowrap', fontSize: '0.75rem' }}
+                          onClick={() => {
+                            const updated = [...(content.references?.items || [])];
+                            updated[rIdx] = { ...updated[rIdx], link: 'https://sarfea.com.tr' };
+                            setField('references', 'items', updated);
+                          }}
+                          title="sarfea.com.tr olarak ayarla"
+                        >
+                          sarfea.com.tr
+                        </button>
                       </div>
                     </div>
-                  )}
-                </div>
-              ))}
-          </section>
-        )}
 
-        {/* 5. TAB: Referanslar & Yorumlar */}
-        {activeTab === 'testimonials' && (
-          <section className="admin-section-card">
-            {/* References */}
-            <div className="admin-section-header">
-              <div>
-                <h2><Award size={20} /> Referanslar ve Güvenen Markalar</h2>
-                <p>Referans marka logoları, şirket adları ve kategori bilgilerini yönetin.</p>
+                    <ImageField 
+                      label="Referans Logosu"
+                      value={refItem.logoUrl || ''}
+                      onChange={(url) => {
+                        const updated = [...(content.references?.items || [])];
+                        updated[rIdx] = { ...updated[rIdx], logoUrl: url };
+                        setField('references', 'items', updated);
+                      }}
+                    />
+                  </div>
+                ))}
               </div>
-              <button 
-                type="button" 
-                className="admin-btn admin-btn-outline admin-btn-sm"
-                onClick={() => {
-                  const newRef = {
-                    id: `ref_${Date.now()}`,
-                    name: 'Yeni Referans Şirketi',
-                    category: 'Sektör',
-                    logoUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=300&q=80',
-                    link: '#'
-                  };
-                  setField('references', 'items', [...(content.references?.items || []), newRef]);
-                }}
-              >
-                <Plus size={13} /> Referans Ekle
-              </button>
-            </div>
-
-            <div className="admin-grid-2">
-              {(content.references?.items || []).map((refItem, rIdx) => (
-                <div key={refItem.id || rIdx} className="admin-item-card">
-                  <div className="admin-item-card-header">
-                    <span className="admin-item-card-title">{refItem.name || 'Referans'}</span>
-                    <button 
-                      type="button" 
-                      className="admin-btn-icon delete"
-                      onClick={() => {
-                        const updated = (content.references?.items || []).filter((_, idx) => idx !== rIdx);
-                        setField('references', 'items', updated);
-                      }}
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                  <div className="admin-form-group">
-                    <label className="admin-form-label">Kurum / Marka Adı</label>
-                    <input 
-                      type="text" 
-                      className="admin-input" 
-                      value={refItem.name || ''} 
-                      onChange={(e) => {
-                        const updated = [...(content.references?.items || [])];
-                        updated[rIdx] = { ...updated[rIdx], name: e.target.value };
-                        setField('references', 'items', updated);
-                      }}
-                    />
-                  </div>
-                  <div className="admin-form-group">
-                    <label className="admin-form-label">Kategori / Sektör</label>
-                    <input 
-                      type="text" 
-                      className="admin-input" 
-                      value={refItem.category || ''} 
-                      onChange={(e) => {
-                        const updated = [...(content.references?.items || [])];
-                        updated[rIdx] = { ...updated[rIdx], category: e.target.value };
-                        setField('references', 'items', updated);
-                      }}
-                    />
-                  </div>
-                  <ImageField 
-                    label="Referans Logosu"
-                    value={refItem.logoUrl || ''}
-                    onChange={(url) => {
-                      const updated = [...(content.references?.items || [])];
-                      updated[rIdx] = { ...updated[rIdx], logoUrl: url };
-                      setField('references', 'items', updated);
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
 
             {/* Testimonials */}
             <div className="admin-section-header" style={{ marginTop: '36px' }}>
