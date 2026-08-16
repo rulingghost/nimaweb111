@@ -205,6 +205,14 @@ export const defaultContent = {
       { id: '1', title: 'Yüksek Teknoloji & AI', desc: 'En son nesil yapay zeka ve bulut çözümleriyle iş akışlarınızı geleceğe taşıyoruz.', icon: 'Cpu' },
       { id: '2', title: 'Küresel Standartlar', desc: 'Uluslararası kalite, güvenlik ve sürdürülebilirlik ilkelerine tam bağlılık.', icon: 'Globe' },
       { id: '3', title: 'Güvenilir Ortaklık', desc: 'Şeffaf iş süreçleri ve uzun vadeli değer odaklı stratejik iş ortaklıkları.', icon: 'ShieldCheck' }
+    ],
+    standardsTitle: 'Küresel Standartlarda Yönetim ve Güvenilirlik',
+    standardsSubtitle: 'Uluslararası kalite, çevre ve bilgi güvenliği standartlarımızla sektörde çıtayı belirliyoruz.',
+    standardsList: [
+      'ISO 9001: Kalite Yönetim Sistemi',
+      'ISO 27001: Bilgi Güvenliği Standardı',
+      'ISO 45001: İş Sağlığı ve Güvenliği',
+      'ISO 14001: Çevre Yönetim Sistemi'
     ]
   },
 

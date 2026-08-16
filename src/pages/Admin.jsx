@@ -1511,6 +1511,63 @@ function AdminMain() {
                 </div>
               </div>
             </div>
+
+            {/* Global Standards Banner Editor */}
+            <div className="admin-section-header" style={{ marginTop: '36px' }}>
+              <div>
+                <h3 style={{ fontSize: '1rem', color: '#fff', margin: 0 }}>Küresel Standartlar ve Kalite Belgeleri</h3>
+                <p>Hakkımızda sayfasının altındaki standartlar kutusunu düzenleyin</p>
+              </div>
+            </div>
+
+            <div className="admin-grid-2">
+              <div className="admin-form-group">
+                <label className="admin-form-label">Başlık</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.about?.standardsTitle || 'Küresel Standartlarda Yönetim ve Güvenilirlik'} 
+                  onChange={(e) => setField('about', 'standardsTitle', e.target.value)}
+                />
+              </div>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Alt Açıklama</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.about?.standardsSubtitle || 'Uluslararası kalite, çevre ve bilgi güvenliği standartlarımızla sektörde çıtayı belirliyoruz.'} 
+                  onChange={(e) => setField('about', 'standardsSubtitle', e.target.value)}
+                />
+              </div>
+              <div className="admin-form-group full-width">
+                <label className="admin-form-label">4 Standart Maddesi</label>
+                <div className="admin-grid-2">
+                  {(content.about?.standardsList || [
+                    'ISO 9001: Kalite Yönetim Sistemi',
+                    'ISO 27001: Bilgi Güvenliği Standardı',
+                    'ISO 45001: İş Sağlığı ve Güvenliği',
+                    'ISO 14001: Çevre Yönetim Sistemi'
+                  ]).map((std, sIdx) => (
+                    <input 
+                      key={sIdx}
+                      type="text" 
+                      className="admin-input" 
+                      value={std} 
+                      onChange={(e) => {
+                        const updated = [...(content.about?.standardsList || [
+                          'ISO 9001: Kalite Yönetim Sistemi',
+                          'ISO 27001: Bilgi Güvenliği Standardı',
+                          'ISO 45001: İş Sağlığı ve Güvenliği',
+                          'ISO 14001: Çevre Yönetim Sistemi'
+                        ])];
+                        updated[sIdx] = e.target.value;
+                        setField('about', 'standardsList', updated);
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
           </section>
         )}
 
@@ -1994,6 +2051,226 @@ function AdminMain() {
                                     ])];
                                     process[prIdx] = { ...process[prIdx], desc: e.target.value };
                                     updated[sIdx] = { ...updated[sIdx], process };
+                                    setField('services', 'items', updated);
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Sektör Çözüm Ortakları (Partners) */}
+                        <div className="admin-nested-container" style={{ marginTop: '16px' }}>
+                          <div className="admin-nested-header">
+                            <h4 style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <Handshake size={15} color="#38bdf8" />
+                              Çözüm Ortakları & Markalar — {sec.shortName || sec.title}
+                            </h4>
+                            <button 
+                              type="button" 
+                              className="admin-btn admin-btn-outline admin-btn-sm"
+                              onClick={() => {
+                                const updated = [...(content.services?.items || [])];
+                                const partners = [...(updated[sIdx].partners || []), {
+                                  id: `part_${Date.now()}`,
+                                  name: 'Yeni Çözüm Ortağı',
+                                  logo: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=300&q=80',
+                                  link: 'https://sarfea.com.tr'
+                                }];
+                                updated[sIdx] = { ...updated[sIdx], partners };
+                                setField('services', 'items', updated);
+                              }}
+                            >
+                              <Plus size={12} /> Ortak Ekle
+                            </button>
+                          </div>
+
+                          {(sec.partners || []).map((part, partIdx) => (
+                            <div key={part.id || partIdx} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '12px', marginBottom: '8px' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                                <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#38bdf8' }}>Ortak #{partIdx + 1}</span>
+                                <button 
+                                  type="button" 
+                                  className="admin-btn-icon delete"
+                                  onClick={() => {
+                                    const updated = [...(content.services?.items || [])];
+                                    const partners = (updated[sIdx].partners || []).filter((_, idx) => idx !== partIdx);
+                                    updated[sIdx] = { ...updated[sIdx], partners };
+                                    setField('services', 'items', updated);
+                                  }}
+                                >
+                                  <Trash2 size={13} />
+                                </button>
+                              </div>
+                              <div className="admin-grid-2">
+                                <div className="admin-form-group">
+                                  <label className="admin-form-label">Kurum / Marka Adı</label>
+                                  <input 
+                                    type="text" 
+                                    className="admin-input" 
+                                    value={part.name || ''} 
+                                    onChange={(e) => {
+                                      const updated = [...(content.services?.items || [])];
+                                      const partners = [...(updated[sIdx].partners || [])];
+                                      partners[partIdx] = { ...partners[partIdx], name: e.target.value };
+                                      updated[sIdx] = { ...updated[sIdx], partners };
+                                      setField('services', 'items', updated);
+                                    }}
+                                  />
+                                </div>
+                                <div className="admin-form-group">
+                                  <label className="admin-form-label">Yönlendirme Linki (URL)</label>
+                                  <input 
+                                    type="text" 
+                                    className="admin-input" 
+                                    placeholder="https://sarfea.com.tr"
+                                    value={part.link || 'https://sarfea.com.tr'} 
+                                    onChange={(e) => {
+                                      const updated = [...(content.services?.items || [])];
+                                      const partners = [...(updated[sIdx].partners || [])];
+                                      partners[partIdx] = { ...partners[partIdx], link: e.target.value };
+                                      updated[sIdx] = { ...updated[sIdx], partners };
+                                      setField('services', 'items', updated);
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                              <ImageField 
+                                label="Logo Görseli"
+                                value={part.logo || ''}
+                                onChange={(url) => {
+                                  const updated = [...(content.services?.items || [])];
+                                  const partners = [...(updated[sIdx].partners || [])];
+                                  partners[partIdx] = { ...partners[partIdx], logo: url };
+                                  updated[sIdx] = { ...updated[sIdx], partners };
+                                  setField('services', 'items', updated);
+                                }}
+                              />
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Sektör Özel Referansları (Sector References) */}
+                        <div className="admin-nested-container" style={{ marginTop: '16px' }}>
+                          <div className="admin-nested-header">
+                            <h4 style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <Briefcase size={15} color="#ec4899" />
+                              Sektör Özel Başarı Hikayeleri & Referanslar — {sec.shortName || sec.title}
+                            </h4>
+                            <button 
+                              type="button" 
+                              className="admin-btn admin-btn-outline admin-btn-sm"
+                              onClick={() => {
+                                const updated = [...(content.services?.items || [])];
+                                const references = [...(updated[sIdx].references || []), {
+                                  id: `sref_${Date.now()}`,
+                                  name: 'Yeni Sektörel Proje',
+                                  description: 'Proje detayları ve başarı sonuçları...',
+                                  metric: '%100 Başarı',
+                                  status: 'Tamamlandı',
+                                  link: 'https://sarfea.com.tr'
+                                }];
+                                updated[sIdx] = { ...updated[sIdx], references };
+                                setField('services', 'items', updated);
+                              }}
+                            >
+                              <Plus size={12} /> Referans Ekle
+                            </button>
+                          </div>
+
+                          {(sec.references || []).map((sRef, sRefIdx) => (
+                            <div key={sRef.id || sRefIdx} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '12px', marginBottom: '8px' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                                <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#ec4899' }}>Proje #{sRefIdx + 1}</span>
+                                <button 
+                                  type="button" 
+                                  className="admin-btn-icon delete"
+                                  onClick={() => {
+                                    const updated = [...(content.services?.items || [])];
+                                    const references = (updated[sIdx].references || []).filter((_, idx) => idx !== sRefIdx);
+                                    updated[sIdx] = { ...updated[sIdx], references };
+                                    setField('services', 'items', updated);
+                                  }}
+                                >
+                                  <Trash2 size={13} />
+                                </button>
+                              </div>
+                              <div className="admin-grid-2">
+                                <div className="admin-form-group">
+                                  <label className="admin-form-label">Proje Başlığı</label>
+                                  <input 
+                                    type="text" 
+                                    className="admin-input" 
+                                    value={sRef.name || ''} 
+                                    onChange={(e) => {
+                                      const updated = [...(content.services?.items || [])];
+                                      const references = [...(updated[sIdx].references || [])];
+                                      references[sRefIdx] = { ...references[sRefIdx], name: e.target.value };
+                                      updated[sIdx] = { ...updated[sIdx], references };
+                                      setField('services', 'items', updated);
+                                    }}
+                                  />
+                                </div>
+                                <div className="admin-form-group">
+                                  <label className="admin-form-label">Metrik Rozeti (örn: 400 km Hat)</label>
+                                  <input 
+                                    type="text" 
+                                    className="admin-input" 
+                                    value={sRef.metric || ''} 
+                                    onChange={(e) => {
+                                      const updated = [...(content.services?.items || [])];
+                                      const references = [...(updated[sIdx].references || [])];
+                                      references[sRefIdx] = { ...references[sRefIdx], metric: e.target.value };
+                                      updated[sIdx] = { ...updated[sIdx], references };
+                                      setField('services', 'items', updated);
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                              <div className="admin-grid-2">
+                                <div className="admin-form-group">
+                                  <label className="admin-form-label">Durum (örn: Tamamlandı)</label>
+                                  <input 
+                                    type="text" 
+                                    className="admin-input" 
+                                    value={sRef.status || 'Tamamlandı'} 
+                                    onChange={(e) => {
+                                      const updated = [...(content.services?.items || [])];
+                                      const references = [...(updated[sIdx].references || [])];
+                                      references[sRefIdx] = { ...references[sRefIdx], status: e.target.value };
+                                      updated[sIdx] = { ...updated[sIdx], references };
+                                      setField('services', 'items', updated);
+                                    }}
+                                  />
+                                </div>
+                                <div className="admin-form-group">
+                                  <label className="admin-form-label">Yönlendirme Linki (URL)</label>
+                                  <input 
+                                    type="text" 
+                                    className="admin-input" 
+                                    placeholder="https://sarfea.com.tr"
+                                    value={sRef.link || 'https://sarfea.com.tr'} 
+                                    onChange={(e) => {
+                                      const updated = [...(content.services?.items || [])];
+                                      const references = [...(updated[sIdx].references || [])];
+                                      references[sRefIdx] = { ...references[sRefIdx], link: e.target.value };
+                                      updated[sIdx] = { ...updated[sIdx], references };
+                                      setField('services', 'items', updated);
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                              <div className="admin-form-group full-width">
+                                <label className="admin-form-label">Açıklama</label>
+                                <textarea 
+                                  className="admin-textarea" 
+                                  style={{ minHeight: '50px' }}
+                                  value={sRef.description || ''} 
+                                  onChange={(e) => {
+                                    const updated = [...(content.services?.items || [])];
+                                    const references = [...(updated[sIdx].references || [])];
+                                    references[sRefIdx] = { ...references[sRefIdx], description: e.target.value };
+                                    updated[sIdx] = { ...updated[sIdx], references };
                                     setField('services', 'items', updated);
                                   }}
                                 />

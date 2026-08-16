@@ -22,6 +22,15 @@ export default function About({ onOpenProposal }) {
   const missionTitle = content?.visionMission?.missionTitle || t('about_mission_title');
   const missionDesc = content?.visionMission?.missionDesc || t('about_mission_desc');
 
+  const standardsTitle = content?.about?.standardsTitle || t('about_standards_title');
+  const standardsSubtitle = content?.about?.standardsSubtitle || t('about_standards_sub');
+  const standardsList = content?.about?.standardsList || [
+    t('about_std1'),
+    t('about_std2'),
+    t('about_std3'),
+    t('about_std4')
+  ];
+
   return (
     <main>
       <PageHero 
@@ -187,29 +196,19 @@ export default function About({ onOpenProposal }) {
           }}>
             <div>
               <h2 style={{ fontSize: '2.5rem', fontWeight: '700', color: '#ffffff', marginBottom: '1rem' }}>
-                {t('about_standards_title')}
+                {standardsTitle}
               </h2>
               <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.1rem', lineHeight: '1.6', marginBottom: '2rem' }}>
-                {t('about_standards_sub')}
+                {standardsSubtitle}
               </p>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <CheckCircle2 size={20} color="#22c55e" />
-                  <span>{t('about_std1')}</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <CheckCircle2 size={20} color="#22c55e" />
-                  <span>{t('about_std2')}</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <CheckCircle2 size={20} color="#22c55e" />
-                  <span>{t('about_std3')}</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <CheckCircle2 size={20} color="#22c55e" />
-                  <span>{t('about_std4')}</span>
-                </div>
+                {standardsList.map((std, sIdx) => (
+                  <div key={sIdx} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <CheckCircle2 size={20} color="#22c55e" />
+                    <span>{std}</span>
+                  </div>
+                ))}
               </div>
             </div>
 
