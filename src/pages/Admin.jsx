@@ -3909,49 +3909,6 @@ function AdminMain() {
         ))}
       </datalist>
 
-      {/* Persistent Sticky Action Bar */}
-      <aside className="admin-sticky-bar">
-        <div className="admin-sticky-status">
-          <span className={`admin-sticky-dot ${hasUnsavedChanges ? 'dirty' : 'clean'}`} />
-          <span>
-            {hasUnsavedChanges 
-              ? 'Kaydedilmemiş Değişiklikler Var' 
-              : `Tüm Değişiklikler Kaydedildi ${lastSavedAt ? `(${new Date(lastSavedAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })})` : ''}`}
-          </span>
-        </div>
-
-        <div className="admin-sticky-actions">
-          <button 
-            type="button" 
-            className="admin-btn admin-btn-outline admin-btn-sm"
-            onClick={() => setShowPreviewModal(true)}
-            title="Canlı Cihaz Önizlemesi Aç"
-          >
-            <Eye size={13} /> Canlı Önizle
-          </button>
-
-          <a 
-            href="/" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="admin-btn admin-btn-outline admin-btn-sm"
-            title="Siteyi Yeni Sekmede Aç"
-          >
-            <ExternalLink size={13} /> Siteyi Gör
-          </a>
-
-          <button 
-            type="button"
-            className="admin-btn admin-btn-primary admin-btn-sm" 
-            onClick={handleSave} 
-            disabled={isSaving}
-          >
-            <Save size={13} />
-            {isSaving ? 'Kaydediliyor...' : 'Kaydet (Ctrl+S)'}
-          </button>
-        </div>
-      </aside>
-
       {/* Live Interactive Desktop Preview Modal */}
       {showPreviewModal && (
         <div className="admin-preview-backdrop" onClick={() => setShowPreviewModal(false)}>
