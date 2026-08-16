@@ -2461,24 +2461,6 @@ function AdminMain() {
                       </button>
                       <button 
                         type="button" 
-                        className="admin-btn-icon" 
-                        onClick={() => {
-                          const items = [...(content.portfolio?.items || [])];
-                          const duplicate = {
-                            ...items[pIdx],
-                            id: `proj_${Date.now()}`,
-                            title: `${items[pIdx].title} (Kopya)`
-                          };
-                          items.splice(pIdx + 1, 0, duplicate);
-                          setField('portfolio', 'items', items);
-                          showToast('Proje başarıyla çoğaltıldı!');
-                        }}
-                        title="Projeyi Kopyala / Çoğalt"
-                      >
-                        <Copy size={14} />
-                      </button>
-                      <button 
-                        type="button" 
                         className="admin-btn-icon delete" 
                         onClick={() => {
                           const updated = (content.portfolio?.items || []).filter((_, idx) => idx !== pIdx);
