@@ -1835,6 +1835,172 @@ function AdminMain() {
                             ))
                           )}
                         </div>
+
+                        {/* Sektör İstatistik Sayaçları (Stats) */}
+                        <div className="admin-nested-container" style={{ marginTop: '16px' }}>
+                          <div className="admin-nested-header">
+                            <h4 style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <TrendingUp size={15} color="#10b981" />
+                              Sektör İstatistik Sayaçları (4 Adet) — {sec.shortName || sec.title}
+                            </h4>
+                            <button 
+                              type="button" 
+                              className="admin-btn admin-btn-outline admin-btn-sm"
+                              onClick={() => {
+                                const updated = [...(content.services?.items || [])];
+                                const stats = [...(updated[sIdx].stats || []), { label: 'Yeni Metrik', value: '100+' }];
+                                updated[sIdx] = { ...updated[sIdx], stats };
+                                setField('services', 'items', updated);
+                              }}
+                            >
+                              <Plus size={12} /> Sayaç Ekle
+                            </button>
+                          </div>
+
+                          <div className="admin-grid-2">
+                            {(sec.stats || [
+                              { label: 'Başarılı Proje', value: '100+' },
+                              { label: 'Müşteri Memnuniyeti', value: '%99' },
+                              { label: 'Saha Desteği', value: '7/24' },
+                              { label: 'Hizmet Kapsamı', value: 'Türkiye Geneli' }
+                            ]).map((st, stIdx) => (
+                              <div key={stIdx} style={{ display: 'flex', gap: '6px', alignItems: 'center', marginBottom: '8px' }}>
+                                <input 
+                                  type="text" 
+                                  className="admin-input" 
+                                  placeholder="Değer (örn: 100+)"
+                                  value={st.value || ''} 
+                                  onChange={(e) => {
+                                    const updated = [...(content.services?.items || [])];
+                                    const stats = [...(updated[sIdx].stats || [
+                                      { label: 'Başarılı Proje', value: '100+' },
+                                      { label: 'Müşteri Memnuniyeti', value: '%99' },
+                                      { label: 'Saha Desteği', value: '7/24' },
+                                      { label: 'Hizmet Kapsamı', value: 'Türkiye Geneli' }
+                                    ])];
+                                    stats[stIdx] = { ...stats[stIdx], value: e.target.value };
+                                    updated[sIdx] = { ...updated[sIdx], stats };
+                                    setField('services', 'items', updated);
+                                  }}
+                                />
+                                <input 
+                                  type="text" 
+                                  className="admin-input" 
+                                  placeholder="Etiket (örn: Başarılı Proje)"
+                                  value={st.label || ''} 
+                                  onChange={(e) => {
+                                    const updated = [...(content.services?.items || [])];
+                                    const stats = [...(updated[sIdx].stats || [
+                                      { label: 'Başarılı Proje', value: '100+' },
+                                      { label: 'Müşteri Memnuniyeti', value: '%99' },
+                                      { label: 'Saha Desteği', value: '7/24' },
+                                      { label: 'Hizmet Kapsamı', value: 'Türkiye Geneli' }
+                                    ])];
+                                    stats[stIdx] = { ...stats[stIdx], label: e.target.value };
+                                    updated[sIdx] = { ...updated[sIdx], stats };
+                                    setField('services', 'items', updated);
+                                  }}
+                                />
+                                <button 
+                                  type="button" 
+                                  className="admin-btn-icon delete"
+                                  onClick={() => {
+                                    const updated = [...(content.services?.items || [])];
+                                    const stats = (updated[sIdx].stats || []).filter((_, idx) => idx !== stIdx);
+                                    updated[sIdx] = { ...updated[sIdx], stats };
+                                    setField('services', 'items', updated);
+                                  }}
+                                >
+                                  <Trash2 size={13} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Proje ve Hizmet Süreci Adımları (Process) */}
+                        <div className="admin-nested-container" style={{ marginTop: '16px' }}>
+                          <div className="admin-nested-header">
+                            <h4 style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <Zap size={15} color="#f59e0b" />
+                              Hizmet & Projelendirme Süreci Adımları — {sec.shortName || sec.title}
+                            </h4>
+                            <button 
+                              type="button" 
+                              className="admin-btn admin-btn-outline admin-btn-sm"
+                              onClick={() => {
+                                const updated = [...(content.services?.items || [])];
+                                const process = [...(updated[sIdx].process || []), { title: 'Yeni Süreç Adımı', desc: 'Açıklama...' }];
+                                updated[sIdx] = { ...updated[sIdx], process };
+                                setField('services', 'items', updated);
+                              }}
+                            >
+                              <Plus size={12} /> Adım Ekle
+                            </button>
+                          </div>
+
+                          {(sec.process || [
+                            { title: 'İhtiyaç & Saha Analizi', desc: 'Sektörünüze özel gereksinimleri tespit edip fizibilite raporu oluşturuyoruz.' },
+                            { title: 'Mühendislik & Projelendirme', desc: 'Uzman kadromuzla uluslararası standartlarda uygulama planı hazırlıyoruz.' },
+                            { title: 'Uygulama & Canlıya Alma', desc: 'Son teknoloji ekipman ve altyapı ile sistemi kusursuz şekilde devreye alıyoruz.' }
+                          ]).map((pr, prIdx) => (
+                            <div key={prIdx} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '12px', marginBottom: '8px' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                                <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#f59e0b' }}>Adım #{prIdx + 1}</span>
+                                <button 
+                                  type="button" 
+                                  className="admin-btn-icon delete"
+                                  onClick={() => {
+                                    const updated = [...(content.services?.items || [])];
+                                    const process = (updated[sIdx].process || []).filter((_, idx) => idx !== prIdx);
+                                    updated[sIdx] = { ...updated[sIdx], process };
+                                    setField('services', 'items', updated);
+                                  }}
+                                >
+                                  <Trash2 size={13} />
+                                </button>
+                              </div>
+                              <div className="admin-form-group">
+                                <label className="admin-form-label">Adım Başlığı</label>
+                                <input 
+                                  type="text" 
+                                  className="admin-input" 
+                                  value={pr.title || ''} 
+                                  onChange={(e) => {
+                                    const updated = [...(content.services?.items || [])];
+                                    const process = [...(updated[sIdx].process || [
+                                      { title: 'İhtiyaç & Saha Analizi', desc: 'Sektörünüze özel gereksinimleri tespit edip fizibilite raporu oluşturuyoruz.' },
+                                      { title: 'Mühendislik & Projelendirme', desc: 'Uzman kadromuzla uluslararası standartlarda uygulama planı hazırlıyoruz.' },
+                                      { title: 'Uygulama & Canlıya Alma', desc: 'Son teknoloji ekipman ve altyapı ile sistemi kusursuz şekilde devreye alıyoruz.' }
+                                    ])];
+                                    process[prIdx] = { ...process[prIdx], title: e.target.value };
+                                    updated[sIdx] = { ...updated[sIdx], process };
+                                    setField('services', 'items', updated);
+                                  }}
+                                />
+                              </div>
+                              <div className="admin-form-group">
+                                <label className="admin-form-label">Adım Açıklaması</label>
+                                <textarea 
+                                  className="admin-textarea" 
+                                  style={{ minHeight: '50px' }}
+                                  value={pr.desc || ''} 
+                                  onChange={(e) => {
+                                    const updated = [...(content.services?.items || [])];
+                                    const process = [...(updated[sIdx].process || [
+                                      { title: 'İhtiyaç & Saha Analizi', desc: 'Sektörünüze özel gereksinimleri tespit edip fizibilite raporu oluşturuyoruz.' },
+                                      { title: 'Mühendislik & Projelendirme', desc: 'Uzman kadromuzla uluslararası standartlarda uygulama planı hazırlıyoruz.' },
+                                      { title: 'Uygulama & Canlıya Alma', desc: 'Son teknoloji ekipman ve altyapı ile sistemi kusursuz şekilde devreye alıyoruz.' }
+                                    ])];
+                                    process[prIdx] = { ...process[prIdx], desc: e.target.value };
+                                    updated[sIdx] = { ...updated[sIdx], process };
+                                    setField('services', 'items', updated);
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>

@@ -125,15 +125,27 @@ export default function SectorPage({ onOpenProposal }) {
     }
   }
 
-  // 3. If dynamic content has custom FAQs or overrides, merge them
+  // 3. If dynamic content has custom fields or overrides, merge them completely
   if (sector && content?.services?.items) {
     const dynMatch = content.services.items.find(
       s => s.path === `/${cleanId}` || s.path === `/${canonicalId}` || s.id === cleanId || s.id === canonicalId
     );
-    if (dynMatch?.faqs && dynMatch.faqs.length > 0) {
+    if (dynMatch) {
       sector = {
         ...sector,
-        faqs: dynMatch.faqs
+        name: dynMatch.title || dynMatch.name || sector.name,
+        shortName: dynMatch.shortName || dynMatch.title || sector.shortName,
+        description: dynMatch.desc || dynMatch.description || sector.description,
+        badge: dynMatch.badge || sector.badge,
+        color: dynMatch.color || sector.color,
+        lightColor: dynMatch.color ? `${dynMatch.color}15` : sector.lightColor,
+        heroImage: dynMatch.image || dynMatch.heroImage || sector.heroImage,
+        features: dynMatch.points || sector.features,
+        stats: dynMatch.stats && dynMatch.stats.length > 0 ? dynMatch.stats : sector.stats,
+        process: dynMatch.process && dynMatch.process.length > 0 ? dynMatch.process : sector.process,
+        partners: dynMatch.partners && dynMatch.partners.length > 0 ? dynMatch.partners : sector.partners,
+        references: dynMatch.references && dynMatch.references.length > 0 ? dynMatch.references : sector.references,
+        faqs: dynMatch.faqs && dynMatch.faqs.length > 0 ? dynMatch.faqs : sector.faqs
       };
     }
   }

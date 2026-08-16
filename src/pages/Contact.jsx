@@ -6,15 +6,25 @@ import {
 import PageHero from '../components/PageHero';
 import { getCompanyInfo, getSectors, aboutHeroImg } from '../data/sectors';
 import { useLanguage } from '../context/LanguageContext';
+import { useContent } from '../context/ContentContext';
 import './Contact.css';
 
 export default function Contact() {
   const { language, t } = useLanguage();
+  const { content } = useContent();
   const [submitted, setSubmitted] = useState(false);
   const [captchaChecked, setCaptchaChecked] = useState(false);
   
   const localizedCompany = getCompanyInfo(language);
   const localizedSectors = getSectors(language);
+  const contactData = content?.contact || {};
+
+  const displayPhone = contactData.phone || localizedCompany.phone;
+  const displayPhoneSecondary = contactData.phoneSecondary || localizedCompany.whatsapp || "+90 (555) 012 34 56";
+  const displayEmail = contactData.email || localizedCompany.email;
+  const displayAddress = contactData.address || localizedCompany.address;
+  const displayWorkingHours = contactData.workingHours || "Pazartesi - Cuma: 09:00 - 18:00";
+  const mapEmbedUrl = contactData.mapEmbedUrl || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3008.2778848766155!2d29.0084364!3d41.0772221!2m3!1f0!0!f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14cab65d456789ab%3A0x123456789abcdef!2sLevent%2C%20B%C3%BCy%C3%BCkdere%20Cd.%20No%3A195%2C%20%C5%9Ei%C5%9Fli%2F%C4%B0stanbul!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str";
 
   const [form, setForm] = useState({
     name: '',
@@ -34,16 +44,16 @@ export default function Contact() {
     setSubmitted(true);
   };
 
-  const cleanPhone = localizedCompany.phone.replace(/[^0-9+]/g, '');
-  const cleanWhatsapp = (localizedCompany.whatsapp || "+90 (555) 012 34 56").replace(/[^0-9+]/g, '');
+  const cleanPhone = displayPhone.replace(/[^0-9+]/g, '');
+  const cleanWhatsapp = displayPhoneSecondary.replace(/[^0-9+]/g, '');
 
   return (
     <main>
       <PageHero 
-        title={language === 'en' ? "Get in <span>Touch</span> with Us." : "Bizimle<br/><span>İletişime</span> Geçin."}
-        subtitle={language === 'en' ? "We are ready to connect 24/7 for your questions, partnership offers, or projects." : "Sorularınız, iş ortaklığı teklifleriniz veya projeleriniz için uzman ekibimizle 7/24 görüşmeye hazırız."}
+        title={contactData.title || (language === 'en' ? "Get in <span>Touch</span> with Us." : "Bizimle<br/><span>İletişime</span> Geçin.")}
+        subtitle={contactData.subtitle || (language === 'en' ? "We are ready to connect 24/7 for your questions, partnership offers, or projects." : "Sorularınız, iş ortaklığı teklifleriniz veya projeleriniz için uzman ekibimizle 7/24 görüşmeye hazırız.")}
         image={aboutHeroImg}
-        badgeText={t('nav_contact')}
+        badgeText={contactData.badge || t('nav_contact')}
       />
 
       <section className="contact-page-dark">
@@ -64,7 +74,7 @@ export default function Contact() {
                 </div>
                 <div className="top-card-info">
                   <h3>{t('contact_card1_title')}</h3>
-                  <p>{localizedCompany.address}</p>
+                  <p>{displayAddress}</p>
                 </div>
               </div>
               <div className="top-card-action">
@@ -96,7 +106,7 @@ export default function Contact() {
               </div>
               <div className="top-card-action">
                 <a href={`tel:${cleanPhone}`} className="top-card-value" style={{ textDecoration: 'none' }}>
-                  {localizedCompany.phone}
+                  {displayPhone}
                 </a>
               </div>
             </motion.div>
@@ -146,8 +156,8 @@ export default function Contact() {
                 </div>
               </div>
               <div className="top-card-action">
-                <a href={`mailto:${localizedCompany.email}`} className="top-card-value" style={{ textDecoration: 'none' }}>
-                  {localizedCompany.email}
+                <a href={`mailto:${displayEmail}`} className="top-card-value" style={{ textDecoration: 'none' }}>
+                  {displayEmail}
                 </a>
               </div>
             </motion.div>
@@ -168,30 +178,24 @@ export default function Contact() {
                   <p style={{ color: '#94a3b8', maxWidth: '400px', lineHeight: '1.6' }}>
                     {t('contact_submitted_desc')}
                   </p>
-                  <button 
-                    className="btn-submit-orange" 
-                    style={{ maxWidth: '240px', marginTop: '1rem' }} 
-                    onClick={() => { setSubmitted(false); setCaptchaChecked(false); }}
-                  >
-                    {t('contact_btn_new')}
-                  </button>
                 </div>
               ) : (
                 <>
-                  <span className="form-tag">{t('contact_form_tag')}</span>
-                  <h2 className="form-title">{t('contact_form_title')}</h2>
-                  <p className="form-desc">{t('contact_form_desc')}</p>
+                  <div className="form-header">
+                    <h2>{t('contact_form_title')}</h2>
+                    <p>{t('contact_form_sub')}</p>
+                  </div>
 
-                  <form onSubmit={handleSubmit}>
+                  <form onSubmit={handleSubmit} className="modern-dark-form">
                     
-                    {/* Row 1 */}
-                    <div className="form-grid-row">
+                    {/* Row 1: Name & Phone */}
+                    <div className="form-row-2">
                       <div className="dark-input-group">
                         <label>{t('contact_label_name')}</label>
                         <input 
                           type="text" 
-                          required 
-                          placeholder={t('contact_place_name')} 
+                          required
+                          placeholder={t('contact_place_name')}
                           className="dark-input"
                           value={form.name}
                           onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -199,28 +203,29 @@ export default function Contact() {
                       </div>
 
                       <div className="dark-input-group">
-                        <label>{t('contact_label_email')}</label>
+                        <label>{t('contact_label_phone')}</label>
                         <input 
-                          type="email" 
-                          required 
-                          placeholder={t('contact_place_email')} 
+                          type="tel" 
+                          required
+                          placeholder={t('contact_place_phone')}
                           className="dark-input"
-                          value={form.email}
-                          onChange={(e) => setForm({ ...form, email: e.target.value })}
+                          value={form.phone}
+                          onChange={(e) => setForm({ ...form, phone: e.target.value })}
                         />
                       </div>
                     </div>
 
-                    {/* Row 2 */}
-                    <div className="form-grid-row">
+                    {/* Row 2: Email & Company */}
+                    <div className="form-row-2">
                       <div className="dark-input-group">
-                        <label>{t('contact_label_phone')}</label>
+                        <label>{t('contact_label_email')}</label>
                         <input 
-                          type="tel" 
-                          placeholder={t('contact_place_phone')} 
+                          type="email" 
+                          required
+                          placeholder={t('contact_place_email')}
                           className="dark-input"
-                          value={form.phone}
-                          onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                          value={form.email}
+                          onChange={(e) => setForm({ ...form, email: e.target.value })}
                         />
                       </div>
 
@@ -228,7 +233,7 @@ export default function Contact() {
                         <label>{t('contact_label_company')}</label>
                         <input 
                           type="text" 
-                          placeholder={t('contact_place_company')} 
+                          placeholder={t('contact_place_company')}
                           className="dark-input"
                           value={form.company}
                           onChange={(e) => setForm({ ...form, company: e.target.value })}
@@ -236,16 +241,15 @@ export default function Contact() {
                       </div>
                     </div>
 
-                    {/* Row 3: Subject / Sector dropdown */}
+                    {/* Row 3: Sector Selection */}
                     <div className="dark-input-group">
                       <label>{t('contact_label_subject')}</label>
                       <select 
-                        required
                         className="dark-input dark-select"
                         value={form.subject}
                         onChange={(e) => setForm({ ...form, subject: e.target.value })}
                       >
-                        <option value="" disabled>{t('contact_place_subject')}</option>
+                        <option value="">{t('contact_place_subject')}</option>
                         {localizedSectors.map(s => (
                           <option key={s.id} value={s.id}>{s.name}</option>
                         ))}
@@ -322,7 +326,7 @@ export default function Contact() {
                   <iframe 
                     title="Nima Plaza Office Location"
                     className="map-iframe"
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3008.2778848766155!2d29.0084364!3d41.0772221!2m3!1f0!0!f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14cab65d456789ab%3A0x123456789abcdef!2sLevent%2C%20B%C3%BCy%C3%BCkdere%20Cd.%20No%3A195%2C%20%C5%9Ei%C5%9Fli%2F%C4%B0stanbul!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str"
+                    src={mapEmbedUrl}
                     loading="lazy"
                   />
                 </div>
@@ -338,7 +342,7 @@ export default function Contact() {
                 <div className="hours-list">
                   <div className="hour-row">
                     <span className="hour-label">{t('contact_sidebar_mon_fri')}</span>
-                    <span className="hour-value">09:00 - 18:00</span>
+                    <span className="hour-value">{displayWorkingHours}</span>
                   </div>
 
                   <div className="hour-row">
