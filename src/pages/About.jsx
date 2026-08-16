@@ -8,23 +8,24 @@ import { useContent } from '../context/ContentContext';
 
 export default function About({ onOpenProposal }) {
   const { language, t } = useLanguage();
-  const { content } = useContent();
+  const { content, getContent } = useContent();
+  const activeContent = getContent ? getContent(language) : content;
   const localizedCompany = getCompanyInfo(language);
-  const localizedMilestones = content?.journey?.items || getCompanyMilestones(language);
+  const localizedMilestones = activeContent?.journey?.items || getCompanyMilestones(language);
   const localizedValues = getCompanyValues(language);
 
   const [activeYear, setActiveYear] = useState(
     localizedMilestones[localizedMilestones.length - 1]?.year || '2024+'
   );
 
-  const visionTitle = content?.visionMission?.visionTitle || t('about_vision_title');
-  const visionDesc = content?.visionMission?.visionDesc || t('about_vision_desc');
-  const missionTitle = content?.visionMission?.missionTitle || t('about_mission_title');
-  const missionDesc = content?.visionMission?.missionDesc || t('about_mission_desc');
+  const visionTitle = activeContent?.visionMission?.visionTitle || t('about_vision_title');
+  const visionDesc = activeContent?.visionMission?.visionDesc || t('about_vision_desc');
+  const missionTitle = activeContent?.visionMission?.missionTitle || t('about_mission_title');
+  const missionDesc = activeContent?.visionMission?.missionDesc || t('about_mission_desc');
 
-  const standardsTitle = content?.about?.standardsTitle || t('about_standards_title');
-  const standardsSubtitle = content?.about?.standardsSubtitle || t('about_standards_sub');
-  const standardsList = content?.about?.standardsList || [
+  const standardsTitle = activeContent?.about?.standardsTitle || t('about_standards_title');
+  const standardsSubtitle = activeContent?.about?.standardsSubtitle || t('about_standards_sub');
+  const standardsList = activeContent?.about?.standardsList || [
     t('about_std1'),
     t('about_std2'),
     t('about_std3'),
@@ -34,10 +35,10 @@ export default function About({ onOpenProposal }) {
   return (
     <main>
       <PageHero 
-        title={content?.about?.title || t('about_hero_title')}
-        subtitle={content?.about?.subtitle || `${localizedCompany.name}, ${t('about_hero_sub')}`}
+        title={activeContent?.about?.title || t('about_hero_title')}
+        subtitle={activeContent?.about?.subtitle || `${localizedCompany.name}, ${t('about_hero_sub')}`}
         image={aboutHeroImg}
-        badgeText={content?.about?.badge || t('about_badge')}
+        badgeText={activeContent?.about?.badge || t('about_badge')}
       />
       
       {/* Vision & Mission */}

@@ -26,10 +26,11 @@ export default function Navbar({ onOpenProposal }) {
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
   const location = useLocation();
   const { language, toggleLanguage, t } = useLanguage();
-  const { content } = useContent();
+  const { content, getContent } = useContent();
 
   const localizedSectors = getSectors(language);
-  const navData = content?.navigation || {};
+  const activeContent = getContent ? getContent(language) : content;
+  const navData = activeContent?.navigation || {};
   let navItems = navData.items;
 
   // Fallback to default items if empty

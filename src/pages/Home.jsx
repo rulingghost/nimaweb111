@@ -14,15 +14,16 @@ import './Home.css';
 
 export default function Home({ onOpenProposal }) {
   const { language, t } = useLanguage();
-  const { content } = useContent();
+  const { content, getContent } = useContent();
   const [projectSearch, setProjectSearch] = useState('');
   const [selectedFilterSector, setSelectedFilterSector] = useState('all');
 
   const localizedSectors = getSectors(language);
   const localizedCompany = getCompanyInfo(language);
+  const activeContent = getContent ? getContent(language) : content;
 
   // Dynamic Portfolio / Projects Showcase from Admin Content
-  const portfolioItems = content?.portfolio?.items || [
+  const portfolioItems = activeContent?.portfolio?.items || [
     {
       id: '1',
       sectorId: 'telekomunikasyon',
@@ -113,18 +114,18 @@ export default function Home({ onOpenProposal }) {
           <div className="kisaca-biz-wrapper">
             <div className="kisaca-biz-header">
               <div className="badge-pill">
-                <Sparkles size={14} /> {content?.kisacaBiz?.badge || t('home_biz_badge')}
+                <Sparkles size={14} /> {activeContent?.kisacaBiz?.badge || t('home_biz_badge')}
               </div>
               <h2 className="display-title" style={{ fontSize: 'clamp(2.25rem, 5vw, 3.5rem)' }}>
-                {content?.kisacaBiz?.title || t('home_biz_title')}
+                {activeContent?.kisacaBiz?.title || t('home_biz_title')}
               </h2>
               <p className="display-subtitle" style={{ margin: '0 auto' }}>
-                {content?.kisacaBiz?.subtitle || t('home_biz_subtitle')}
+                {activeContent?.kisacaBiz?.subtitle || t('home_biz_subtitle')}
               </p>
             </div>
 
             <div className="kisaca-biz-grid">
-              {(content?.kisacaBiz?.cards || [
+              {(activeContent?.kisacaBiz?.cards || [
                 { id: '1', title: t('home_biz_card1_title'), desc: t('home_biz_card1_desc'), icon: 'Cpu', color: '#D12F0E' },
                 { id: '2', title: t('home_biz_card2_title'), desc: t('home_biz_card2_desc'), icon: 'Globe', color: '#F6C310' },
                 { id: '3', title: t('home_biz_card3_title'), desc: t('home_biz_card3_desc'), icon: 'ShieldCheck', color: '#E97B1A' }
@@ -145,8 +146,8 @@ export default function Home({ onOpenProposal }) {
             </div>
 
             <div className="kisaca-biz-footer">
-              <Link to={content?.kisacaBiz?.btnLink || '/hakkimizda'} className="btn-modern btn-dark">
-                {content?.kisacaBiz?.btnText || t('home_biz_btn')} <ArrowRight size={18} />
+              <Link to={activeContent?.kisacaBiz?.btnLink || '/hakkimizda'} className="btn-modern btn-dark">
+                {activeContent?.kisacaBiz?.btnText || t('home_biz_btn')} <ArrowRight size={18} />
               </Link>
             </div>
           </div>
@@ -163,11 +164,11 @@ export default function Home({ onOpenProposal }) {
         <div className="container">
           <div className="section-header center">
             <div className="badge-pill">
-              <Sparkles size={14} /> {content?.portfolio?.badge || t('portfolio_badge')}
+              <Sparkles size={14} /> {activeContent?.portfolio?.badge || t('portfolio_badge')}
             </div>
-            <h2 className="display-title">{content?.portfolio?.title || t('portfolio_title')}</h2>
+            <h2 className="display-title">{activeContent?.portfolio?.title || t('portfolio_title')}</h2>
             <p className="display-subtitle">
-              {content?.portfolio?.subtitle || t('portfolio_subtitle')}
+              {activeContent?.portfolio?.subtitle || t('portfolio_subtitle')}
             </p>
           </div>
 
@@ -251,15 +252,15 @@ export default function Home({ onOpenProposal }) {
           <div className="split-layout align-center">
             <div className="split-text">
               <div className="badge-pill">
-                <ShieldCheck size={14} /> {content?.whyUs?.badge || t('diff_badge')}
+                <ShieldCheck size={14} /> {activeContent?.whyUs?.badge || t('diff_badge')}
               </div>
-              <h2 className="display-title">{content?.whyUs?.title || t('diff_title')}</h2>
+              <h2 className="display-title">{activeContent?.whyUs?.title || t('diff_title')}</h2>
               <p className="large-text">
-                {content?.whyUs?.subtitle || t('diff_subtitle')}
+                {activeContent?.whyUs?.subtitle || t('diff_subtitle')}
               </p>
               
               <ul className="core-values-list">
-                {(content?.whyUs?.items || [
+                {(activeContent?.whyUs?.items || [
                   { id: '1', title: t('diff_item1_title'), desc: t('diff_item1_desc') },
                   { id: '2', title: t('diff_item2_title'), desc: t('diff_item2_desc') },
                   { id: '3', title: t('diff_item3_title'), desc: t('diff_item3_desc') }
@@ -274,8 +275,8 @@ export default function Home({ onOpenProposal }) {
                 ))}
               </ul>
 
-              <Link to={content?.whyUs?.btnLink || '/hakkimizda'} className="btn-modern btn-dark" style={{ marginTop: '2rem' }}>
-                {content?.whyUs?.btnText || t('diff_btn')}
+              <Link to={activeContent?.whyUs?.btnLink || '/hakkimizda'} className="btn-modern btn-dark" style={{ marginTop: '2rem' }}>
+                {activeContent?.whyUs?.btnText || t('diff_btn')}
                 <ArrowUpRight size={18} />
               </Link>
             </div>
@@ -284,8 +285,8 @@ export default function Home({ onOpenProposal }) {
               <div className="visual-card-inner">
                 <img src={projectAnalyticsImg} alt="Nima Grup Analiz" />
                 <div className="visual-card-glass">
-                  <h3>{content?.whyUs?.quoteTitle || t('diff_card_quote')}</h3>
-                  <p>{content?.whyUs?.quoteSubtitle || t('diff_card_sub')}</p>
+                  <h3>{activeContent?.whyUs?.quoteTitle || t('diff_card_quote')}</h3>
+                  <p>{activeContent?.whyUs?.quoteSubtitle || t('diff_card_sub')}</p>
                 </div>
               </div>
             </div>
@@ -298,18 +299,18 @@ export default function Home({ onOpenProposal }) {
         <div className="container">
           <div className="section-header center" style={{ marginBottom: '2.5rem' }}>
             <div className="badge-pill">
-              <Sparkles size={14} /> {content?.references?.badge || 'GÜVENEN MARKALAR'}
+              <Sparkles size={14} /> {activeContent?.references?.badge || 'GÜVENEN MARKALAR'}
             </div>
             <h2 className="display-title" style={{ fontSize: 'clamp(2rem, 3.5vw, 2.5rem)' }}>
-              {content?.references?.title || 'Referanslarımız ve Başarı Hikayeleri'}
+              {activeContent?.references?.title || 'Referanslarımız ve Başarı Hikayeleri'}
             </h2>
             <p className="display-subtitle">
-              {content?.references?.subtitle || 'Türkiye’nin ve dünyanın önde gelen markalarıyla değer üreten projelere imza attık.'}
+              {activeContent?.references?.subtitle || 'Türkiye’nin ve dünyanın önde gelen markalarıyla değer üreten projelere imza attık.'}
             </p>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem' }}>
-            {(content?.references?.items || [
+            {(activeContent?.references?.items || [
               { id: '1', name: 'Turkcell Altyapı İş Ortaklığı', category: 'Telekomünikasyon', link: 'https://sarfea.com.tr', logoUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=300&q=80' },
               { id: '2', name: 'FinansBank SaaS Entegrasyonu', category: 'Yazılım & Finans', link: 'https://sarfea.com.tr', logoUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=300&q=80' },
               { id: '3', name: 'Ege Yapı Açık Hava Kampanyası', category: 'Reklam & Medya', link: 'https://sarfea.com.tr', logoUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80' },
@@ -372,19 +373,19 @@ export default function Home({ onOpenProposal }) {
         <div className="container">
           <div className="cta-banner-card">
             <div className="cta-content">
-              <h2 className="cta-title">{content?.cta?.title || t('cta_title')}</h2>
+              <h2 className="cta-title">{activeContent?.cta?.title || t('cta_title')}</h2>
               <p className="cta-desc">
-                {content?.cta?.subtitle || t('cta_subtitle')}
+                {activeContent?.cta?.subtitle || t('cta_subtitle')}
               </p>
               <div className="cta-actions">
                 <button 
                   className="btn-modern btn-dark cta-btn"
                   onClick={() => onOpenProposal()}
                 >
-                  <MessageSquarePlus size={18} /> {content?.cta?.primaryBtnText || t('cta_btn_proposal')}
+                  <MessageSquarePlus size={18} /> {activeContent?.cta?.primaryBtnText || t('cta_btn_proposal')}
                 </button>
-                <Link to={content?.cta?.secondaryBtnLink || '/iletisim'} className="btn-modern btn-outline cta-btn-white">
-                  {content?.cta?.secondaryBtnText || t('cta_btn_contact')}
+                <Link to={activeContent?.cta?.secondaryBtnLink || '/iletisim'} className="btn-modern btn-outline cta-btn-white">
+                  {activeContent?.cta?.secondaryBtnText || t('cta_btn_contact')}
                 </Link>
               </div>
             </div>

@@ -14,15 +14,16 @@ const SOCIAL_ICON_MAP = {
 
 export default function Footer() {
   const { language, t } = useLanguage();
-  const { content } = useContent();
+  const { content, getContent } = useContent();
   const location = useLocation();
   const [subscribed, setSubscribed] = useState(false);
   const [newsletterEmail, setNewsletterEmail] = useState('');
 
-  const navData = content?.navigation || {};
-  const contactData = content?.contact || {};
-  const footerData = content?.footer || {};
-  const servicesData = content?.services?.items || [];
+  const activeContent = getContent ? getContent(language) : content;
+  const navData = activeContent?.navigation || {};
+  const contactData = activeContent?.contact || {};
+  const footerData = activeContent?.footer || {};
+  const servicesData = activeContent?.services?.items || [];
   const socials = footerData.socials || [];
 
   const handleSubscribe = (e) => {

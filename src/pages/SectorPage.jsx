@@ -60,7 +60,7 @@ export default function SectorPage({ onOpenProposal }) {
   const [activeTab, setActiveTab] = useState('overview');
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
   const { language, t } = useLanguage();
-  const { content } = useContent();
+  const { content, getContent } = useContent();
 
   useEffect(() => {
     setActiveTab('overview');
@@ -70,6 +70,7 @@ export default function SectorPage({ onOpenProposal }) {
   
   const localizedSectors = getSectors(language);
   const localizedCompany = getCompanyInfo(language);
+  const activeContent = getContent ? getContent(language) : content;
 
   // Normalize incoming param
   const cleanId = (sectorId || '').toLowerCase().trim();
@@ -84,8 +85,8 @@ export default function SectorPage({ onOpenProposal }) {
   );
 
   // 2. Check in dynamic content if not found
-  if (!sector && content?.services?.items) {
-    const dynSector = content.services.items.find(
+  if (!sector && activeContent?.services?.items) {
+    const dynSector = activeContent.services.items.find(
       s => s.path === `/${cleanId}` || s.path === `/${canonicalId}` || s.id === cleanId || s.id === canonicalId
     );
     if (dynSector) {
@@ -126,8 +127,8 @@ export default function SectorPage({ onOpenProposal }) {
   }
 
   // 3. If dynamic content has custom fields or overrides, merge them completely
-  if (sector && content?.services?.items) {
-    const dynMatch = content.services.items.find(
+  if (sector && activeContent?.services?.items) {
+    const dynMatch = activeContent.services.items.find(
       s => s.path === `/${cleanId}` || s.path === `/${canonicalId}` || s.id === cleanId || s.id === canonicalId
     );
     if (dynMatch) {

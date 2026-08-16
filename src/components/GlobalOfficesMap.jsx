@@ -1,11 +1,14 @@
 import { Globe, MapPin, Phone } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 import { useContent } from '../context/ContentContext';
 import './GlobalOfficesMap.css';
 
 export default function GlobalOfficesMap() {
-  const { content } = useContent();
+  const { language } = useLanguage();
+  const { content, getContent } = useContent();
+  const activeContent = getContent ? getContent(language) : content;
 
-  const officesData = content?.globalOffices || {
+  const officesData = activeContent?.globalOffices || {
     badge: 'GLOBAL AĞ & TEMSİLCİLİKLER',
     title: 'Küresel Hizmet ve İletişim Ağımız',
     subtitle: "Türkiye'den Avrupa ve Orta Doğu'ya uzanan küresel lokasyonlarımız ile kesintisiz operasyon sağlıyoruz.",

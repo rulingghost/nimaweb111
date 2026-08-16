@@ -556,6 +556,15 @@ export function LanguageProvider({ children }) {
     return localStorage.getItem('nima_lang') || 'tr';
   });
 
+  const [customTranslations, setCustomTranslations] = useState(() => {
+    try {
+      const cached = localStorage.getItem('nima_custom_translations');
+      return cached ? JSON.parse(cached) : {};
+    } catch (e) {
+      return {};
+    }
+  });
+
   useEffect(() => {
     localStorage.setItem('nima_lang', language);
     document.documentElement.setAttribute('lang', language);
@@ -565,12 +574,44 @@ export function LanguageProvider({ children }) {
     setLanguage((prev) => (prev === 'tr' ? 'en' : 'tr'));
   };
 
+  const updateTranslation = (lang, key, value) => {
+    setCustomTranslations((prev) => {
+      const updated = {
+        ...prev,
+        [lang]: {
+          ...(prev[lang] || {}),
+          [key]: value
+        }
+      };
+      try {
+        localStorage.setItem('nima_custom_translations', JSON.stringify(updated));
+      } catch (e) {
+        console.warn('Failed to save translation to localStorage:', e);
+      }
+      return updated;
+    });
+  };
+
+  const getTranslationMap = () => {
+    return {
+      tr: { ...translations.tr, ...(customTranslations.tr || {}) },
+      en: { ...translations.en, ...(customTranslations.en || {}) }
+    };
+  };
+
   const t = (key, fallback = '') => {
-    return translations[language]?.[key] || translations['tr']?.[key] || fallback || key;
+    return customTranslations[language]?.[key] || translations[language]?.[key] || translations['tr']?.[key] || fallback || key;
   };
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, toggleLanguage, t }}>
+    <LanguageContext.Provider value={{ 
+      language, 
+      setLanguage, 
+      toggleLanguage, 
+      t, 
+      translations: getTranslationMap(),
+      updateTranslation 
+    }}>
       {children}
     </LanguageContext.Provider>
   );

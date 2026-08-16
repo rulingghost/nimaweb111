@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { defaultContent } from '../data/defaultContent';
+import { defaultContent, defaultContentEn } from '../data/defaultContent';
 
 const ContentContext = createContext(null);
 const LOCAL_STORAGE_KEY = 'nima_site_content_cache';
@@ -113,21 +113,51 @@ export function ContentProvider({ children }) {
     fetchContent();
   }, [fetchContent]);
 
-  // Update a single section or field
-  const updateContent = useCallback((updaterOrSection, data) => {
+  // Helper to retrieve language-specific content tree with fallback
+  const getContent = useCallback((lang = 'tr') => {
+    if (lang === 'en') {
+      const enSource = content?.en || {};
+      return deepMerge(defaultContentEn, enSource);
+    }
+    return content;
+  }, [content]);
+
+  // Update a single section or field (optionally targeting 'tr' or 'en')
+  const updateContent = useCallback((updaterOrSection, data, targetLang = 'tr') => {
     setContent(prev => {
       let updated;
-      if (typeof updaterOrSection === 'function') {
-        updated = updaterOrSection(prev);
-      } else if (typeof updaterOrSection === 'string' && data !== undefined) {
+      if (targetLang === 'en') {
+        const prevEn = prev.en || defaultContentEn;
+        let updatedEn;
+        if (typeof updaterOrSection === 'function') {
+          updatedEn = updaterOrSection(prevEn);
+        } else if (typeof updaterOrSection === 'string' && data !== undefined) {
+          updatedEn = {
+            ...prevEn,
+            [updaterOrSection]: typeof data === 'function' ? data(prevEn[updaterOrSection]) : data
+          };
+        } else if (typeof updaterOrSection === 'object') {
+          updatedEn = { ...prevEn, ...updaterOrSection };
+        } else {
+          updatedEn = prevEn;
+        }
         updated = {
           ...prev,
-          [updaterOrSection]: typeof data === 'function' ? data(prev[updaterOrSection]) : data
+          en: updatedEn
         };
-      } else if (typeof updaterOrSection === 'object') {
-        updated = { ...prev, ...updaterOrSection };
       } else {
-        updated = prev;
+        if (typeof updaterOrSection === 'function') {
+          updated = updaterOrSection(prev);
+        } else if (typeof updaterOrSection === 'string' && data !== undefined) {
+          updated = {
+            ...prev,
+            [updaterOrSection]: typeof data === 'function' ? data(prev[updaterOrSection]) : data
+          };
+        } else if (typeof updaterOrSection === 'object') {
+          updated = { ...prev, ...updaterOrSection };
+        } else {
+          updated = prev;
+        }
       }
       // Keep local storage updated
       try {
@@ -241,19 +271,32 @@ export function ContentProvider({ children }) {
   }, []);
 
   // Reset all content back to factory default
-  const resetToDefault = useCallback(() => {
-    setContent(defaultContent);
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(defaultContent));
-    setSaveStatus({
-      type: 'info',
-      message: 'Varsayılan fabrika ayarlarına dönüldü. Kaydetmek için "Değişiklikleri Kaydet" butonuna tıklayınız.'
-    });
+  const resetToDefault = useCallback((targetLang = 'all') => {
+    if (targetLang === 'en') {
+      setContent(prev => {
+        const updated = { ...prev, en: defaultContentEn };
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+        return updated;
+      });
+      setSaveStatus({
+        type: 'info',
+        message: 'İngilizce içerik varsayılana döndürüldü.'
+      });
+    } else {
+      setContent(defaultContent);
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(defaultContent));
+      setSaveStatus({
+        type: 'info',
+        message: 'Varsayılan fabrika ayarlarına dönüldü. Kaydetmek için "Değişiklikleri Kaydet" butonuna tıklayınız.'
+      });
+    }
   }, []);
 
   return (
     <ContentContext.Provider
       value={{
         content,
+        getContent,
         updateContent,
         saveContent,
         uploadImage,

@@ -12,13 +12,14 @@ import './Contact.css';
 
 export default function Contact() {
   const { language, t } = useLanguage();
-  const { content } = useContent();
+  const { content, getContent } = useContent();
   const [submitted, setSubmitted] = useState(false);
   const [captchaChecked, setCaptchaChecked] = useState(false);
   
   const localizedCompany = getCompanyInfo(language);
   const localizedSectors = getSectors(language);
-  const contactData = content?.contact || {};
+  const activeContent = getContent ? getContent(language) : content;
+  const contactData = activeContent?.contact || {};
 
   const displayPhone = contactData.phone || localizedCompany.phone;
   const displayPhoneSecondary = contactData.phoneSecondary || localizedCompany.whatsapp || "+90 (555) 012 34 56";

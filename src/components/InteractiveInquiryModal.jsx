@@ -7,9 +7,10 @@ import './InteractiveInquiryModal.css';
 
 export default function InteractiveInquiryModal({ isOpen, onClose, defaultSectorId = '' }) {
   const { language, t } = useLanguage();
-  const { content } = useContent();
+  const { content, getContent } = useContent();
   const defaultSectors = getSectors(language);
-  const adminServices = content?.services?.items || [];
+  const activeContent = getContent ? getContent(language) : content;
+  const adminServices = activeContent?.services?.items || [];
 
   const localizedSectors = defaultSectors.map(def => {
     const matched = adminServices.find(s => s.id === def.id || s.path === def.path);

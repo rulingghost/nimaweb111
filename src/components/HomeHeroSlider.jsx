@@ -5,12 +5,13 @@ import { useContent } from '../context/ContentContext';
 import './Hero.css';
 
 export default function HomeHeroSlider({ onOpenProposal }) {
-  const { t } = useLanguage();
-  const { content } = useContent();
+  const { language, t } = useLanguage();
+  const { content, getContent } = useContent();
   const [current, setCurrent] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
-  const heroData = content?.hero || {};
+  const activeContent = getContent ? getContent(language) : content;
+  const heroData = activeContent?.hero || {};
   const slides = heroData.slides && heroData.slides.length > 0 ? heroData.slides : [
     {
       id: 'default_1',

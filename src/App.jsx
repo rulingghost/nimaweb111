@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -10,14 +10,54 @@ import Admin from './pages/Admin';
 import ScrollProgress from './components/ScrollProgress';
 import ScrollToTop from './components/ScrollToTop';
 import InteractiveInquiryModal from './components/InteractiveInquiryModal';
-import { LanguageProvider } from './context/LanguageContext';
-import { ContentProvider } from './context/ContentContext';
+import { LanguageProvider, useLanguage } from './context/LanguageContext';
+import { ContentProvider, useContent } from './context/ContentContext';
 
 function AppLayout() {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
   const [isProposalOpen, setIsProposalOpen] = useState(false);
   const [proposalSectorId, setProposalSectorId] = useState('');
+
+  const { language } = useLanguage();
+  const { content, getContent } = useContent();
+  const activeContent = getContent ? getContent(language) : content;
+
+  // Dynamic SEO & Title Sync
+  useEffect(() => {
+    if (isAdmin) {
+      document.title = 'NİMA Grup Yönetim Paneli';
+      return;
+    }
+
+    const defaultTitle = language === 'en'
+      ? 'NIMA GROUP | Telecommunication, Software & Innovation'
+      : 'NİMA GRUP | Telekomünikasyon, Yazılım & İnovasyon Ekosistemi';
+
+    document.title = activeContent?.seo?.metaTitle || defaultTitle;
+
+    // Update Meta Description
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (!metaDesc) {
+      metaDesc = document.createElement('meta');
+      metaDesc.name = 'description';
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.content = activeContent?.seo?.metaDescription || (language === 'en' 
+      ? 'Leading technology ecosystem driving digital transformation in telecommunications, software, and corporate solutions.'
+      : 'Telekomünikasyon altyapısından yapay zekaya, medyadan yönetim danışmanlığına öncü kurumsal teknoloji ekosistemi.');
+
+    // Update Meta Keywords
+    if (activeContent?.seo?.keywords) {
+      let metaKeys = document.querySelector('meta[name="keywords"]');
+      if (!metaKeys) {
+        metaKeys = document.createElement('meta');
+        metaKeys.name = 'keywords';
+        document.head.appendChild(metaKeys);
+      }
+      metaKeys.content = activeContent.seo.keywords;
+    }
+  }, [language, activeContent, isAdmin]);
 
   const handleOpenProposal = (sectorId = '') => {
     setProposalSectorId(sectorId);

@@ -11,12 +11,17 @@ import {
   Monitor, Tablet, Smartphone, Maximize2, X, RotateCcw, CopyPlus, MessageSquarePlus, Handshake, TrendingUp
 } from 'lucide-react';
 import { useContent } from '../context/ContentContext';
+import { useLanguage } from '../context/LanguageContext';
+import { adminTranslations } from '../data/adminTranslations';
+import { defaultContent, defaultContentEn } from '../data/defaultContent';
 import './Admin.css';
 
 // Admin Login Screen Component
-function AdminLogin({ onLogin, error, brandName }) {
+function AdminLogin({ onLogin, error, brandName, uiLang = 'tr', onToggleUiLang }) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+
+  const tUi = (key) => adminTranslations[uiLang]?.[key] || adminTranslations['tr']?.[key] || key;
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -26,11 +31,33 @@ function AdminLogin({ onLogin, error, brandName }) {
   return (
     <div className="admin-login-wrapper">
       <div className="admin-login-card">
-        <div className="admin-login-icon">
-          <Lock size={26} />
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <div className="admin-login-icon" style={{ margin: 0 }}>
+            <Lock size={22} />
+          </div>
+          {onToggleUiLang && (
+            <div className="admin-lang-group">
+              <span className="admin-lang-label"><Globe size={13} /> {tUi('ui_lang')}:</span>
+              <button 
+                type="button" 
+                className={`admin-lang-pill-btn ${uiLang === 'tr' ? 'active' : ''}`}
+                onClick={() => onToggleUiLang('tr')}
+              >
+                TR
+              </button>
+              <button 
+                type="button" 
+                className={`admin-lang-pill-btn ${uiLang === 'en' ? 'active' : ''}`}
+                onClick={() => onToggleUiLang('en')}
+              >
+                EN
+              </button>
+            </div>
+          )}
         </div>
-        <h2>{brandName || 'NİMA'} Yönetim Paneli</h2>
-        <p>Devam etmek için yönetici şifrenizi giriniz.</p>
+
+        <h2>{brandName || 'NİMA'} {tUi('login_title')}</h2>
+        <p>{tUi('login_subtitle')}</p>
 
         {error && (
           <div className="admin-login-error">
@@ -44,7 +71,7 @@ function AdminLogin({ onLogin, error, brandName }) {
             <input 
               type={showPassword ? 'text' : 'password'}
               className="admin-input" 
-              placeholder="Yönetici Şifresi"
+              placeholder={tUi('login_placeholder')}
               autoFocus
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -53,7 +80,7 @@ function AdminLogin({ onLogin, error, brandName }) {
               type="button" 
               className="admin-password-toggle"
               onClick={() => setShowPassword(!showPassword)}
-              title={showPassword ? 'Gizle' : 'Göster'}
+              title={showPassword ? tUi('hide') : tUi('show')}
             >
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
@@ -64,13 +91,13 @@ function AdminLogin({ onLogin, error, brandName }) {
             className="admin-btn admin-btn-primary" 
             style={{ width: '100%', justifyContent: 'center', marginTop: '8px' }}
           >
-            <KeyRound size={16} /> Giriş Yap
+            <KeyRound size={16} /> {tUi('login_btn')}
           </button>
         </form>
 
         <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
           <Link to="/" style={{ color: 'var(--admin-text-muted)', fontSize: '0.82rem', textDecoration: 'none' }}>
-            ← Ana Sayfaya Dön
+            {tUi('login_back_home')}
           </Link>
         </div>
       </div>
@@ -393,21 +420,53 @@ function AdminMain() {
     setSaveStatus 
   } = useContent();
 
+  const { translations, updateTranslation } = useLanguage();
+
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return sessionStorage.getItem('nima_admin_auth') === 'true';
   });
   const [loginError, setLoginError] = useState(null);
   const [newAdminPassword, setNewAdminPassword] = useState('');
+  const [confirmAdminPassword, setConfirmAdminPassword] = useState('');
+  const [showPasswordFields, setShowPasswordFields] = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [showJsonInspector, setShowJsonInspector] = useState(false);
+  const [jsonCopied, setJsonCopied] = useState(false);
+
+  const [adminUiLang, setAdminUiLang] = useState(() => {
+    return localStorage.getItem('nima_admin_ui_lang') || 'tr';
+  });
+  const [contentLang, setContentLang] = useState(() => {
+    return localStorage.getItem('nima_admin_content_lang') || 'tr';
+  });
 
   const [activeTab, setActiveTab] = useState('nav');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [localMessage, setLocalMessage] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [dictSearch, setDictSearch] = useState('');
   const [collapsedCards, setCollapsedCards] = useState({});
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [previewDevice, setPreviewDevice] = useState('desktop');
   const [previewPath, setPreviewPath] = useState('/');
   const fileImportRef = useRef(null);
+
+  const changeUiLang = (lang) => {
+    setAdminUiLang(lang);
+    localStorage.setItem('nima_admin_ui_lang', lang);
+  };
+
+  const changeContentLang = (lang) => {
+    setContentLang(lang);
+    localStorage.setItem('nima_admin_content_lang', lang);
+  };
+
+  const tUi = (key, fallback = '') => {
+    return adminTranslations[adminUiLang]?.[key] || adminTranslations['tr']?.[key] || fallback || key;
+  };
+
+  // The active content model being edited (Turkish or English)
+  const activeContent = contentLang === 'en' ? (content?.en || defaultContentEn) : content;
 
   const handleLogin = (enteredPassword) => {
     const validPassword = content.security?.adminPassword || 'nima2026!';
@@ -416,7 +475,7 @@ function AdminMain() {
       setIsAuthenticated(true);
       setLoginError(null);
     } else {
-      setLoginError('Hatalı şifre girdiniz. Lütfen tekrar deneyin.');
+      setLoginError(tUi('login_error'));
     }
   };
 
@@ -458,17 +517,17 @@ function AdminMain() {
     const res = await saveContent();
     if (res?.success) {
       setHasUnsavedChanges(false);
-      showToast('Tüm değişiklikler başarıyla kaydedildi!', 'success');
+      showToast(tUi('saved_success'), 'success');
     }
   };
 
-  // Helper for tracking modifications
+  // Helper for tracking modifications to active content
   const setField = (section, key, value) => {
     setHasUnsavedChanges(true);
-    updateContent(section, (prev) => ({
-      ...prev,
+    updateContent(section, (prevSec) => ({
+      ...(prevSec || (contentLang === 'en' ? (defaultContentEn[section] || {}) : (defaultContent[section] || {}))),
       [key]: value
-    }));
+    }), contentLang);
   };
 
   const toggleCollapse = (id) => {
@@ -480,57 +539,57 @@ function AdminMain() {
     setHasUnsavedChanges(true);
     const newItem = {
       id: `link_${Date.now()}`,
-      title: 'Yeni Menü Öğesi',
-      path: '/yeni-sayfa',
+      title: contentLang === 'en' ? 'New Menu Item' : 'Yeni Menü Öğesi',
+      path: '/new-page',
       badge: '',
       hasChildren: false,
       children: []
     };
     updateContent('navigation', prev => ({
-      ...prev,
-      items: [...(prev.items || []), newItem]
-    }));
+      ...(prev || {}),
+      items: [...(prev?.items || activeContent.navigation?.items || []), newItem]
+    }), contentLang);
   };
 
   const handleRemoveNavItem = (index) => {
     setHasUnsavedChanges(true);
     updateContent('navigation', prev => ({
-      ...prev,
-      items: prev.items.filter((_, idx) => idx !== index)
-    }));
+      ...(prev || {}),
+      items: (prev?.items || activeContent.navigation?.items || []).filter((_, idx) => idx !== index)
+    }), contentLang);
   };
 
   const handleMoveNavItem = (index, direction) => {
     setHasUnsavedChanges(true);
     updateContent('navigation', prev => {
-      const items = [...prev.items];
+      const items = [...(prev?.items || activeContent.navigation?.items || [])];
       const targetIndex = direction === 'up' ? index - 1 : index + 1;
       if (targetIndex < 0 || targetIndex >= items.length) return prev;
       const temp = items[index];
       items[index] = items[targetIndex];
       items[targetIndex] = temp;
-      return { ...prev, items };
-    });
+      return { ...(prev || {}), items };
+    }, contentLang);
   };
 
   const handleUpdateNavItem = (index, field, value) => {
     setHasUnsavedChanges(true);
     updateContent('navigation', prev => {
-      const items = [...prev.items];
+      const items = [...(prev?.items || activeContent.navigation?.items || [])];
       items[index] = { ...items[index], [field]: value };
-      return { ...prev, items };
-    });
+      return { ...(prev || {}), items };
+    }, contentLang);
   };
 
   const handleAddSubItem = (navIndex) => {
     setHasUnsavedChanges(true);
     updateContent('navigation', prev => {
-      const items = [...prev.items];
+      const items = [...(prev?.items || activeContent.navigation?.items || [])];
       const parent = items[navIndex];
       const newChild = {
         id: `sub_${Date.now()}`,
-        title: 'Yeni Alt Menü',
-        path: '/yeni-hizmet',
+        title: contentLang === 'en' ? 'New Sub Item' : 'Yeni Alt Menü',
+        path: '/new-service',
         badge: '',
         icon: 'Sparkles',
         color: '#D12F0E'
@@ -538,36 +597,36 @@ function AdminMain() {
       items[navIndex] = {
         ...parent,
         hasChildren: true,
-        children: [...(parent.children || []), newChild]
+        children: [...(parent?.children || []), newChild]
       };
-      return { ...prev, items };
-    });
+      return { ...(prev || {}), items };
+    }, contentLang);
   };
 
   const handleRemoveSubItem = (navIndex, subIndex) => {
     setHasUnsavedChanges(true);
     updateContent('navigation', prev => {
-      const items = [...prev.items];
+      const items = [...(prev?.items || activeContent.navigation?.items || [])];
       const parent = items[navIndex];
-      const newChildren = (parent.children || []).filter((_, idx) => idx !== subIndex);
+      const newChildren = (parent?.children || []).filter((_, idx) => idx !== subIndex);
       items[navIndex] = {
         ...parent,
         children: newChildren,
         hasChildren: newChildren.length > 0
       };
-      return { ...prev, items };
-    });
+      return { ...(prev || {}), items };
+    }, contentLang);
   };
 
   const handleUpdateSubItem = (navIndex, subIndex, field, value) => {
     setHasUnsavedChanges(true);
     updateContent('navigation', prev => {
-      const items = [...prev.items];
-      const children = [...(items[navIndex].children || [])];
+      const items = [...(prev?.items || activeContent.navigation?.items || [])];
+      const children = [...(items[navIndex]?.children || [])];
       children[subIndex] = { ...children[subIndex], [field]: value };
       items[navIndex] = { ...items[navIndex], children };
-      return { ...prev, items };
-    });
+      return { ...(prev || {}), items };
+    }, contentLang);
   };
 
   // Export / Import
@@ -608,7 +667,9 @@ function AdminMain() {
       <AdminLogin 
         onLogin={handleLogin} 
         error={loginError} 
-        brandName={content.navigation?.brandName} 
+        brandName={activeContent.navigation?.brandName} 
+        uiLang={adminUiLang}
+        onToggleUiLang={changeUiLang}
       />
     );
   }
@@ -618,9 +679,9 @@ function AdminMain() {
       {/* Unsaved Changes Sticky Notification */}
       {hasUnsavedChanges && (
         <div className="admin-unsaved-banner">
-          <span>⚠️ Kaydedilmemiş değişiklikleriniz bulunmaktadır (Kısayol: Ctrl + S).</span>
+          <span>{tUi('unsaved_banner')}</span>
           <button type="button" onClick={handleSave} disabled={isSaving}>
-            <Save size={13} /> {isSaving ? 'Kaydediliyor...' : 'Şimdi Kaydet'}
+            <Save size={13} /> {isSaving ? tUi('saving') : tUi('save_now')}
           </button>
         </div>
       )}
@@ -632,18 +693,37 @@ function AdminMain() {
             <div className="admin-badge-icon">N</div>
             <div className="admin-title-group">
               <h1>
-                NİMA Yönetim Paneli
-                <span className="admin-version-tag">Pro v2.0</span>
+                {tUi('panel_title')}
+                <span className="admin-version-tag">{tUi('version_tag')}</span>
               </h1>
-              <p>Site içeriği, menü yapısı ve medyaları dinamik yönetin</p>
+              <p>{tUi('panel_subtitle')}</p>
             </div>
           </div>
 
           <div className="admin-header-actions">
+            {/* UI Language Switcher */}
+            <div className="admin-lang-group" title={tUi('ui_lang')}>
+              <span className="admin-lang-label"><Globe size={13} /> {tUi('ui_lang')}:</span>
+              <button 
+                type="button" 
+                className={`admin-lang-pill-btn ${adminUiLang === 'tr' ? 'active' : ''}`}
+                onClick={() => changeUiLang('tr')}
+              >
+                TR
+              </button>
+              <button 
+                type="button" 
+                className={`admin-lang-pill-btn ${adminUiLang === 'en' ? 'active' : ''}`}
+                onClick={() => changeUiLang('en')}
+              >
+                EN
+              </button>
+            </div>
+
             {lastSavedAt && (
               <div className="admin-save-indicator">
                 <span className={`indicator-dot ${isSaving ? 'saving' : hasUnsavedChanges ? 'dirty' : ''}`} />
-                <span>{hasUnsavedChanges ? 'Değişiklik Var' : `Son Kayıt: ${new Date(lastSavedAt).toLocaleTimeString('tr-TR')}`}</span>
+                <span>{hasUnsavedChanges ? tUi('save_changes_exist') : `${tUi('last_saved')}: ${new Date(lastSavedAt).toLocaleTimeString(adminUiLang === 'en' ? 'en-US' : 'tr-TR')}`}</span>
               </div>
             )}
 
@@ -651,13 +731,13 @@ function AdminMain() {
               type="button" 
               className="admin-btn admin-btn-outline" 
               onClick={() => setShowPreviewModal(true)}
-              title="Canlı Cihaz Önizlemesi Aç"
+              title={tUi('live_preview')}
             >
-              <Eye size={15} /> Canlı Önizle
+              <Eye size={15} /> {tUi('live_preview')}
             </button>
 
-            <Link to="/" target="_blank" className="admin-btn admin-btn-outline" title="Siteyi Yeni Sekmede Gör">
-              <ExternalLink size={15} /> Siteyi İncele
+            <Link to="/" target="_blank" className="admin-btn admin-btn-outline" title={tUi('inspect_site')}>
+              <ExternalLink size={15} /> {tUi('inspect_site')}
             </Link>
 
             <button 
@@ -667,16 +747,16 @@ function AdminMain() {
               disabled={isSaving}
             >
               <Save size={16} />
-              {isSaving ? 'Kaydediliyor...' : 'Değişiklikleri Kaydet'}
+              {isSaving ? tUi('saving') : tUi('save_changes')}
             </button>
 
             <button 
               type="button" 
               className="admin-btn admin-btn-outline" 
               onClick={handleLogout}
-              title="Yönetimden Çıkış Yap"
+              title={tUi('logout')}
             >
-              <LogOut size={15} /> Çıkış
+              <LogOut size={15} /> {tUi('logout')}
             </button>
           </div>
         </div>
@@ -692,6 +772,71 @@ function AdminMain() {
 
       {/* Main Admin Container */}
       <main className="admin-container">
+        {/* Content Language Selector Bar */}
+        <div className="admin-content-lang-bar">
+          <div className="admin-content-lang-left">
+            <div className="admin-content-lang-tabs">
+              <button 
+                type="button" 
+                className={`admin-content-lang-btn ${contentLang === 'tr' ? 'active' : ''}`}
+                onClick={() => changeContentLang('tr')}
+              >
+                {tUi('editing_tr')}
+              </button>
+              <button 
+                type="button" 
+                className={`admin-content-lang-btn en ${contentLang === 'en' ? 'active' : ''}`}
+                onClick={() => changeContentLang('en')}
+              >
+                {tUi('editing_en')}
+              </button>
+            </div>
+            <span style={{ fontSize: '0.82rem', color: 'var(--admin-text-muted)' }}>
+              {contentLang === 'en' 
+                ? '🇬🇧 English content is active for editing. Changes apply to the English version of the site.' 
+                : '🇹🇷 Türkçe içerik düzenleniyor. Değişiklikler sitenin Türkçe versiyonuna uygulanır.'}
+            </span>
+          </div>
+
+          <div className="admin-content-lang-actions">
+            {contentLang === 'en' && (
+              <>
+                <button
+                  type="button"
+                  className="admin-btn admin-btn-outline admin-btn-sm"
+                  onClick={() => {
+                    setHasUnsavedChanges(true);
+                    updateContent((prev) => ({
+                      ...prev,
+                      en: defaultContentEn
+                    }));
+                    showToast(tUi('load_en_success'), 'info');
+                  }}
+                  title="Varsayılan İngilizce metinleri yükle"
+                >
+                  <RotateCcw size={13} /> {tUi('load_default_en')}
+                </button>
+                <button
+                  type="button"
+                  className="admin-btn admin-btn-outline admin-btn-sm"
+                  onClick={() => {
+                    setHasUnsavedChanges(true);
+                    const { en, ...trContent } = content;
+                    updateContent((prev) => ({
+                      ...prev,
+                      en: JSON.parse(JSON.stringify(trContent))
+                    }));
+                    showToast(tUi('copy_success'), 'success');
+                  }}
+                  title="Türkçe içeriği İngilizce taslağına kopyala"
+                >
+                  <CopyPlus size={13} /> {tUi('copy_from_tr')}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+
         {/* Tabs Bar with Count Badges */}
         <nav className="admin-tabs-bar">
           <button 
@@ -699,8 +844,8 @@ function AdminMain() {
             className={`admin-tab-btn ${activeTab === 'nav' ? 'active' : ''}`}
             onClick={() => { setActiveTab('nav'); setSearchQuery(''); }}
           >
-            <Compass size={17} /> Menü & Navigasyon
-            <span className="admin-tab-badge">{(content.navigation?.items || []).length}</span>
+            <Compass size={17} /> {tUi('tab_nav')}
+            <span className="admin-tab-badge">{(activeContent.navigation?.items || []).length}</span>
           </button>
 
           <button 
@@ -708,8 +853,8 @@ function AdminMain() {
             className={`admin-tab-btn ${activeTab === 'hero' ? 'active' : ''}`}
             onClick={() => { setActiveTab('hero'); setSearchQuery(''); }}
           >
-            <Sparkles size={17} /> Hero Bölümü
-            <span className="admin-tab-badge">{(content.hero?.slides || []).length}</span>
+            <Sparkles size={17} /> {tUi('tab_hero')}
+            <span className="admin-tab-badge">{(activeContent.hero?.slides || []).length}</span>
           </button>
 
           <button 
@@ -717,8 +862,8 @@ function AdminMain() {
             className={`admin-tab-btn ${activeTab === 'about' ? 'active' : ''}`}
             onClick={() => { setActiveTab('about'); setSearchQuery(''); }}
           >
-            <LayoutTemplate size={17} /> Hakkımızda & Journey
-            <span className="admin-tab-badge">{(content.journey?.items || []).length}</span>
+            <LayoutTemplate size={17} /> {tUi('tab_about')}
+            <span className="admin-tab-badge">{(activeContent.journey?.items || []).length}</span>
           </button>
 
           <button 
@@ -726,8 +871,8 @@ function AdminMain() {
             className={`admin-tab-btn ${activeTab === 'services' ? 'active' : ''}`}
             onClick={() => { setActiveTab('services'); setSearchQuery(''); }}
           >
-            <Layers size={17} /> Hizmetler & Sektörler
-            <span className="admin-tab-badge">{(content.services?.items || []).length}</span>
+            <Layers size={17} /> {tUi('tab_services')}
+            <span className="admin-tab-badge">{(activeContent.services?.items || []).length}</span>
           </button>
 
           <button 
@@ -735,8 +880,8 @@ function AdminMain() {
             className={`admin-tab-btn ${activeTab === 'portfolio' ? 'active' : ''}`}
             onClick={() => { setActiveTab('portfolio'); setSearchQuery(''); }}
           >
-            <FolderKanban size={17} /> Öne Çıkan Projeler
-            <span className="admin-tab-badge">{(content.portfolio?.items || []).length}</span>
+            <FolderKanban size={17} /> {tUi('tab_portfolio')}
+            <span className="admin-tab-badge">{(activeContent.portfolio?.items || []).length}</span>
           </button>
 
           <button 
@@ -744,7 +889,7 @@ function AdminMain() {
             className={`admin-tab-btn ${activeTab === 'homeSections' ? 'active' : ''}`}
             onClick={() => { setActiveTab('homeSections'); setSearchQuery(''); }}
           >
-            <Sparkles size={17} /> Ana Sayfa Ek Bölümler
+            <Sparkles size={17} /> {tUi('tab_home_sections')}
           </button>
 
           <button 
@@ -752,8 +897,8 @@ function AdminMain() {
             className={`admin-tab-btn ${activeTab === 'testimonials' ? 'active' : ''}`}
             onClick={() => { setActiveTab('testimonials'); setSearchQuery(''); }}
           >
-            <MessageSquareQuote size={17} /> Referanslar & Yorumlar
-            <span className="admin-tab-badge">{(content.testimonials?.items || []).length + (content.testimonials?.brands || []).length}</span>
+            <MessageSquareQuote size={17} /> {tUi('tab_testimonials')}
+            <span className="admin-tab-badge">{(activeContent.testimonials?.items || []).length + (activeContent.testimonials?.brands || []).length}</span>
           </button>
 
           <button 
@@ -761,8 +906,16 @@ function AdminMain() {
             className={`admin-tab-btn ${activeTab === 'contact' ? 'active' : ''}`}
             onClick={() => { setActiveTab('contact'); setSearchQuery(''); }}
           >
-            <Phone size={17} /> İletişim & Footer
-            <span className="admin-tab-badge">{(content.globalOffices?.items || []).length}</span>
+            <Phone size={17} /> {tUi('tab_contact')}
+            <span className="admin-tab-badge">{(activeContent.globalOffices?.items || []).length}</span>
+          </button>
+
+          <button 
+            type="button"
+            className={`admin-tab-btn ${activeTab === 'translations' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('translations'); setSearchQuery(''); }}
+          >
+            <Globe size={17} /> {tUi('tab_translations')}
           </button>
 
           <button 
@@ -770,7 +923,7 @@ function AdminMain() {
             className={`admin-tab-btn ${activeTab === 'media' ? 'active' : ''}`}
             onClick={() => { setActiveTab('media'); setSearchQuery(''); }}
           >
-            <ImageIcon size={17} /> Medya Kütüphanesi
+            <ImageIcon size={17} /> {tUi('tab_media')}
           </button>
 
           <button 
@@ -778,7 +931,7 @@ function AdminMain() {
             className={`admin-tab-btn ${activeTab === 'advanced' ? 'active' : ''}`}
             onClick={() => { setActiveTab('advanced'); setSearchQuery(''); }}
           >
-            <FileJson size={17} /> Yedekleme & Gelişmiş
+            <FileJson size={17} /> {tUi('tab_advanced')}
           </button>
         </nav>
 
@@ -3442,6 +3595,80 @@ function AdminMain() {
           </section>
         )}
 
+        {/* TAB: Diller & Sözlük / Language & Translations */}
+        {activeTab === 'translations' && (
+          <section className="admin-section-card">
+            <div className="admin-section-header">
+              <div>
+                <h2><Globe size={20} /> {tUi('trans_tab_title')}</h2>
+                <p>{tUi('trans_tab_subtitle')}</p>
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <div className="admin-filter-box">
+                  <Search size={15} />
+                  <input 
+                    type="text" 
+                    className="admin-input" 
+                    placeholder={tUi('trans_search')}
+                    value={dictSearch}
+                    onChange={(e) => setDictSearch(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="admin-translations-table-wrapper">
+              <table className="admin-translations-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: '240px' }}>{tUi('trans_key_col')}</th>
+                    <th style={{ width: '38%' }}>{tUi('trans_tr_col')}</th>
+                    <th style={{ width: '38%' }}>{tUi('trans_en_col')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.keys(translations.tr || {})
+                    .filter((key) => {
+                      if (!dictSearch.trim()) return true;
+                      const q = dictSearch.toLowerCase();
+                      const valTr = (translations.tr[key] || '').toLowerCase();
+                      const valEn = (translations.en[key] || '').toLowerCase();
+                      return key.toLowerCase().includes(q) || valTr.includes(q) || valEn.includes(q);
+                    })
+                    .map((key) => (
+                      <tr key={key}>
+                        <td className="admin-key-cell">{key}</td>
+                        <td>
+                          <input 
+                            type="text" 
+                            className="admin-input" 
+                            value={translations.tr?.[key] || ''} 
+                            onChange={(e) => {
+                              updateTranslation('tr', key, e.target.value);
+                              setHasUnsavedChanges(true);
+                            }}
+                          />
+                        </td>
+                        <td>
+                          <input 
+                            type="text" 
+                            className="admin-input" 
+                            value={translations.en?.[key] || ''} 
+                            onChange={(e) => {
+                              updateTranslation('en', key, e.target.value);
+                              setHasUnsavedChanges(true);
+                            }}
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
         {/* 7. TAB: Medya Kütüphanesi */}
         {activeTab === 'media' && (
           <section className="admin-section-card">
@@ -3480,101 +3707,299 @@ function AdminMain() {
         {/* 8. TAB: Yedekleme & Gelişmiş */}
         {activeTab === 'advanced' && (
           <section className="admin-section-card">
+            {/* 1. System Health & Infrastructure Bento Grid */}
             <div className="admin-section-header">
               <div>
-                <h2><FileJson size={20} /> Yedekleme, Dışa Aktarma & Sıfırlama</h2>
-                <p>Vercel KV üzerindeki merkezi `site_content` JSON verisini dışa aktarın veya sıfırlayın.</p>
+                <h2><Zap size={20} /> {tUi('sys_health_title')}</h2>
+                <p>{tUi('sys_health_subtitle')}</p>
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginBottom: '24px' }}>
-              <button type="button" className="admin-btn admin-btn-outline" onClick={handleExportJSON}>
-                <Download size={16} /> JSON Yedek İndir (Export)
-              </button>
+            <div className="admin-health-grid">
+              <div className="admin-health-card">
+                <div className="admin-health-icon blue">
+                  <FileJson size={22} />
+                </div>
+                <div className="admin-health-info">
+                  <span className="admin-health-label">{tUi('sys_stat_size')}</span>
+                  <span className="admin-health-val">~{(new Blob([JSON.stringify(content)]).size / 1024).toFixed(1)} KB</span>
+                </div>
+              </div>
 
-              <label className="admin-btn admin-btn-outline" style={{ cursor: 'pointer' }}>
-                <Upload size={16} /> JSON Yedek Yükle (Import)
-                <input 
-                  type="file" 
-                  accept=".json" 
-                  ref={fileImportRef}
-                  style={{ display: 'none' }} 
-                  onChange={handleImportJSON} 
-                />
-              </label>
+              <div className="admin-health-card">
+                <div className="admin-health-icon green">
+                  <Layers size={22} />
+                </div>
+                <div className="admin-health-info">
+                  <span className="admin-health-label">{tUi('sys_stat_sections')}</span>
+                  <span className="admin-health-val">{Object.keys(content || {}).length} Aktif Bölüm</span>
+                </div>
+              </div>
 
-              <button 
-                type="button" 
-                className="admin-btn admin-btn-danger" 
-                onClick={() => {
-                  if (window.confirm('Tüm içerikler varsayılan fabrika ayarlarına döndürülecek. Emin misiniz?')) {
-                    resetToDefault();
-                    setHasUnsavedChanges(true);
-                    showToast('Varsayılan şablona dönüldü.', 'info');
-                  }
-                }}
-              >
-                <RefreshCw size={16} /> Varsayılan Fabrika Ayarlarına Sıfırla
-              </button>
-            </div>
+              <div className="admin-health-card">
+                <div className="admin-health-icon orange">
+                  <Globe size={22} />
+                </div>
+                <div className="admin-health-info">
+                  <span className="admin-health-label">{tUi('sys_stat_languages')}</span>
+                  <span className="admin-health-val">🇹🇷 TR & 🇬🇧 EN</span>
+                </div>
+              </div>
 
-            {/* Password Management */}
-            <div className="admin-section-header" style={{ marginTop: '28px' }}>
-              <div>
-                <h3 style={{ fontSize: '1rem', color: '#fff', margin: 0 }}>
-                  <Lock size={16} style={{ verticalAlign: 'middle', marginRight: '6px' }} />
-                  Yönetici Giriş Şifresi
-                </h3>
-                <p>Admin paneline giriş yaparken kullanılan şifreyi buradan güncelleyebilirsiniz.</p>
+              <div className="admin-health-card">
+                <div className="admin-health-icon purple">
+                  <ShieldCheck size={22} />
+                </div>
+                <div className="admin-health-info">
+                  <span className="admin-health-label">{tUi('sys_stat_storage')}</span>
+                  <span className="admin-health-val">Bulut & LocalStorage</span>
+                </div>
               </div>
             </div>
 
-            <div className="admin-grid-2" style={{ marginBottom: '24px' }}>
-              <div className="admin-form-group">
-                <label className="admin-form-label">Mevcut Şifre</label>
-                <input 
-                  type="text" 
-                  className="admin-input" 
-                  disabled
-                  value={content.security?.adminPassword || 'nima2026!'} 
-                />
+            {/* 2. SEO & Global Site Settings */}
+            <div className="admin-action-box">
+              <div className="admin-action-box-header">
+                <div>
+                  <h3><Sparkles size={16} /> {tUi('seo_title')}</h3>
+                  <p>{tUi('seo_subtitle')}</p>
+                </div>
               </div>
-              <div className="admin-form-group">
-                <label className="admin-form-label">Yeni Şifre Belirle</label>
-                <div style={{ display: 'flex', gap: '8px' }}>
+
+              <div className="admin-grid-2">
+                <div className="admin-form-group">
+                  <label className="admin-form-label">{tUi('seo_site_title')}</label>
                   <input 
                     type="text" 
                     className="admin-input" 
-                    placeholder="Yeni şifreyi girin..."
+                    placeholder="NİMA GRUP | Telekomünikasyon, Yazılım & İnovasyon"
+                    value={activeContent.seo?.metaTitle || ''} 
+                    onChange={(e) => setField('seo', 'metaTitle', e.target.value)}
+                  />
+                </div>
+
+                <div className="admin-form-group">
+                  <label className="admin-form-label">{tUi('seo_gtm_id')}</label>
+                  <input 
+                    type="text" 
+                    className="admin-input" 
+                    placeholder="G-XXXXXXXXXX veya GTM-XXXXXXX"
+                    value={activeContent.seo?.gtmId || ''} 
+                    onChange={(e) => setField('seo', 'gtmId', e.target.value)}
+                  />
+                </div>
+
+                <div className="admin-form-group full-width">
+                  <label className="admin-form-label">{tUi('seo_meta_desc')}</label>
+                  <textarea 
+                    className="admin-textarea" 
+                    style={{ minHeight: '60px' }}
+                    placeholder="Türkiye ve dünyada telekomünikasyon, yazılım ve kurumsal çözümler sunan öncü ekosistem."
+                    value={activeContent.seo?.metaDescription || ''} 
+                    onChange={(e) => setField('seo', 'metaDescription', e.target.value)}
+                  />
+                </div>
+
+                <div className="admin-form-group full-width">
+                  <label className="admin-form-label">{tUi('seo_keywords')}</label>
+                  <input 
+                    type="text" 
+                    className="admin-input" 
+                    placeholder="telekom, fiber optik, yazılım, açık hava reklam, yönetim danışmanlığı"
+                    value={activeContent.seo?.keywords || ''} 
+                    onChange={(e) => setField('seo', 'keywords', e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 3. Password Management & Security */}
+            <div className="admin-action-box">
+              <div className="admin-action-box-header">
+                <div>
+                  <h3><Lock size={16} /> {tUi('sec_title')}</h3>
+                  <p>{tUi('sec_subtitle')}</p>
+                </div>
+              </div>
+
+              <div className="admin-grid-2">
+                <div className="admin-form-group">
+                  <label className="admin-form-label">{tUi('sec_current_pwd')}</label>
+                  <div className="admin-password-group" style={{ margin: 0 }}>
+                    <input 
+                      type={showPasswordFields ? 'text' : 'password'} 
+                      className="admin-input" 
+                      disabled
+                      value={content.security?.adminPassword || 'nima2026!'} 
+                    />
+                    <button 
+                      type="button" 
+                      className="admin-password-toggle"
+                      onClick={() => setShowPasswordFields(!showPasswordFields)}
+                      title={showPasswordFields ? tUi('hide') : tUi('show')}
+                    >
+                      {showPasswordFields ? <EyeOff size={15} /> : <Eye size={15} />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="admin-form-group">
+                  <label className="admin-form-label">{tUi('sec_new_pwd')}</label>
+                  <input 
+                    type={showPasswordFields ? 'text' : 'password'} 
+                    className="admin-input" 
+                    placeholder={tUi('sec_pwd_placeholder')}
                     value={newAdminPassword}
                     onChange={(e) => setNewAdminPassword(e.target.value)}
                   />
+                </div>
+
+                <div className="admin-form-group">
+                  <label className="admin-form-label">{tUi('sec_confirm_pwd')}</label>
+                  <input 
+                    type={showPasswordFields ? 'text' : 'password'} 
+                    className="admin-input" 
+                    placeholder={tUi('sec_confirm_placeholder')}
+                    value={confirmAdminPassword}
+                    onChange={(e) => setConfirmAdminPassword(e.target.value)}
+                  />
+                </div>
+
+                <div className="admin-form-group" style={{ display: 'flex', alignItems: 'flex-end' }}>
                   <button 
                     type="button" 
                     className="admin-btn admin-btn-primary"
-                    style={{ whiteSpace: 'nowrap' }}
+                    style={{ width: '100%', justifyContent: 'center' }}
                     disabled={!newAdminPassword.trim()}
                     onClick={() => {
+                      if (newAdminPassword.length < 6) {
+                        alert(tUi('sec_pwd_short'));
+                        return;
+                      }
+                      if (newAdminPassword !== confirmAdminPassword) {
+                        alert(tUi('sec_pwd_mismatch'));
+                        return;
+                      }
                       setField('security', 'adminPassword', newAdminPassword.trim());
                       setNewAdminPassword('');
-                      showToast('Yeni şifre ayarlandı! "Değişiklikleri Kaydet" butonuna tıklayarak onaylayın.', 'success');
+                      setConfirmAdminPassword('');
+                      showToast(tUi('sec_updated_success'), 'success');
                     }}
                   >
-                    <Key size={14} /> Şifreyi Güncelle
+                    <Key size={14} /> {tUi('sec_update_btn')}
                   </button>
                 </div>
               </div>
             </div>
 
-            <h3 style={{ fontSize: '0.95rem', color: '#fff', marginBottom: '10px' }}>
-              Canlı JSON Veri Yapısı (Vercel KV `site_content`)
-            </h3>
-            <pre className="admin-json-viewer">
-              {JSON.stringify(content, null, 2)}
-            </pre>
+            {/* 4. Backup & Recovery Action Center */}
+            <div className="admin-action-box">
+              <div className="admin-action-box-header">
+                <div>
+                  <h3><FileJson size={16} /> {tUi('backup_title')}</h3>
+                  <p>{tUi('backup_subtitle')}</p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+                <button type="button" className="admin-btn admin-btn-outline" onClick={handleExportJSON}>
+                  <Download size={15} /> {tUi('backup_export_btn')}
+                </button>
+
+                <label className="admin-btn admin-btn-outline" style={{ cursor: 'pointer', margin: 0 }}>
+                  <Upload size={15} /> {tUi('backup_import_btn')}
+                  <input 
+                    type="file" 
+                    accept=".json" 
+                    ref={fileImportRef}
+                    style={{ display: 'none' }} 
+                    onChange={handleImportJSON} 
+                  />
+                </label>
+
+                <button 
+                  type="button" 
+                  className="admin-btn admin-btn-outline"
+                  onClick={() => {
+                    navigator.clipboard.writeText(JSON.stringify(content, null, 2));
+                    setJsonCopied(true);
+                    showToast(tUi('backup_copied_btn'), 'success');
+                    setTimeout(() => setJsonCopied(false), 3000);
+                  }}
+                >
+                  <Copy size={15} /> {jsonCopied ? tUi('backup_copied_btn') : tUi('backup_copy_btn')}
+                </button>
+
+                <button 
+                  type="button" 
+                  className="admin-btn admin-btn-danger" 
+                  onClick={() => setShowResetModal(true)}
+                >
+                  <RefreshCw size={15} /> {tUi('backup_reset_btn')}
+                </button>
+              </div>
+            </div>
+
+            {/* 5. Optional Developer JSON Code Inspector (Accordion) */}
+            <div className="admin-json-drawer">
+              <div 
+                className="admin-json-drawer-header" 
+                onClick={() => setShowJsonInspector(!showJsonInspector)}
+              >
+                <span>
+                  <FileJson size={16} color="#38bdf8" />
+                  {tUi('backup_inspect_toggle')}
+                </span>
+                <span style={{ fontSize: '0.8rem', color: 'var(--admin-text-muted)' }}>
+                  {showJsonInspector ? tUi('backup_inspect_hide') : tUi('backup_inspect_show')} {showJsonInspector ? '▲' : '▼'}
+                </span>
+              </div>
+
+              {showJsonInspector && (
+                <div className="admin-json-code-box">
+                  <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                    {JSON.stringify(content, null, 2)}
+                  </pre>
+                </div>
+              )}
+            </div>
           </section>
         )}
       </main>
+
+      {/* Protected Factory Reset Confirmation Modal */}
+      {showResetModal && (
+        <div className="admin-confirm-overlay" onClick={() => setShowResetModal(false)}>
+          <div className="admin-confirm-card" onClick={(e) => e.stopPropagation()}>
+            <div className="admin-confirm-icon">
+              <AlertCircle size={28} />
+            </div>
+            <h3>{tUi('backup_reset_confirm_title')}</h3>
+            <p>{tUi('backup_reset_confirm_desc')}</p>
+            <div className="admin-confirm-actions">
+              <button 
+                type="button" 
+                className="admin-btn admin-btn-outline" 
+                onClick={() => setShowResetModal(false)}
+              >
+                {tUi('backup_reset_cancel')}
+              </button>
+              <button 
+                type="button" 
+                className="admin-btn admin-btn-danger" 
+                onClick={() => {
+                  resetToDefault();
+                  setHasUnsavedChanges(true);
+                  setShowResetModal(false);
+                  showToast('Tüm veriler fabrika ayarlarına sıfırlandı.', 'info');
+                }}
+              >
+                <RefreshCw size={14} /> {tUi('backup_reset_proceed')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Global Datalist for Quick Path Autocomplete */}
       <datalist id="page-paths-list">
