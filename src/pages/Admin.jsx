@@ -447,7 +447,6 @@ function AdminMain() {
   const [dictSearch, setDictSearch] = useState('');
   const [collapsedCards, setCollapsedCards] = useState({});
   const [showPreviewModal, setShowPreviewModal] = useState(false);
-  const [previewDevice, setPreviewDevice] = useState('desktop');
   const [previewPath, setPreviewPath] = useState('/');
   const fileImportRef = useRef(null);
 
@@ -4051,12 +4050,15 @@ function AdminMain() {
         </div>
       </aside>
 
-      {/* Live Interactive Device Preview Modal */}
+      {/* Live Interactive Desktop Preview Modal */}
       {showPreviewModal && (
         <div className="admin-preview-backdrop" onClick={() => setShowPreviewModal(false)}>
           <div className="admin-preview-header" onClick={(e) => e.stopPropagation()}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ fontWeight: 700, color: '#fff', fontSize: '0.92rem' }}>📱 Canlı Cihaz Önizlemesi</span>
+              <span style={{ fontWeight: 700, color: '#fff', fontSize: '0.92rem' }}>
+                <Monitor size={16} style={{ verticalAlign: 'middle', marginRight: '6px' }} />
+                {tUi('live_preview')} (Masaüstü)
+              </span>
               <select 
                 className="admin-input" 
                 style={{ width: 'auto', padding: '4px 10px', fontSize: '0.8rem', height: '32px' }}
@@ -4075,38 +4077,11 @@ function AdminMain() {
               </select>
             </div>
 
-            <div className="admin-preview-devices">
-              <button 
-                type="button" 
-                className={`admin-preview-dev-btn ${previewDevice === 'desktop' ? 'active' : ''}`}
-                onClick={() => setPreviewDevice('desktop')}
-                title="Masaüstü Görünümü"
-              >
-                <Monitor size={14} /> Masaüstü
-              </button>
-              <button 
-                type="button" 
-                className={`admin-preview-dev-btn ${previewDevice === 'tablet' ? 'active' : ''}`}
-                onClick={() => setPreviewDevice('tablet')}
-                title="Tablet Görünümü (768px)"
-              >
-                <Tablet size={14} /> Tablet
-              </button>
-              <button 
-                type="button" 
-                className={`admin-preview-dev-btn ${previewDevice === 'mobile' ? 'active' : ''}`}
-                onClick={() => setPreviewDevice('mobile')}
-                title="Mobil Görünümü (390px)"
-              >
-                <Smartphone size={14} /> Mobil
-              </button>
-            </div>
-
             <button 
               type="button" 
               className="admin-btn-icon" 
               onClick={() => setShowPreviewModal(false)}
-              title="Önizlemeyi Kapat"
+              title={tUi('preview_close') || 'Önizlemeyi Kapat'}
             >
               <X size={18} />
             </button>
@@ -4116,7 +4091,7 @@ function AdminMain() {
             <iframe 
               src={previewPath} 
               title="Canlı Önizleme" 
-              className={`admin-preview-frame ${previewDevice}`}
+              className="admin-preview-frame desktop"
             />
           </div>
         </div>
