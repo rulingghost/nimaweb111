@@ -7,7 +7,8 @@ import {
   MessageCircle, Send, Phone, Mail, MapPin, Download, FileJson,
   LayoutTemplate, Award, MessageSquareQuote, CheckCircle2,
   ChevronDown, ChevronUp, Search, Copy, CheckCheck, Palette, Zap,
-  Briefcase, Gift, HelpCircle, Lock, KeyRound, Eye, EyeOff, LogOut, Key, FolderKanban
+  Briefcase, Gift, HelpCircle, Lock, KeyRound, Eye, EyeOff, LogOut, Key, FolderKanban,
+  Monitor, Tablet, Smartphone, Maximize2, X, RotateCcw, CopyPlus, MessageSquarePlus, Handshake
 } from 'lucide-react';
 import { useContent } from '../context/ContentContext';
 import './Admin.css';
@@ -403,6 +404,9 @@ function AdminMain() {
   const [localMessage, setLocalMessage] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [collapsedCards, setCollapsedCards] = useState({});
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [previewDevice, setPreviewDevice] = useState('desktop');
+  const [previewPath, setPreviewPath] = useState('/');
   const fileImportRef = useRef(null);
 
   const handleLogin = (enteredPassword) => {
@@ -643,6 +647,15 @@ function AdminMain() {
               </div>
             )}
 
+            <button 
+              type="button" 
+              className="admin-btn admin-btn-outline" 
+              onClick={() => setShowPreviewModal(true)}
+              title="Canlı Cihaz Önizlemesi Aç"
+            >
+              <Eye size={15} /> Canlı Önizle
+            </button>
+
             <Link to="/" target="_blank" className="admin-btn admin-btn-outline" title="Siteyi Yeni Sekmede Gör">
               <ExternalLink size={15} /> Siteyi İncele
             </Link>
@@ -679,7 +692,7 @@ function AdminMain() {
 
       {/* Main Admin Container */}
       <main className="admin-container">
-        {/* Tabs Bar */}
+        {/* Tabs Bar with Count Badges */}
         <nav className="admin-tabs-bar">
           <button 
             type="button"
@@ -687,6 +700,7 @@ function AdminMain() {
             onClick={() => { setActiveTab('nav'); setSearchQuery(''); }}
           >
             <Compass size={17} /> Menü & Navigasyon
+            <span className="admin-tab-badge">{(content.navigation?.items || []).length}</span>
           </button>
 
           <button 
@@ -695,6 +709,7 @@ function AdminMain() {
             onClick={() => { setActiveTab('hero'); setSearchQuery(''); }}
           >
             <Sparkles size={17} /> Hero Bölümü
+            <span className="admin-tab-badge">{(content.hero?.slides || []).length}</span>
           </button>
 
           <button 
@@ -703,6 +718,7 @@ function AdminMain() {
             onClick={() => { setActiveTab('about'); setSearchQuery(''); }}
           >
             <LayoutTemplate size={17} /> Hakkımızda & Journey
+            <span className="admin-tab-badge">{(content.journey?.items || []).length}</span>
           </button>
 
           <button 
@@ -711,6 +727,7 @@ function AdminMain() {
             onClick={() => { setActiveTab('services'); setSearchQuery(''); }}
           >
             <Layers size={17} /> Hizmetler & Sektörler
+            <span className="admin-tab-badge">{(content.services?.items || []).length}</span>
           </button>
 
           <button 
@@ -719,6 +736,7 @@ function AdminMain() {
             onClick={() => { setActiveTab('portfolio'); setSearchQuery(''); }}
           >
             <FolderKanban size={17} /> Öne Çıkan Projeler
+            <span className="admin-tab-badge">{(content.portfolio?.items || []).length}</span>
           </button>
 
           <button 
@@ -735,6 +753,7 @@ function AdminMain() {
             onClick={() => { setActiveTab('testimonials'); setSearchQuery(''); }}
           >
             <MessageSquareQuote size={17} /> Referanslar & Yorumlar
+            <span className="admin-tab-badge">{(content.testimonials?.items || []).length + (content.testimonials?.brands || []).length}</span>
           </button>
 
           <button 
@@ -743,6 +762,7 @@ function AdminMain() {
             onClick={() => { setActiveTab('contact'); setSearchQuery(''); }}
           >
             <Phone size={17} /> İletişim & Footer
+            <span className="admin-tab-badge">{(content.globalOffices?.items || []).length}</span>
           </button>
 
           <button 
@@ -2441,6 +2461,24 @@ function AdminMain() {
                       </button>
                       <button 
                         type="button" 
+                        className="admin-btn-icon" 
+                        onClick={() => {
+                          const items = [...(content.portfolio?.items || [])];
+                          const duplicate = {
+                            ...items[pIdx],
+                            id: `proj_${Date.now()}`,
+                            title: `${items[pIdx].title} (Kopya)`
+                          };
+                          items.splice(pIdx + 1, 0, duplicate);
+                          setField('portfolio', 'items', items);
+                          showToast('Proje başarıyla çoğaltıldı!');
+                        }}
+                        title="Projeyi Kopyala / Çoğalt"
+                      >
+                        <Copy size={14} />
+                      </button>
+                      <button 
+                        type="button" 
                         className="admin-btn-icon delete" 
                         onClick={() => {
                           const updated = (content.portfolio?.items || []).filter((_, idx) => idx !== pIdx);
@@ -3562,6 +3600,120 @@ function AdminMain() {
           <option key={p.path} value={p.path}>{p.label}</option>
         ))}
       </datalist>
+
+      {/* Persistent Sticky Action Bar */}
+      <aside className="admin-sticky-bar">
+        <div className="admin-sticky-status">
+          <span className={`admin-sticky-dot ${hasUnsavedChanges ? 'dirty' : 'clean'}`} />
+          <span>
+            {hasUnsavedChanges 
+              ? 'Kaydedilmemiş Değişiklikler Var' 
+              : `Tüm Değişiklikler Kaydedildi ${lastSavedAt ? `(${new Date(lastSavedAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })})` : ''}`}
+          </span>
+        </div>
+
+        <div className="admin-sticky-actions">
+          <button 
+            type="button" 
+            className="admin-btn admin-btn-outline admin-btn-sm"
+            onClick={() => setShowPreviewModal(true)}
+            title="Canlı Cihaz Önizlemesi Aç"
+          >
+            <Eye size={13} /> Canlı Önizle
+          </button>
+
+          <a 
+            href="/" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="admin-btn admin-btn-outline admin-btn-sm"
+            title="Siteyi Yeni Sekmede Aç"
+          >
+            <ExternalLink size={13} /> Siteyi Gör
+          </a>
+
+          <button 
+            type="button"
+            className="admin-btn admin-btn-primary admin-btn-sm" 
+            onClick={handleSave} 
+            disabled={isSaving}
+          >
+            <Save size={13} />
+            {isSaving ? 'Kaydediliyor...' : 'Kaydet (Ctrl+S)'}
+          </button>
+        </div>
+      </aside>
+
+      {/* Live Interactive Device Preview Modal */}
+      {showPreviewModal && (
+        <div className="admin-preview-backdrop" onClick={() => setShowPreviewModal(false)}>
+          <div className="admin-preview-header" onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ fontWeight: 700, color: '#fff', fontSize: '0.92rem' }}>📱 Canlı Cihaz Önizlemesi</span>
+              <select 
+                className="admin-input" 
+                style={{ width: 'auto', padding: '4px 10px', fontSize: '0.8rem', height: '32px' }}
+                value={previewPath}
+                onChange={(e) => setPreviewPath(e.target.value)}
+              >
+                <option value="/">Ana Sayfa</option>
+                <option value="/hakkimizda">Hakkımızda</option>
+                <option value="/telekomunikasyon">Telekomünikasyon Sektörü</option>
+                <option value="/yazilim">Yazılım ve Teknoloji</option>
+                <option value="/promosyon">Promosyon & Medya</option>
+                <option value="/reklam">Açık Hava Reklam</option>
+                <option value="/egitim">Eğitim & Danışmanlık</option>
+                <option value="/danismanlik">Yönetim Danışmanlığı</option>
+                <option value="/iletisim">İletişim & Lokasyonlar</option>
+              </select>
+            </div>
+
+            <div className="admin-preview-devices">
+              <button 
+                type="button" 
+                className={`admin-preview-dev-btn ${previewDevice === 'desktop' ? 'active' : ''}`}
+                onClick={() => setPreviewDevice('desktop')}
+                title="Masaüstü Görünümü"
+              >
+                <Monitor size={14} /> Masaüstü
+              </button>
+              <button 
+                type="button" 
+                className={`admin-preview-dev-btn ${previewDevice === 'tablet' ? 'active' : ''}`}
+                onClick={() => setPreviewDevice('tablet')}
+                title="Tablet Görünümü (768px)"
+              >
+                <Tablet size={14} /> Tablet
+              </button>
+              <button 
+                type="button" 
+                className={`admin-preview-dev-btn ${previewDevice === 'mobile' ? 'active' : ''}`}
+                onClick={() => setPreviewDevice('mobile')}
+                title="Mobil Görünümü (390px)"
+              >
+                <Smartphone size={14} /> Mobil
+              </button>
+            </div>
+
+            <button 
+              type="button" 
+              className="admin-btn-icon" 
+              onClick={() => setShowPreviewModal(false)}
+              title="Önizlemeyi Kapat"
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          <div className="admin-preview-body" onClick={(e) => e.stopPropagation()}>
+            <iframe 
+              src={previewPath} 
+              title="Canlı Önizleme" 
+              className={`admin-preview-frame ${previewDevice}`}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
