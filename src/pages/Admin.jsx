@@ -8,7 +8,7 @@ import {
   LayoutTemplate, Award, MessageSquareQuote, CheckCircle2,
   ChevronDown, ChevronUp, Search, Copy, CheckCheck, Palette, Zap,
   Briefcase, Gift, HelpCircle, Lock, KeyRound, Eye, EyeOff, LogOut, Key, FolderKanban,
-  Monitor, Tablet, Smartphone, Maximize2, X, RotateCcw, CopyPlus, MessageSquarePlus, Handshake
+  Monitor, Tablet, Smartphone, Maximize2, X, RotateCcw, CopyPlus, MessageSquarePlus, Handshake, TrendingUp
 } from 'lucide-react';
 import { useContent } from '../context/ContentContext';
 import './Admin.css';
