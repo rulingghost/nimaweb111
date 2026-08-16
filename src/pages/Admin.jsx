@@ -7,7 +7,7 @@ import {
   MessageCircle, Send, Phone, Mail, MapPin, Download, FileJson,
   LayoutTemplate, Award, MessageSquareQuote, CheckCircle2,
   ChevronDown, ChevronUp, Search, Copy, CheckCheck, Palette, Zap,
-  Briefcase, Gift, HelpCircle, Lock, KeyRound, Eye, EyeOff, LogOut, Key
+  Briefcase, Gift, HelpCircle, Lock, KeyRound, Eye, EyeOff, LogOut, Key, FolderKanban
 } from 'lucide-react';
 import { useContent } from '../context/ContentContext';
 import './Admin.css';
@@ -711,6 +711,22 @@ function AdminMain() {
             onClick={() => { setActiveTab('services'); setSearchQuery(''); }}
           >
             <Layers size={17} /> Hizmetler & Sektörler
+          </button>
+
+          <button 
+            type="button"
+            className={`admin-tab-btn ${activeTab === 'portfolio' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('portfolio'); setSearchQuery(''); }}
+          >
+            <FolderKanban size={17} /> Öne Çıkan Projeler
+          </button>
+
+          <button 
+            type="button"
+            className={`admin-tab-btn ${activeTab === 'homeSections' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('homeSections'); setSearchQuery(''); }}
+          >
+            <Sparkles size={17} /> Ana Sayfa Ek Bölümler
           </button>
 
           <button 
@@ -1437,6 +1453,64 @@ function AdminMain() {
                 </div>
               </div>
             ))}
+
+            {/* Vision & Mission Editor */}
+            <div className="admin-section-header" style={{ marginTop: '36px' }}>
+              <div>
+                <h3 style={{ fontSize: '1rem', color: '#fff', margin: 0 }}>Vizyon ve Misyonumuz</h3>
+                <p>Hakkımızda sayfasındaki vizyon & misyon kutularını düzenleyin</p>
+              </div>
+            </div>
+
+            <div className="admin-grid-2">
+              <div className="admin-item-card">
+                <div className="admin-item-card-header">
+                  <span className="admin-item-card-title">Vizyonumuz</span>
+                </div>
+                <div className="admin-form-group">
+                  <label className="admin-form-label">Vizyon Başlığı</label>
+                  <input 
+                    type="text" 
+                    className="admin-input" 
+                    value={content.visionMission?.visionTitle || 'Vizyonumuz'} 
+                    onChange={(e) => setField('visionMission', 'visionTitle', e.target.value)}
+                  />
+                </div>
+                <div className="admin-form-group full-width">
+                  <label className="admin-form-label">Vizyon Açıklaması</label>
+                  <textarea 
+                    className="admin-textarea" 
+                    style={{ minHeight: '90px' }}
+                    value={content.visionMission?.visionDesc || ''} 
+                    onChange={(e) => setField('visionMission', 'visionDesc', e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="admin-item-card">
+                <div className="admin-item-card-header">
+                  <span className="admin-item-card-title">Misyonumuz</span>
+                </div>
+                <div className="admin-form-group">
+                  <label className="admin-form-label">Misyon Başlığı</label>
+                  <input 
+                    type="text" 
+                    className="admin-input" 
+                    value={content.visionMission?.missionTitle || 'Misyonumuz'} 
+                    onChange={(e) => setField('visionMission', 'missionTitle', e.target.value)}
+                  />
+                </div>
+                <div className="admin-form-group full-width">
+                  <label className="admin-form-label">Misyon Açıklaması</label>
+                  <textarea 
+                    className="admin-textarea" 
+                    style={{ minHeight: '90px' }}
+                    value={content.visionMission?.missionDesc || ''} 
+                    onChange={(e) => setField('visionMission', 'missionDesc', e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
           </section>
         )}
 
@@ -1768,7 +1842,477 @@ function AdminMain() {
             </section>
           )}
 
-          {/* 5. TAB: Referanslar & Yorumlar */}
+        {/* 5. TAB: Öne Çıkan Projeler (Portfolyo) */}
+        {activeTab === 'portfolio' && (
+          <section className="admin-section-card">
+            <div className="admin-section-header">
+              <div>
+                <h2><FolderKanban size={20} /> Öne Çıkan Projeler & Başarı Hikayeleri</h2>
+                <p>Ana sayfada sergilenen tüm sektörel projeleri, görselleri, metrik rozetlerini ve yönlendirmeleri yönetin.</p>
+              </div>
+              <button 
+                type="button" 
+                className="admin-btn admin-btn-outline"
+                onClick={() => {
+                  const newProj = {
+                    id: `proj_${Date.now()}`,
+                    sectorId: 'yazilim',
+                    sectorName: 'Yazılım',
+                    title: 'Yeni Başarı Hikayesi Projesi',
+                    description: 'Proje hakkında detaylı açıklama, uygulanan çözümler ve sağlanan kazanımlar.',
+                    image: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=80',
+                    metric: '%100 Başarı',
+                    color: '#F6C310',
+                    link: '/yazilim'
+                  };
+                  setField('portfolio', 'items', [...(content.portfolio?.items || []), newProj]);
+                }}
+              >
+                <Plus size={15} /> Yeni Proje Ekle
+              </button>
+            </div>
+
+            {/* Section Header Controls */}
+            <div className="admin-grid-2" style={{ marginBottom: '24px' }}>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Bölüm Üst Rozeti</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.portfolio?.badge || ''} 
+                  onChange={(e) => setField('portfolio', 'badge', e.target.value)}
+                />
+              </div>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Bölüm Ana Başlığı</label>
+                <input 
+                  type="text" 
+                  className="admin-input" 
+                  value={content.portfolio?.title || ''} 
+                  onChange={(e) => setField('portfolio', 'title', e.target.value)}
+                />
+              </div>
+              <div className="admin-form-group full-width">
+                <label className="admin-form-label">Bölüm Alt Açıklaması</label>
+                <textarea 
+                  className="admin-textarea" 
+                  value={content.portfolio?.subtitle || ''} 
+                  onChange={(e) => setField('portfolio', 'subtitle', e.target.value)}
+                />
+              </div>
+            </div>
+
+            <h3 style={{ fontSize: '1rem', color: '#fff', margin: '24px 0 12px 0' }}>Proje Kartları Listesi ({(content.portfolio?.items || []).length})</h3>
+
+            <div className="admin-grid-2">
+              {(content.portfolio?.items || []).map((proj, pIdx) => (
+                <div key={proj.id || pIdx} className="admin-item-card">
+                  <div className="admin-item-card-header">
+                    <div className="admin-item-card-title">
+                      <span className="admin-item-index">{pIdx + 1}</span>
+                      <span>{proj.title || 'Başlıksız Proje'}</span>
+                      <span className="admin-version-tag" style={{ background: proj.color ? `${proj.color}25` : undefined, color: proj.color || undefined }}>
+                        {proj.sectorName || 'Sektör'}
+                      </span>
+                    </div>
+                    <div className="admin-item-actions">
+                      <button 
+                        type="button" 
+                        className="admin-btn-icon" 
+                        disabled={pIdx === 0}
+                        onClick={() => {
+                          const items = [...(content.portfolio?.items || [])];
+                          const temp = items[pIdx];
+                          items[pIdx] = items[pIdx - 1];
+                          items[pIdx - 1] = temp;
+                          setField('portfolio', 'items', items);
+                        }}
+                        title="Yukarı Taşı"
+                      >
+                        <ArrowUp size={14} />
+                      </button>
+                      <button 
+                        type="button" 
+                        className="admin-btn-icon" 
+                        disabled={pIdx === (content.portfolio?.items?.length || 0) - 1}
+                        onClick={() => {
+                          const items = [...(content.portfolio?.items || [])];
+                          const temp = items[pIdx];
+                          items[pIdx] = items[pIdx + 1];
+                          items[pIdx + 1] = temp;
+                          setField('portfolio', 'items', items);
+                        }}
+                        title="Aşağı Taşı"
+                      >
+                        <ArrowDown size={14} />
+                      </button>
+                      <button 
+                        type="button" 
+                        className="admin-btn-icon delete" 
+                        onClick={() => {
+                          const updated = (content.portfolio?.items || []).filter((_, idx) => idx !== pIdx);
+                          setField('portfolio', 'items', updated);
+                        }}
+                        title="Sil"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="admin-form-group">
+                    <label className="admin-form-label">Proje Başlığı</label>
+                    <input 
+                      type="text" 
+                      className="admin-input" 
+                      value={proj.title || ''} 
+                      onChange={(e) => {
+                        const updated = [...(content.portfolio?.items || [])];
+                        updated[pIdx] = { ...updated[pIdx], title: e.target.value };
+                        setField('portfolio', 'items', updated);
+                      }}
+                    />
+                  </div>
+
+                  <div className="admin-grid-2">
+                    <div className="admin-form-group">
+                      <label className="admin-form-label">Sektör Rozet Adı</label>
+                      <input 
+                        type="text" 
+                        className="admin-input" 
+                        placeholder="Örn: Telekomünikasyon"
+                        value={proj.sectorName || ''} 
+                        onChange={(e) => {
+                          const updated = [...(content.portfolio?.items || [])];
+                          updated[pIdx] = { ...updated[pIdx], sectorName: e.target.value };
+                          setField('portfolio', 'items', updated);
+                        }}
+                      />
+                    </div>
+                    <div className="admin-form-group">
+                      <label className="admin-form-label">Filtre Sektör Kodu</label>
+                      <select 
+                        className="admin-select"
+                        value={proj.sectorId || 'telekomunikasyon'}
+                        onChange={(e) => {
+                          const updated = [...(content.portfolio?.items || [])];
+                          updated[pIdx] = { ...updated[pIdx], sectorId: e.target.value };
+                          setField('portfolio', 'items', updated);
+                        }}
+                      >
+                        <option value="telekomunikasyon">Telekomünikasyon</option>
+                        <option value="yazilim">Yazılım</option>
+                        <option value="promosyon">Promosyon</option>
+                        <option value="reklam">Reklam</option>
+                        <option value="egitim">Eğitim</option>
+                        <option value="danismanlik">Danışmanlık</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="admin-form-group">
+                    <label className="admin-form-label">Başarı / Metrik Rozeti</label>
+                    <input 
+                      type="text" 
+                      className="admin-input" 
+                      placeholder="Örn: 400 km Hat, %40 Verimlilik, 50.000 Kutulama"
+                      value={proj.metric || ''} 
+                      onChange={(e) => {
+                        const updated = [...(content.portfolio?.items || [])];
+                        updated[pIdx] = { ...updated[pIdx], metric: e.target.value };
+                        setField('portfolio', 'items', updated);
+                      }}
+                    />
+                  </div>
+
+                  <ColorPickerField 
+                    label="Rozet & Vurgu Rengi"
+                    value={proj.color || '#D12F0E'}
+                    onChange={(col) => {
+                      const updated = [...(content.portfolio?.items || [])];
+                      updated[pIdx] = { ...updated[pIdx], color: col };
+                      setField('portfolio', 'items', updated);
+                    }}
+                  />
+
+                  <PathInputField 
+                    label="Yönlendirme Linki (Tıklanınca Gidilecek Sayfa/URL)"
+                    value={proj.link || '/'}
+                    onChange={(val) => {
+                      const updated = [...(content.portfolio?.items || [])];
+                      updated[pIdx] = { ...updated[pIdx], link: val };
+                      setField('portfolio', 'items', updated);
+                    }}
+                  />
+
+                  <ImageField 
+                    label="Proje Görseli (Vercel Blob / URL)"
+                    value={proj.image || ''}
+                    onChange={(url) => {
+                      const updated = [...(content.portfolio?.items || [])];
+                      updated[pIdx] = { ...updated[pIdx], image: url };
+                      setField('portfolio', 'items', updated);
+                    }}
+                  />
+
+                  <div className="admin-form-group full-width">
+                    <label className="admin-form-label">Proje Açıklaması</label>
+                    <textarea 
+                      className="admin-textarea" 
+                      style={{ minHeight: '70px' }}
+                      value={proj.description || ''} 
+                      onChange={(e) => {
+                        const updated = [...(content.portfolio?.items || [])];
+                        updated[pIdx] = { ...updated[pIdx], description: e.target.value };
+                        setField('portfolio', 'items', updated);
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* 6. TAB: Ana Sayfa Ek Bölümler (Kısaca Biz, Neden Biz, CTA) */}
+        {activeTab === 'homeSections' && (
+          <section className="admin-section-card">
+            <div className="admin-section-header">
+              <div>
+                <h2><Sparkles size={20} /> Ana Sayfa Ek Bölümler</h2>
+                <p>Ana sayfadaki "Kısaca Biz", "Neden Nima Grup (Farkımız)" ve "Alt CTA Banner" alanlarını düzenleyin.</p>
+              </div>
+            </div>
+
+            {/* 1. Kısaca Biz */}
+            <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '24px', marginBottom: '32px' }}>
+              <h3 style={{ fontSize: '1.1rem', color: '#38bdf8', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Cpu size={18} /> 1. Kısaca Biz Bölümü
+              </h3>
+
+              <div className="admin-grid-2">
+                <div className="admin-form-group">
+                  <label className="admin-form-label">Rozet Metni</label>
+                  <input 
+                    type="text" 
+                    className="admin-input" 
+                    value={content.kisacaBiz?.badge || ''} 
+                    onChange={(e) => setField('kisacaBiz', 'badge', e.target.value)}
+                  />
+                </div>
+                <div className="admin-form-group">
+                  <label className="admin-form-label">Ana Başlık</label>
+                  <input 
+                    type="text" 
+                    className="admin-input" 
+                    value={content.kisacaBiz?.title || ''} 
+                    onChange={(e) => setField('kisacaBiz', 'title', e.target.value)}
+                  />
+                </div>
+                <div className="admin-form-group full-width">
+                  <label className="admin-form-label">Alt Açıklama</label>
+                  <textarea 
+                    className="admin-textarea" 
+                    value={content.kisacaBiz?.subtitle || ''} 
+                    onChange={(e) => setField('kisacaBiz', 'subtitle', e.target.value)}
+                  />
+                </div>
+                <div className="admin-form-group">
+                  <label className="admin-form-label">Buton Metni</label>
+                  <input 
+                    type="text" 
+                    className="admin-input" 
+                    value={content.kisacaBiz?.btnText || ''} 
+                    onChange={(e) => setField('kisacaBiz', 'btnText', e.target.value)}
+                  />
+                </div>
+                <PathInputField 
+                  label="Buton Yönlendirme Linki"
+                  value={content.kisacaBiz?.btnLink || '/hakkimizda'}
+                  onChange={(p) => setField('kisacaBiz', 'btnLink', p)}
+                />
+              </div>
+
+              <h4 style={{ fontSize: '0.95rem', color: '#fff', margin: '20px 0 12px 0' }}>3 Özellik Kartı</h4>
+              <div className="admin-grid-3">
+                {(content.kisacaBiz?.cards || []).map((card, cIdx) => (
+                  <div key={card.id || cIdx} className="admin-item-card">
+                    <div className="admin-form-group">
+                      <label className="admin-form-label">Kart #{cIdx + 1} Başlık</label>
+                      <input 
+                        type="text" 
+                        className="admin-input" 
+                        value={card.title || ''} 
+                        onChange={(e) => {
+                          const updated = [...(content.kisacaBiz?.cards || [])];
+                          updated[cIdx] = { ...updated[cIdx], title: e.target.value };
+                          setField('kisacaBiz', 'cards', updated);
+                        }}
+                      />
+                    </div>
+                    <div className="admin-form-group">
+                      <label className="admin-form-label">Açıklama</label>
+                      <textarea 
+                        className="admin-textarea" 
+                        style={{ minHeight: '60px' }}
+                        value={card.desc || ''} 
+                        onChange={(e) => {
+                          const updated = [...(content.kisacaBiz?.cards || [])];
+                          updated[cIdx] = { ...updated[cIdx], desc: e.target.value };
+                          setField('kisacaBiz', 'cards', updated);
+                        }}
+                      />
+                    </div>
+                    <IconPickerField 
+                      label="İkon"
+                      value={card.icon || 'Cpu'}
+                      onChange={(ic) => {
+                        const updated = [...(content.kisacaBiz?.cards || [])];
+                        updated[cIdx] = { ...updated[cIdx], icon: ic };
+                        setField('kisacaBiz', 'cards', updated);
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 2. Farkımız / Neden Biz */}
+            <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '24px', marginBottom: '32px' }}>
+              <h3 style={{ fontSize: '1.1rem', color: '#10b981', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <ShieldCheck size={18} /> 2. Neden Nima Grup (Farkımız) Bölümü
+              </h3>
+
+              <div className="admin-grid-2">
+                <div className="admin-form-group">
+                  <label className="admin-form-label">Bölüm Rozeti</label>
+                  <input 
+                    type="text" 
+                    className="admin-input" 
+                    value={content.whyUs?.badge || ''} 
+                    onChange={(e) => setField('whyUs', 'badge', e.target.value)}
+                  />
+                </div>
+                <div className="admin-form-group">
+                  <label className="admin-form-label">Ana Başlık</label>
+                  <input 
+                    type="text" 
+                    className="admin-input" 
+                    value={content.whyUs?.title || ''} 
+                    onChange={(e) => setField('whyUs', 'title', e.target.value)}
+                  />
+                </div>
+                <div className="admin-form-group full-width">
+                  <label className="admin-form-label">Alt Açıklama</label>
+                  <textarea 
+                    className="admin-textarea" 
+                    value={content.whyUs?.subtitle || ''} 
+                    onChange={(e) => setField('whyUs', 'subtitle', e.target.value)}
+                  />
+                </div>
+                <div className="admin-form-group">
+                  <label className="admin-form-label">Alıntı Başlığı (Quote)</label>
+                  <input 
+                    type="text" 
+                    className="admin-input" 
+                    value={content.whyUs?.quoteTitle || ''} 
+                    onChange={(e) => setField('whyUs', 'quoteTitle', e.target.value)}
+                  />
+                </div>
+                <div className="admin-form-group">
+                  <label className="admin-form-label">Alıntı İmzası</label>
+                  <input 
+                    type="text" 
+                    className="admin-input" 
+                    value={content.whyUs?.quoteSubtitle || ''} 
+                    onChange={(e) => setField('whyUs', 'quoteSubtitle', e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <h4 style={{ fontSize: '0.95rem', color: '#fff', margin: '20px 0 12px 0' }}>3 Temel İlke / Fark Maddesi</h4>
+              <div className="admin-grid-3">
+                {(content.whyUs?.items || []).map((item, iIdx) => (
+                  <div key={item.id || iIdx} className="admin-item-card">
+                    <div className="admin-form-group">
+                      <label className="admin-form-label">Madde #{iIdx + 1} Başlık</label>
+                      <input 
+                        type="text" 
+                        className="admin-input" 
+                        value={item.title || ''} 
+                        onChange={(e) => {
+                          const updated = [...(content.whyUs?.items || [])];
+                          updated[iIdx] = { ...updated[iIdx], title: e.target.value };
+                          setField('whyUs', 'items', updated);
+                        }}
+                      />
+                    </div>
+                    <div className="admin-form-group">
+                      <label className="admin-form-label">Açıklama</label>
+                      <textarea 
+                        className="admin-textarea" 
+                        style={{ minHeight: '60px' }}
+                        value={item.desc || ''} 
+                        onChange={(e) => {
+                          const updated = [...(content.whyUs?.items || [])];
+                          updated[iIdx] = { ...updated[iIdx], desc: e.target.value };
+                          setField('whyUs', 'items', updated);
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 3. Alt CTA Banner */}
+            <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '24px' }}>
+              <h3 style={{ fontSize: '1.1rem', color: '#f59e0b', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Send size={18} /> 3. Alt Eylem Çağrısı (CTA Banner)
+              </h3>
+
+              <div className="admin-grid-2">
+                <div className="admin-form-group full-width">
+                  <label className="admin-form-label">CTA Başlığı</label>
+                  <input 
+                    type="text" 
+                    className="admin-input" 
+                    value={content.cta?.title || ''} 
+                    onChange={(e) => setField('cta', 'title', e.target.value)}
+                  />
+                </div>
+                <div className="admin-form-group full-width">
+                  <label className="admin-form-label">CTA Açıklaması</label>
+                  <textarea 
+                    className="admin-textarea" 
+                    value={content.cta?.subtitle || ''} 
+                    onChange={(e) => setField('cta', 'subtitle', e.target.value)}
+                  />
+                </div>
+                <div className="admin-form-group">
+                  <label className="admin-form-label">Teklif Buton Metni</label>
+                  <input 
+                    type="text" 
+                    className="admin-input" 
+                    value={content.cta?.primaryBtnText || ''} 
+                    onChange={(e) => setField('cta', 'primaryBtnText', e.target.value)}
+                  />
+                </div>
+                <div className="admin-form-group">
+                  <label className="admin-form-label">İletişim Buton Metni</label>
+                  <input 
+                    type="text" 
+                    className="admin-input" 
+                    value={content.cta?.secondaryBtnText || ''} 
+                    onChange={(e) => setField('cta', 'secondaryBtnText', e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* 7. TAB: Referanslar & Yorumlar */}
           {activeTab === 'testimonials' && (
             <section className="admin-section-card">
               {/* References */}

@@ -1,25 +1,34 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Target, Compass, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Target, Compass, Sparkles, CheckCircle2, Cpu, Globe, ShieldCheck, Award } from 'lucide-react';
 import PageHero from '../components/PageHero';
 import { getCompanyInfo, getCompanyMilestones, getCompanyValues, aboutHeroImg } from '../data/sectors';
 import { useLanguage } from '../context/LanguageContext';
+import { useContent } from '../context/ContentContext';
 
 export default function About({ onOpenProposal }) {
   const { language, t } = useLanguage();
+  const { content } = useContent();
   const localizedCompany = getCompanyInfo(language);
-  const localizedMilestones = getCompanyMilestones(language);
+  const localizedMilestones = content?.journey?.items || getCompanyMilestones(language);
   const localizedValues = getCompanyValues(language);
 
-  const [activeYear, setActiveYear] = useState(localizedMilestones[localizedMilestones.length - 1].year);
+  const [activeYear, setActiveYear] = useState(
+    localizedMilestones[localizedMilestones.length - 1]?.year || '2024+'
+  );
+
+  const visionTitle = content?.visionMission?.visionTitle || t('about_vision_title');
+  const visionDesc = content?.visionMission?.visionDesc || t('about_vision_desc');
+  const missionTitle = content?.visionMission?.missionTitle || t('about_mission_title');
+  const missionDesc = content?.visionMission?.missionDesc || t('about_mission_desc');
 
   return (
     <main>
       <PageHero 
-        title={t('about_hero_title')}
-        subtitle={`${localizedCompany.name}, ${t('about_hero_sub')}`}
+        title={content?.about?.title || t('about_hero_title')}
+        subtitle={content?.about?.subtitle || `${localizedCompany.name}, ${t('about_hero_sub')}`}
         image={aboutHeroImg}
-        badgeText={t('about_badge')}
+        badgeText={content?.about?.badge || t('about_badge')}
       />
       
       {/* Vision & Mission */}
@@ -38,9 +47,9 @@ export default function About({ onOpenProposal }) {
               <div style={{ width: 56, height: 56, borderRadius: 'var(--radius-lg)', background: 'rgba(209, 47, 14, 0.1)', color: '#D12F0E', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Compass size={32} />
               </div>
-              <h2 className="display-title" style={{ fontSize: '2.25rem' }}>{t('about_vision_title')}</h2>
+              <h2 className="display-title" style={{ fontSize: '2.25rem' }}>{visionTitle}</h2>
               <p className="regular-text" style={{ margin: 0, color: 'var(--text-muted)', lineHeight: '1.7' }}>
-                {t('about_vision_desc')}
+                {visionDesc}
               </p>
             </motion.div>
             
@@ -56,9 +65,9 @@ export default function About({ onOpenProposal }) {
               <div style={{ width: 56, height: 56, borderRadius: 'var(--radius-lg)', background: 'rgba(246, 195, 16, 0.15)', color: '#D12F0E', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Target size={32} />
               </div>
-              <h2 className="display-title" style={{ fontSize: '2.25rem' }}>{t('about_mission_title')}</h2>
+              <h2 className="display-title" style={{ fontSize: '2.25rem' }}>{missionTitle}</h2>
               <p className="regular-text" style={{ margin: 0, color: 'var(--text-muted)', lineHeight: '1.7' }}>
-                {t('about_mission_desc')}
+                {missionDesc}
               </p>
             </motion.div>
           </div>
@@ -70,13 +79,13 @@ export default function About({ onOpenProposal }) {
         <div className="container">
           <div className="section-header center">
             <div className="badge-pill">
-              <Sparkles size={14} /> {t('about_milestones_badge')}
+              <Sparkles size={14} /> {content?.journey?.badge || t('about_milestones_badge')}
             </div>
-            <h2 className="display-title">{t('about_milestones_title')}</h2>
-            <p className="display-subtitle">{t('about_milestones_sub')}</p>
+            <h2 className="display-title">{content?.journey?.title || t('about_milestones_title')}</h2>
+            <p className="display-subtitle">{content?.journey?.subtitle || t('about_milestones_sub')}</p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1rem', marginBottom: '3rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fit, minmax(100px, 1fr))`, gap: '1rem', marginBottom: '3rem' }}>
             {localizedMilestones.map((m) => (
               <button
                 key={m.year}
@@ -102,6 +111,7 @@ export default function About({ onOpenProposal }) {
           {/* Active Milestone Card */}
           {(() => {
             const currentM = localizedMilestones.find(m => m.year === activeYear) || localizedMilestones[0];
+            if (!currentM) return null;
             return (
               <div style={{ 
                 padding: '3rem', 
@@ -136,8 +146,7 @@ export default function About({ onOpenProposal }) {
           </div>
           
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem' }}>
-            {localizedValues.map((val, idx) => {
-              const VIcon = val.icon;
+            {(content?.about?.features || localizedValues).map((val, idx) => {
               return (
                 <motion.div 
                   key={idx} 
@@ -152,7 +161,7 @@ export default function About({ onOpenProposal }) {
                   transition={{ duration: 0.2 }}
                 >
                   <div style={{ width: 48, height: 48, borderRadius: 'var(--radius-md)', background: 'var(--bg-secondary)', color: '#D12F0E', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' }}>
-                    <VIcon size={26} />
+                    {val.icon === 'Globe' ? <Globe size={26} /> : val.icon === 'ShieldCheck' ? <ShieldCheck size={26} /> : val.icon === 'Award' ? <Award size={26} /> : <Cpu size={26} />}
                   </div>
                   <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '0.75rem' }}>{val.title}</h3>
                   <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6' }}>{val.desc}</p>

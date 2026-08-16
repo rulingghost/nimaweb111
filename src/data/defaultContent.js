@@ -74,6 +74,123 @@ export const defaultContent = {
     ]
   },
 
+  kisacaBiz: {
+    badge: 'KISACA BİZ',
+    title: 'Geleceği Şekillendiren Entegre Çözümler',
+    subtitle: '6 ana sektörde inovasyon ve güven odaklı hizmet anlayışımızla işinizi büyütüyoruz.',
+    btnText: 'Kurumsal Hikayemiz',
+    btnLink: '/hakkimizda',
+    cards: [
+      { id: '1', title: 'İleri Teknoloji & İnovasyon', desc: 'Sektörün en güncel teknolojilerini iş süreçlerinize entegre ederek verimliliği maksimize ediyoruz.', icon: 'Cpu', color: '#D12F0E' },
+      { id: '2', title: 'Global Standartlarda Kalite', desc: 'Uluslararası standartlarda sertifikalı süreçlerle güvenilir ve sürdürülebilir sonuçlar üretiyoruz.', icon: 'Globe', color: '#F6C310' },
+      { id: '3', title: 'Uçtan Uca Proje Yönetimi', desc: 'Fikirden uygulamaya, keşiften teslime kadar tüm aşamalarda tek muhatap garantisi.', icon: 'ShieldCheck', color: '#E97B1A' }
+    ]
+  },
+
+  portfolio: {
+    badge: 'BAŞARI HİKAYELERİ & PROJELER',
+    title: 'Sektörlerimizde Hayata Geçirdiğimiz Öncü Projeler',
+    subtitle: 'Telekomünikasyondan yazılıma, açık havadan eğitime Türkiye genelinde ve küresel ölçekte tamamladığımız projeler.',
+    items: [
+      {
+        id: '1',
+        sectorId: 'telekomunikasyon',
+        sectorName: 'Telekomünikasyon',
+        title: 'Kuzey Marmara Fiber Ağı',
+        description: 'Otoyol güzergahı boyunca 400km kesintisiz yüksek hızlı fiber optik hattının tespiti ve 3D projelendirilmesi.',
+        image: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80',
+        metric: '400 km Hat',
+        color: '#D12F0E',
+        link: '/telekomunikasyon'
+      },
+      {
+        id: '2',
+        sectorId: 'yazilim',
+        sectorName: 'Yazılım',
+        title: 'Global Lojistik ERP Platformu',
+        description: 'Uluslararası taşımacılık yapan firma için tüm operasyonları, filo takibini ve gümrüklemeyi yöneten bulut platform.',
+        image: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=80',
+        metric: '%40 Verimlilik',
+        color: '#F6C310',
+        link: '/yazilim'
+      },
+      {
+        id: '3',
+        sectorId: 'promosyon',
+        sectorName: 'Promosyon',
+        title: 'Uluslararası Banka Yılbaşı VIP Seti',
+        description: '50.000 çalışan ve prestijli müşteri için özel tasarlanmış ahşap ve bambu konsept hediyeler.',
+        image: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=800&q=80',
+        metric: '50.000 Kutulama',
+        color: '#E97B1A',
+        link: '/promosyon'
+      },
+      {
+        id: '4',
+        sectorId: 'egitim',
+        sectorName: 'Eğitim',
+        title: 'Yönetici Liderlik Akademi Serüveni',
+        description: 'Perakende zincirinin 500 mağaza yöneticisine özel tasarlanan 6 aylık modüler liderlik okulu.',
+        image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80',
+        metric: '500 Lider',
+        color: '#B7442E',
+        link: '/egitim'
+      },
+      {
+        id: '5',
+        sectorId: 'danismanlik',
+        sectorName: 'Danışmanlık',
+        title: 'KOBİ Sanayi Dönüşüm Projesi',
+        description: 'Üretim sektöründeki köklü firmanın yalın üretim prensipleriyle operasyonel kapasitesinin %40 artırılması.',
+        image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80',
+        metric: '%40 Kapasite',
+        color: '#F1D55A',
+        link: '/danismanlik'
+      },
+      {
+        id: '6',
+        sectorId: 'reklam',
+        sectorName: 'Reklam',
+        title: 'Milli Teknoloji Hamlesi LED Ağı',
+        description: 'Türkiye\'nin 81 ilinde eş zamanlı yayın yapan dijital açık hava ekran kampanyası.',
+        image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=800&q=80',
+        metric: '81 İl Ağı',
+        color: '#D12F0E',
+        link: '/reklam'
+      }
+    ]
+  },
+
+  whyUs: {
+    badge: 'NEDEN NİMA GRUP?',
+    title: 'Bizi Farklı Kılan Değerlerimiz',
+    subtitle: '25 yılı aşkın deneyimimiz ve inovatif bakış açımızla kurumların en güvenilir çözüm ortağıyız.',
+    items: [
+      { id: '1', title: 'Stratejik Bütünlük', desc: '6 ana sektörün gücünü birleştirerek çok yönlü ve entegre çözümler sunuyoruz.' },
+      { id: '2', title: 'Hızlı & Çevik Uygulama', desc: 'Bürokrasiden uzak, dinamik ve esnek proje yönetim yaklaşımıyla zaman kazandırıyoruz.' },
+      { id: '3', title: 'Sürdürülebilir Değer', desc: 'Sadece bugünün değil, geleceğin ihtiyaçlarını da öngören kalıcı sistemler inşa ediyoruz.' }
+    ],
+    btnText: 'Daha Fazlasını Öğrenin',
+    btnLink: '/hakkimizda',
+    quoteTitle: '“Başarı tesadüf değildir; doğru strateji, güçlü altyapı ve tavizsiz kalitenin eseridir.”',
+    quoteSubtitle: 'NİMA GRUP YÖNETİM KURULU'
+  },
+
+  cta: {
+    title: 'Yeni Bir Proje Başlatmaya Hazır mısınız?',
+    subtitle: 'Sektörünüze özel yenilikçi çözümlerimiz ve avantajlı tekliflerimiz için uzman ekibimizle hemen iletişime geçin.',
+    primaryBtnText: 'Hemen Teklif Alın',
+    secondaryBtnText: 'Bize Ulaşın',
+    secondaryBtnLink: '/iletisim'
+  },
+
+  visionMission: {
+    visionTitle: 'Vizyonumuz',
+    visionDesc: 'Faaliyet gösterdiğimiz tüm sektörlerde sürdürülebilir inovasyon ve üstün teknolojiyle Türkiye\'nin ve bölgenin en güvenilir, öncü holding ekosistemi olmak.',
+    missionTitle: 'Misyonumuz',
+    missionDesc: 'Müşterilerimize ve paydaşlarımıza en yüksek kalitede, etik, güvenilir ve yenilikçi çözümler sunarak dijital ve operasyonel dönüşümlerine katma değer sağlamak.'
+  },
+
   about: {
     badge: 'HAKKIMIZDA & DEĞERLERİMİZ',
     title: 'Yenilikçi Vizyon, Güçlü Altyapı ve Sürdürülebilir Başarı',

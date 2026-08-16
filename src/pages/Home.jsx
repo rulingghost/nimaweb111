@@ -21,12 +21,84 @@ export default function Home({ onOpenProposal }) {
   const localizedSectors = getSectors(language);
   const localizedCompany = getCompanyInfo(language);
 
-  const filteredSectors = localizedSectors.filter(s => {
-    const matchesSector = selectedFilterSector === 'all' || s.id === selectedFilterSector;
+  // Dynamic Portfolio / Projects Showcase from Admin Content
+  const portfolioItems = content?.portfolio?.items || [
+    {
+      id: '1',
+      sectorId: 'telekomunikasyon',
+      sectorName: 'Telekomünikasyon',
+      title: 'Kuzey Marmara Fiber Ağı',
+      description: 'Otoyol güzergahı boyunca 400km kesintisiz yüksek hızlı fiber optik hattının tespiti ve 3D projelendirilmesi.',
+      image: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80',
+      metric: '400 km Hat',
+      color: '#D12F0E',
+      link: '/telekomunikasyon'
+    },
+    {
+      id: '2',
+      sectorId: 'yazilim',
+      sectorName: 'Yazılım',
+      title: 'Global Lojistik ERP Platformu',
+      description: 'Uluslararası taşımacılık yapan firma için tüm operasyonları, filo takibini ve gümrüklemeyi yöneten bulut platform.',
+      image: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=80',
+      metric: '%40 Verimlilik',
+      color: '#F6C310',
+      link: '/yazilim'
+    },
+    {
+      id: '3',
+      sectorId: 'promosyon',
+      sectorName: 'Promosyon',
+      title: 'Uluslararası Banka Yılbaşı VIP Seti',
+      description: '50.000 çalışan ve prestijli müşteri için özel tasarlanmış ahşap ve bambu konsept hediyeler.',
+      image: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=800&q=80',
+      metric: '50.000 Kutulama',
+      color: '#E97B1A',
+      link: '/promosyon'
+    },
+    {
+      id: '4',
+      sectorId: 'egitim',
+      sectorName: 'Eğitim',
+      title: 'Yönetici Liderlik Akademi Serüveni',
+      description: 'Perakende zincirinin 500 mağaza yöneticisine özel tasarlanan 6 aylık modüler liderlik okulu.',
+      image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80',
+      metric: '500 Lider',
+      color: '#B7442E',
+      link: '/egitim'
+    },
+    {
+      id: '5',
+      sectorId: 'danismanlik',
+      sectorName: 'Danışmanlık',
+      title: 'KOBİ Sanayi Dönüşüm Projesi',
+      description: 'Üretim sektöründeki köklü firmanın yalın üretim prensipleriyle operasyonel kapasitesinin %40 artırılması.',
+      image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80',
+      metric: '%40 Kapasite',
+      color: '#F1D55A',
+      link: '/danismanlik'
+    },
+    {
+      id: '6',
+      sectorId: 'reklam',
+      sectorName: 'Reklam',
+      title: 'Milli Teknoloji Hamlesi LED Ağı',
+      description: "Türkiye'nin 81 ilinde eş zamanlı yayın yapan dijital açık hava ekran kampanyası.",
+      image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=800&q=80',
+      metric: '81 İl Ağı',
+      color: '#D12F0E',
+      link: '/reklam'
+    }
+  ];
+
+  const filteredPortfolio = portfolioItems.filter(p => {
+    const matchesSector = selectedFilterSector === 'all' || 
+      p.sectorId === selectedFilterSector || 
+      (p.sectorName && p.sectorName.toLowerCase() === selectedFilterSector.toLowerCase());
     const matchesQuery = !projectSearch.trim() || 
-      s.name.toLowerCase().includes(projectSearch.toLowerCase()) || 
-      s.description.toLowerCase().includes(projectSearch.toLowerCase()) ||
-      (s.references && s.references.some(r => r.name.toLowerCase().includes(projectSearch.toLowerCase())));
+      (p.title && p.title.toLowerCase().includes(projectSearch.toLowerCase())) || 
+      (p.description && p.description.toLowerCase().includes(projectSearch.toLowerCase())) ||
+      (p.sectorName && p.sectorName.toLowerCase().includes(projectSearch.toLowerCase()));
     return matchesSector && matchesQuery;
   });
 
@@ -41,55 +113,40 @@ export default function Home({ onOpenProposal }) {
           <div className="kisaca-biz-wrapper">
             <div className="kisaca-biz-header">
               <div className="badge-pill">
-                <Sparkles size={14} /> {t('home_biz_badge')}
+                <Sparkles size={14} /> {content?.kisacaBiz?.badge || t('home_biz_badge')}
               </div>
-              <h2 className="display-title" style={{ fontSize: 'clamp(2.25rem, 5vw, 3.5rem)' }} dangerouslySetInnerHTML={{ __html: t('home_biz_title') }} />
+              <h2 className="display-title" style={{ fontSize: 'clamp(2.25rem, 5vw, 3.5rem)' }}>
+                {content?.kisacaBiz?.title || t('home_biz_title')}
+              </h2>
               <p className="display-subtitle" style={{ margin: '0 auto' }}>
-                {t('home_biz_subtitle')}
+                {content?.kisacaBiz?.subtitle || t('home_biz_subtitle')}
               </p>
             </div>
 
             <div className="kisaca-biz-grid">
-              <motion.div 
-                className="biz-card" 
-                whileHover={{ y: -6 }}
-                transition={{ duration: 0.2 }}
-              >
-                <div className="biz-icon-box" style={{ background: 'rgba(209, 47, 14, 0.1)', color: '#D12F0E' }}>
-                  <Cpu size={28} />
-                </div>
-                <h3>{t('home_biz_card1_title')}</h3>
-                <p>{t('home_biz_card1_desc')}</p>
-              </motion.div>
-
-              <motion.div 
-                className="biz-card" 
-                whileHover={{ y: -6 }}
-                transition={{ duration: 0.2 }}
-              >
-                <div className="biz-icon-box" style={{ background: 'rgba(246, 195, 16, 0.15)', color: '#D12F0E' }}>
-                  <Globe size={28} />
-                </div>
-                <h3>{t('home_biz_card2_title')}</h3>
-                <p>{t('home_biz_card2_desc')}</p>
-              </motion.div>
-
-              <motion.div 
-                className="biz-card" 
-                whileHover={{ y: -6 }}
-                transition={{ duration: 0.2 }}
-              >
-                <div className="biz-icon-box" style={{ background: 'rgba(233, 123, 26, 0.1)', color: '#E97B1A' }}>
-                  <ShieldCheck size={28} />
-                </div>
-                <h3>{t('home_biz_card3_title')}</h3>
-                <p>{t('home_biz_card3_desc')}</p>
-              </motion.div>
+              {(content?.kisacaBiz?.cards || [
+                { id: '1', title: t('home_biz_card1_title'), desc: t('home_biz_card1_desc'), icon: 'Cpu', color: '#D12F0E' },
+                { id: '2', title: t('home_biz_card2_title'), desc: t('home_biz_card2_desc'), icon: 'Globe', color: '#F6C310' },
+                { id: '3', title: t('home_biz_card3_title'), desc: t('home_biz_card3_desc'), icon: 'ShieldCheck', color: '#E97B1A' }
+              ]).map((c, cIdx) => (
+                <motion.div 
+                  key={c.id || cIdx} 
+                  className="biz-card" 
+                  whileHover={{ y: -6 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <div className="biz-icon-box" style={{ background: c.color ? `${c.color}20` : 'rgba(209, 47, 14, 0.1)', color: c.color || '#D12F0E' }}>
+                    {c.icon === 'Globe' ? <Globe size={28} /> : c.icon === 'ShieldCheck' ? <ShieldCheck size={28} /> : <Cpu size={28} />}
+                  </div>
+                  <h3>{c.title}</h3>
+                  <p>{c.desc}</p>
+                </motion.div>
+              ))}
             </div>
 
             <div className="kisaca-biz-footer">
-              <Link to="/hakkimizda" className="btn-modern btn-dark">
-                {t('home_biz_btn')} <ArrowRight size={18} />
+              <Link to={content?.kisacaBiz?.btnLink || '/hakkimizda'} className="btn-modern btn-dark">
+                {content?.kisacaBiz?.btnText || t('home_biz_btn')} <ArrowRight size={18} />
               </Link>
             </div>
           </div>
@@ -106,11 +163,11 @@ export default function Home({ onOpenProposal }) {
         <div className="container">
           <div className="section-header center">
             <div className="badge-pill">
-              <Sparkles size={14} /> {t('portfolio_badge')}
+              <Sparkles size={14} /> {content?.portfolio?.badge || t('portfolio_badge')}
             </div>
-            <h2 className="display-title">{t('portfolio_title')}</h2>
+            <h2 className="display-title">{content?.portfolio?.title || t('portfolio_title')}</h2>
             <p className="display-subtitle">
-              {t('portfolio_subtitle')}
+              {content?.portfolio?.subtitle || t('portfolio_subtitle')}
             </p>
           </div>
 
@@ -146,35 +203,92 @@ export default function Home({ onOpenProposal }) {
           </div>
 
           <div className="projects-showcase-grid">
-            {filteredSectors.map((s) => (
-              <motion.div 
-                key={s.id} 
-                className="project-showcase-card"
-                whileHover={{ y: -8 }}
-                transition={{ duration: 0.3 }}
-              >
-                <div className="project-img-box">
-                  <img src={s.heroImage} alt={s.name} />
-                  <span className="project-sector-tag" style={{ background: s.color }}>
-                    {s.shortName}
-                  </span>
-                </div>
-
-                <div className="project-body">
-                  <h4>{s.references[0]?.name || s.name}</h4>
-                  <p>{s.references[0]?.description || s.description}</p>
-
-                  <div className="project-footer">
-                    {s.references[0]?.metric && (
-                      <span className="project-metric">{s.references[0].metric}</span>
-                    )}
-                    <Link to={s.path} className="project-link-btn">
-                      {t('portfolio_details')} <ArrowUpRight size={16} />
-                    </Link>
+            {filteredPortfolio.map((proj) => {
+              const isExternal = (proj.link || '').startsWith('http');
+              return (
+                <motion.div 
+                  key={proj.id} 
+                  className="project-showcase-card"
+                  whileHover={{ y: -8 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="project-img-box">
+                    <img src={proj.image} alt={proj.title} />
+                    <span className="project-sector-tag" style={{ background: proj.color || '#D12F0E' }}>
+                      {proj.sectorName || 'Sektör'}
+                    </span>
                   </div>
+
+                  <div className="project-body">
+                    <h4>{proj.title}</h4>
+                    <p>{proj.description}</p>
+
+                    <div className="project-footer">
+                      {proj.metric && (
+                        <span className="project-metric">{proj.metric}</span>
+                      )}
+                      {isExternal ? (
+                        <a href={proj.link} target="_blank" rel="noopener noreferrer" className="project-link-btn">
+                          {t('portfolio_details')} <ArrowUpRight size={16} />
+                        </a>
+                      ) : (
+                        <Link to={proj.link || '/'} className="project-link-btn">
+                          {t('portfolio_details')} <ArrowUpRight size={16} />
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Modern Corporate About & Difference Preview */}
+      <section className="section">
+        <div className="container">
+          <div className="split-layout align-center">
+            <div className="split-text">
+              <div className="badge-pill">
+                <ShieldCheck size={14} /> {content?.whyUs?.badge || t('diff_badge')}
+              </div>
+              <h2 className="display-title">{content?.whyUs?.title || t('diff_title')}</h2>
+              <p className="large-text">
+                {content?.whyUs?.subtitle || t('diff_subtitle')}
+              </p>
+              
+              <ul className="core-values-list">
+                {(content?.whyUs?.items || [
+                  { id: '1', title: t('diff_item1_title'), desc: t('diff_item1_desc') },
+                  { id: '2', title: t('diff_item2_title'), desc: t('diff_item2_desc') },
+                  { id: '3', title: t('diff_item3_title'), desc: t('diff_item3_desc') }
+                ]).map((item, idx) => (
+                  <li key={item.id || idx}>
+                    <CheckCircle2 size={20} className="text-brand" />
+                    <div>
+                      <strong>{item.title}</strong>
+                      <p>{item.desc}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+
+              <Link to={content?.whyUs?.btnLink || '/hakkimizda'} className="btn-modern btn-dark" style={{ marginTop: '2rem' }}>
+                {content?.whyUs?.btnText || t('diff_btn')}
+                <ArrowUpRight size={18} />
+              </Link>
+            </div>
+
+            <div className="split-visual-card">
+              <div className="visual-card-inner">
+                <img src={projectAnalyticsImg} alt="Nima Grup Analiz" />
+                <div className="visual-card-glass">
+                  <h3>{content?.whyUs?.quoteTitle || t('diff_card_quote')}</h3>
+                  <p>{content?.whyUs?.quoteSubtitle || t('diff_card_sub')}</p>
                 </div>
-              </motion.div>
-            ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -253,26 +367,24 @@ export default function Home({ onOpenProposal }) {
         </div>
       </section>
 
-
-
       {/* CTA Section */}
       <section className="section cta-banner-section">
         <div className="container">
           <div className="cta-banner-card">
             <div className="cta-content">
-              <h2 className="cta-title">{t('cta_title')}</h2>
+              <h2 className="cta-title">{content?.cta?.title || t('cta_title')}</h2>
               <p className="cta-desc">
-                {t('cta_subtitle')}
+                {content?.cta?.subtitle || t('cta_subtitle')}
               </p>
               <div className="cta-actions">
                 <button 
                   className="btn-modern btn-dark cta-btn"
                   onClick={() => onOpenProposal()}
                 >
-                  <MessageSquarePlus size={18} /> {t('cta_btn_proposal')}
+                  <MessageSquarePlus size={18} /> {content?.cta?.primaryBtnText || t('cta_btn_proposal')}
                 </button>
-                <Link to="/iletisim" className="btn-modern btn-outline cta-btn-white">
-                  {t('cta_btn_contact')}
+                <Link to={content?.cta?.secondaryBtnLink || '/iletisim'} className="btn-modern btn-outline cta-btn-white">
+                  {content?.cta?.secondaryBtnText || t('cta_btn_contact')}
                 </Link>
               </div>
             </div>
